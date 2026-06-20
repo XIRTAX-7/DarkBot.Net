@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>DarkBot.Net.Plugins.Abstractions</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DarkBot.Net.Api\DarkBot.Net.Api.csproj" />
+  </ItemGroup>
+</Project>

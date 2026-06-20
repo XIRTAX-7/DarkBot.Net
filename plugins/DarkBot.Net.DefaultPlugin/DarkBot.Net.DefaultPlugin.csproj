@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>DarkBot.Net.DefaultPlugin</RootNamespace>
+    <AssemblyName>DarkBot.Net.DefaultPlugin</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DarkBot.Net.Api\DarkBot.Net.Api.csproj" />
+    <ProjectReference Include="..\..\src\DarkBot.Net.Plugins.Abstractions\DarkBot.Net.Plugins.Abstractions.csproj" />
+  </ItemGroup>
+  <Target Name="CopyPluginToOutput" AfterTargets="Build">
+    <PropertyGroup>
+      <_UiOutput>$(MSBuildThisFileDirectory)..\..\src\DarkBot.Net.Ui\bin\$(Configuration)\net10.0\plugins\</_UiOutput>
+    </PropertyGroup>
+    <MakeDir Directories="$(_UiOutput)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_UiOutput)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

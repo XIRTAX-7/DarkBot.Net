@@ -1,0 +1,55 @@
+# Build output
+**/bin/
+**/obj/
+**/TestResults/
+**/build/
+!**/build-bridge.ps1
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Java / Python artifacts
+**/__pycache__/
+*.pyc
+*.class
+
+# Logs and local runtime
+logs/
+**/logs/
+*.log
+*.log.err
+
+# Native libraries (downloaded at runtime via NativeLibrarySetup)
+/lib/*
+!/lib/.gitkeep
+**/lib/*.dll
+**/lib/*.jar
+
+# NuGet
+*.nupkg
+project.lock.json
+
+# OS
+Thumbs.db
+.DS_Store
+
+# IDE
+.idea/
+*.swp
+*.DotSettings.user
+
+# Darkorbit-client (Electron)
+Darkorbit-client/node_modules/
+Darkorbit-client/dist/
+
+# Secrets
+*.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
+
+# Coverage
+coverage/
+*.coverage

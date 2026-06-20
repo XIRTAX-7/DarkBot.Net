@@ -1,0 +1,16 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:DarkBot.Net.Ui.Controls"
+        x:Class="DarkBot.Net.Ui.Views.ConfigWindow"
+        Title="DarkBot Configuration"
+        Width="720" Height="520"
+        MinWidth="640" MinHeight="480">
+  <TabControl Margin="8">
+    <TabItem Header="General">
+      <controls:ConfigTreeControl Name="ConfigTree" />
+    </TabItem>
+    <TabItem Header="Plugins">
+      <controls:PluginPanelControl Name="PluginPanel" />
+    </TabItem>
+  </TabControl>
+</Window>

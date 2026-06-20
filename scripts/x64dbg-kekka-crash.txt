@@ -1,0 +1,19 @@
+// x64dbg script — break on access violation, run KekkaPlayerLauncher
+// Usage: x64dbg.exe -cf this-file.txt
+// Or paste into Command box after File → Open java.exe
+
+log "=== KekkaPlayer x64dbg session ==="
+SetExceptionBP 0xC0000005, 1
+log "Break on ACCESS_VIOLATION enabled"
+
+// Edit paths if your machine differs
+init "C:\Program Files\Eclipse Adoptium\jdk-11.0.31.11-hotspot\bin\java.exe","-Djava.library.path=C:\Project\darkbot-reloaded\DarkBot.Net\src\DarkBot.Net.Ui\bin\Debug\net10.0\lib -Ddarkbot.kekka.library=C:\Project\darkbot-reloaded\DarkBot.Net\src\DarkBot.Net.Ui\bin\Debug\net10.0\lib\KekkaPlayer.dll -cp C:\Project\darkbot-reloaded\DarkBot.Net\src\DarkBot.Net.Agent.Bridge\build\classes eu.darkbot.bridge.KekkaPlayerLauncher C:\Users\rogoz\AppData\Roaming\DarkBot\lib\DarkFlash.ocx https://gbl4.darkorbit.com/ dosid=debugtest https://darkorbit-22.bpsecure.com/spacemap/preloader.swf lang=ru&display2d=2&autoStartEnabled=1 1280 720 0","C:\Project\darkbot-reloaded\DarkBot.Net\src\DarkBot.Net.Ui\bin\Debug\net10.0"
+
+log "Process loaded — press Run (F9) or script continues..."
+run
+
+// If we stop on exception:
+log "=== STOPPED — inspect Registers (RAX/RSI), Call Stack, RIP ==="
+log "Command: d rax"
+log "Command: d rsi"
+log "Command: k"

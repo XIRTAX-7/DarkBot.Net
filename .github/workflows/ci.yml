@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Build native bridge
+        shell: pwsh
+        run: ./src/DarkBot.Net.Agent.Bridge/build-bridge.ps1 -Configuration Release
+
+      - name: Restore
+        run: dotnet restore DarkBot.Net.slnx
+
+      - name: Build
+        run: dotnet build DarkBot.Net.slnx --no-restore -c Release
+
+      - name: Test
+        run: dotnet test DarkBot.Net.slnx --no-build -c Release

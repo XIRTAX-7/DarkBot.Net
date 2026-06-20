@@ -1,0 +1,18 @@
+using DarkBot.Net.Api.Game.Items;
+
+namespace DarkBot.Net.Core.Entities;
+
+internal class EmptySelectableItem : IItem
+{
+    public bool IsReady() => false;
+}
+
+internal sealed class EmptyLaser : EmptySelectableItem, ISelectableItem.ILaser
+{
+    public static readonly EmptyLaser Instance = new();
+}
+
+internal sealed class EmptyRocket : EmptySelectableItem, ISelectableItem.IRocket
+{
+    public static readonly EmptyRocket Instance = new();
+}

@@ -13,8 +13,8 @@
 
 ```
 Darkorbit-client (Electron PPAPI)
-    → avm_move_agent.js (in-process memory + AVM invoke)
-    → avm_bridge Python (WS :44570/ws + HTTP :44570)
+    → game_bridge_agent.js (Frida agent in Pepper Flash)
+    → game_bridge.py + avm_bridge (WS :44570/ws + HTTP :44570)
     → FridaBridgeHostedService + FridaGameApi
     → MapManager / HeroManager / EntityManager / StatsManager (C#)
 ```
@@ -41,7 +41,7 @@ curl http://127.0.0.1:44570/status
 # ready, mapId, heroHp, entities[], credits, schemaVersion: 2
 ```
 
-Перезагрузите страницу клиента после обновления `avm_move_agent.js`.
+Перезагрузите страницу клиента после обновления `game_bridge_agent.js`.
 
 ---
 
@@ -54,6 +54,16 @@ curl http://127.0.0.1:44570/status
 - [x] `EntityManager` из `entities[]` в snapshot
 - [x] agent.js: heroHp fix (atom pointers), entities, stats, schemaVersion 2
 - [x] CI без `build-bridge.ps1`
+- [x] Packet bridge `:44569` и `packet_dumper` удалены из prod-пути
+
+---
+
+## Каналы клиента
+
+| Порт | Назначение | Статус |
+|------|------------|--------|
+| `:44570` | Game API (HTTP + WS status/events) | ✅ |
+| `:44568` | Control (reload, pid, window) | ✅ |
 
 ---
 

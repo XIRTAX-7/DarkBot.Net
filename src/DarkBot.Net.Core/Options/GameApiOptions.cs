@@ -34,15 +34,17 @@ public sealed class GameApiOptions
 
     public int ControlPort { get; set; } = 44568;
 
-    public int PacketPort { get; set; } = 44569;
-
-    public bool EnablePacketBridge { get; set; } = true;
-
     public string DarkorbitClientPath { get; set; } = string.Empty;
 
     public int ClientConnectTimeoutSec { get; set; } = 180;
 
     public int FridaReadyTimeoutSec { get; set; } = 180;
+
+    /// <summary>Минимальный интервал между автоматическими перезапусками клиента (сек).</summary>
+    public int ClientAutoRestartCooldownSec { get; set; } = 30;
+
+    /// <summary>После скольки секунд «зависшего» connect/reconnect выполнять полный перезапуск клиента.</summary>
+    public int ClientStuckConnectRestartSec { get; set; } = 180;
 
     public int ConnectPollIntervalMs { get; set; } = 400;
 

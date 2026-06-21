@@ -42,8 +42,7 @@
         "appId": "com.DarkOrbitClient.Kaiserdj",
         "productName": "DarkOrbit Client",
         "extraResources": [
-            "./flash/**",
-            "./darkDev/packet_dumper.py"
+            "./flash/**"
         ],
         "directories": {
             "buildResources": "assets",

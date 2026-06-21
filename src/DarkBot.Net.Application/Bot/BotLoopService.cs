@@ -37,37 +37,50 @@ public sealed class BotLoopService : BackgroundService, IBotController
 
     public void Pause() => _running = false;
 
+    /// <summary>
+    /// Останавливает tick-логику бота. Безопасно вызывать из UI-потока:
+    /// <see cref="_running"/> — volatile, tick читает его атомарно между итерациями.
+    /// </summary>
     public void Stop() => _running = false;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Bot loop started ({TargetHz} Hz target)", 1000 / TargetTickMs);
 
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            var started = Environment.TickCount64;
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var started = Environment.TickCount64;
 
-            try
-            {
-                _installer.Tick();
-                _runtime.Tick(_running);
-                Interlocked.Increment(ref _tickCount);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Bot tick failed");
-            }
-            finally
-            {
-                var elapsed = Environment.TickCount64 - started;
-                _lastTickMs = elapsed;
-                _stats.TickAverageStats(elapsed);
-            }
+                try
+                {
+                    _installer.Tick();
+                    _runtime.Tick(_running);
+                    Interlocked.Increment(ref _tickCount);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Bot tick failed");
+                }
+                finally
+                {
+                    var elapsed = Environment.TickCount64 - started;
+                    _lastTickMs = elapsed;
+                    _stats.TickAverageStats(elapsed);
+                }
 
-            var targetDelay = _installer.GetRecommendedDelayMs();
-            var delay = Math.Max(0, targetDelay - (int)_lastTickMs);
-            if (delay > 0)
-                await Task.Delay(delay, stoppingToken).ConfigureAwait(false);
+                var targetDelay = _installer.GetRecommendedDelayMs();
+                var delay = Math.Max(0, targetDelay - (int)_lastTickMs);
+                if (delay > 0)
+                    await Task.Delay(delay, stoppingToken).ConfigureAwait(false);
+            }
         }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected when the host cancels the background service during shutdown.
+        }
+
+        _logger.LogInformation("Bot loop stopped");
     }
 }

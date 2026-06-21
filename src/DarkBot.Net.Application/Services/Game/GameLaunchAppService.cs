@@ -2,6 +2,7 @@ using DarkBot.Net.Application.Bot;
 using DarkBot.Net.Core.Interfaces.Game;
 using DarkBot.Net.Core.Models.Game;
 using DarkBot.Net.Core.Options;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -11,6 +12,7 @@ public sealed class GameLaunchAppService(
     IGameLauncherService launcher,
     IGameConnection game,
     IOptions<GameApiOptions> options,
+    IHostApplicationLifetime lifetime,
     ILogger<GameLaunchAppService> logger) : Contracts.IGameLaunchAppService
 {
     private readonly GameApiOptions _options = options.Value;
@@ -21,17 +23,7 @@ public sealed class GameLaunchAppService(
         if (_options.BrowserApi == GameApiMode.BackpageOnly)
             return;
 
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                await LaunchAndConnectAsync(launch, CancellationToken.None).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Background game launch failed");
-            }
-        });
+        _ = LaunchAndConnectAsync(launch, lifetime.ApplicationStopping);
     }
 
     public async Task LaunchAndConnectAsync(GameLaunchParameters launch, CancellationToken cancellationToken = default)
@@ -59,6 +51,10 @@ public sealed class GameLaunchAppService(
                 logger.LogInformation("Game connect OK — Pepper pid {Pid}", result.PepperPid);
             else
                 logger.LogWarning("Game connect failed: {Error}", result.Error);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            logger.LogDebug("Game launch cancelled during shutdown");
         }
         finally
         {

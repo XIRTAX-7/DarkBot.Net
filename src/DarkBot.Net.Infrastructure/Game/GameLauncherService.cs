@@ -85,5 +85,33 @@ public sealed class GameLauncherService : IGameLauncherService
         return result;
     }
 
+    public async Task<GameClientConnectResult> RestartClientAsync(
+        GameLaunchParameters launch,
+        CancellationToken cancellationToken = default)
+    {
+        await _launchLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (_options.BrowserApi == GameApiMode.BackpageOnly)
+                return GameClientConnectResult.Fail("Backpage-only mode");
+
+            _sessionStore.Save(launch);
+            _fridaApi.ResetConnectionState();
+
+            if (_clientLauncher.IsRunning)
+                await _clientLauncher.StopAsync(cancellationToken).ConfigureAwait(false);
+
+            _fridaApi.MarkLaunching();
+            _clientLauncher.Launch(launch);
+            _logger.LogInformation("Darkorbit-client restarted — waiting for map load and Frida bridge");
+        }
+        finally
+        {
+            _launchLock.Release();
+        }
+
+        return await ConnectAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     public void AttachProcess(long pid) => _fridaApi.AttachProcess(pid);
 }

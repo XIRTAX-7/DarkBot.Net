@@ -10,9 +10,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly IBotControlAppService _bot;
     private readonly BotUiStateService _state;
     private readonly GameConnectionStatusService _gameStatus;
+    private readonly IGameClientRestartAppService _clientRestart;
 
     [Reactive] private string _title = "DarkBot.Net";
     [Reactive] private bool _botRunning;
+    [Reactive] private bool _canRestartClient;
     [Reactive] private string _runButtonText = "Start";
     [Reactive] private string _statusLine = "Ready";
     [Reactive] private string _gameStatusLine = "Game not launched";
@@ -26,11 +28,13 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel(
         IBotControlAppService bot,
         BotUiStateService state,
-        GameConnectionStatusService gameStatus)
+        GameConnectionStatusService gameStatus,
+        IGameClientRestartAppService clientRestart)
     {
         _bot = bot;
         _state = state;
         _gameStatus = gameStatus;
+        _clientRestart = clientRestart;
         _gameStatus.StatusChanged += RefreshGameStatus;
         Refresh();
     }
@@ -41,6 +45,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _bot = null!;
         _state = null!;
         _gameStatus = null!;
+        _clientRestart = null!;
         Title = "DarkBot.Net";
         StatusLine = "Ready — design mode";
         BackpageStatus = "valid";
@@ -52,6 +57,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         BotRunning = Snapshot.BotRunning;
         BackpageStatus = Snapshot.BackpageStatus;
         BackpageValid = Snapshot.BackpageValid;
+        CanRestartClient = _clientRestart?.CanRestart ?? false;
         RefreshGameStatus();
         Title = BotRunning ? "DarkBot.Net — running" : "DarkBot.Net — paused";
         RunButtonText = BotRunning ? "Pause" : "Start";
@@ -82,4 +88,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     [ReactiveCommand]
     private void ToggleBotFromMap() => ToggleBot();
+
+    [ReactiveCommand]
+    private async Task RestartClient()
+    {
+        if (_clientRestart is null || !_clientRestart.CanRestart)
+            return;
+
+        await _clientRestart.RestartClientAsync();
+        Refresh();
+    }
 }

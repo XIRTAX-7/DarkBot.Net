@@ -359,6 +359,11 @@
         <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
     </Style>
 
+    <Style Selector="Button.dbIconButton">
+        <Setter Property="MinWidth" Value="38" />
+        <Setter Property="Padding" Value="10,0" />
+    </Style>
+
     <Style Selector="Button.dbButton:pointerover">
         <Setter Property="Opacity" Value="0.92" />
     </Style>

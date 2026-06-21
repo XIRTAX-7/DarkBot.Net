@@ -53,7 +53,20 @@ internal static class Program
             Log.Information("DarkBot.Net UI shutting down");
             try
             {
-                AppHost?.StopAsync(CancellationToken.None).GetAwaiter().GetResult();
+                if (AppHost is not null)
+                {
+                    using var stopTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(12));
+                    try
+                    {
+                        AppHost.StopAsync(stopTimeout.Token).GetAwaiter().GetResult();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        Log.Warning(
+                            "Application host stop timed out after 12s — some hosted services may still be running");
+                    }
+                }
+
                 AppHost?.Dispose();
             }
             catch (Exception ex)

@@ -66,6 +66,9 @@ public static class ServiceCollectionExtensions
             .UseDarkBotSerilog(configuration)
             .ConfigureServices(services =>
             {
+                services.Configure<HostOptions>(options =>
+                    options.ShutdownTimeout = TimeSpan.FromSeconds(10));
+
                 services.AddApplication();
                 services.AddInfrastructure(configuration);
                 services.AddPresentationUi();

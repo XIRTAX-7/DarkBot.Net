@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using DarkBot.Net.Infrastructure.Game;
 using DarkBot.Net.Presentation.ViewModels.Shell;
 using DarkBot.Net.Presentation.Views.Shell;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,8 @@ public sealed class ShellWindowService(IServiceProvider serviceProvider) : IShel
     public void ShowShellWindow()
     {
         var viewModel = serviceProvider.GetRequiredService<ShellWindowViewModel>();
-        var window = new ShellWindowView
+        var coordinator = serviceProvider.GetRequiredService<GameShutdownCoordinator>();
+        var window = new ShellWindowView(coordinator)
         {
             ViewModel = viewModel
         };

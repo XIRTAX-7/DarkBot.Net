@@ -18,5 +18,6 @@
     <Project Path="tests/DarkBot.Net.Backpage.Tests/DarkBot.Net.Backpage.Tests.csproj" />
     <Project Path="tests/DarkBot.Net.Config.Tests/DarkBot.Net.Config.Tests.csproj" />
     <Project Path="tests/DarkBot.Net.Login.Tests/DarkBot.Net.Login.Tests.csproj" />
+    <Project Path="tests/DarkBot.Net.Presentation.Tests/DarkBot.Net.Presentation.Tests.csproj" />
   </Folder>
 </Solution>

@@ -42,14 +42,6 @@ function run() {
         ipcRenderer.send("SetOptionConfig", "BackgroundThrottling", document.getElementById("BackgroundThrottling").checked);
     }
 
-    document.getElementById("Packet").onclick = () => {
-        ipcRenderer.send("SetOptionConfig", "Packet", document.getElementById("Packet").checked);
-    }
-
-    document.getElementById("PacketTimeout").onchange = () => {
-        ipcRenderer.send("SetOptionConfig", "PacketTimeout", document.getElementById("PacketTimeout").value);
-    }
-
     document.getElementById("Movement").onclick = () => {
         ipcRenderer.send("SetOptionConfig", "Movement", document.getElementById("Movement").checked);
     }
@@ -131,12 +123,6 @@ function load(data) {
     if (data.BackgroundThrottling) {
         document.getElementById("BackgroundThrottling").checked = data.BackgroundThrottling;
     }
-
-    if (data.Packet) {
-        document.getElementById("Packet").checked = data.Packet;
-    }
-
-    document.getElementById("PacketTimeout").value = data.PacketTimeout;
 
     if (data.Movement) {
         document.getElementById("Movement").checked = data.Movement;

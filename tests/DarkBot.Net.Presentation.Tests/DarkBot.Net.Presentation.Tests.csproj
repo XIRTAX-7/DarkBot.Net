@@ -12,10 +12,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\DarkBot.Net.Application\DarkBot.Net.Application.csproj" />
-    <ProjectReference Include="..\..\src\DarkBot.Net.Infrastructure\DarkBot.Net.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\DarkBot.Net.Presentation\DarkBot.Net.Presentation.csproj" />
   </ItemGroup>
 </Project>

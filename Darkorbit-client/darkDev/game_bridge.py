@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Attach to DarkOrbit Pepper Flash process and control the game via Frida AVM hooks.
+DarkOrbit Frida game bridge — CLI entry point for avm_bridge.
 
 Usage:
-  python avm_move.py --pid 12345 --x 5000 --y 3000
-  python avm_move.py --serve --port 44570
-  python avm_move.py --status
+  python game_bridge.py --pid 12345 --x 5000 --y 3000
+  python game_bridge.py --serve --port 44570
+  python game_bridge.py --status
 
 Hybrid API (serve mode):
   WS   /ws           — push status/events (subscribe)
@@ -19,7 +19,7 @@ Hybrid API (serve mode):
   POST /invoke       {"objectPtr":"0x...","methodIndex":10,"args":[...]}
   POST /callMethod   — alias for /invoke
 
-Requires: pip install frida psutil aiohttp websockets
+Requires: pip install frida psutil aiohttp
 Launch DarkOrbit Client with --no-sandbox or Settings.NoSandbox if attach fails.
 """
 from __future__ import annotations
@@ -37,7 +37,7 @@ except ImportError as exc:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="DarkOrbit Frida game API (AVM movement + interactions)")
+    parser = argparse.ArgumentParser(description="DarkOrbit Frida game bridge (HTTP + WS on :44570)")
     parser.add_argument("-p", "--pid", type=int, help="Pepper Flash process id")
     parser.add_argument("-x", "--x", type=float, help="Map X coordinate")
     parser.add_argument("-y", "--y", type=float, help="Map Y coordinate")

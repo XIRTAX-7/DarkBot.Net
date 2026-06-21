@@ -114,6 +114,9 @@ public sealed class VerifierSidecarHostedService : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
+            if (_listener is null || !IsListening)
+                break;
+
             HttpListenerContext? context = null;
             try
             {
@@ -124,6 +127,15 @@ public sealed class VerifierSidecarHostedService : BackgroundService
             {
                 break;
             }
+            catch (HttpListenerException ex)
+            {
+                _logger.LogDebug(ex, "Verifier dev stub listener stopped");
+                break;
+            }
+            catch (ObjectDisposedException)
+            {
+                break;
+            }
             catch (Exception ex)
             {
                 _logger.LogDebug(ex, "Verifier stub request failed");
@@ -131,6 +143,8 @@ public sealed class VerifierSidecarHostedService : BackgroundService
                 context?.Response.Close();
             }
         }
+
+        IsListening = false;
     }
 
     private static async Task HandleRequestAsync(HttpListenerContext context, CancellationToken cancellationToken)

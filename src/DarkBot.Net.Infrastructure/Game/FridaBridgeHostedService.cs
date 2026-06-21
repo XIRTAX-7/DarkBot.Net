@@ -19,6 +19,8 @@ public sealed class FridaBridgeHostedService : BackgroundService
     private readonly FridaGameApi _frida;
     private readonly GameApiOptions _options;
     private readonly ILogger<FridaBridgeHostedService> _logger;
+    private readonly object _socketGate = new();
+    private ClientWebSocket? _activeSocket;
 
     public FridaBridgeHostedService(
         FridaGameApi frida,
@@ -30,13 +32,22 @@ public sealed class FridaBridgeHostedService : BackgroundService
         _logger = logger;
     }
 
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await AbortActiveSocketAsync().ConfigureAwait(false);
+        await base.StopAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            ClientWebSocket? socket = null;
             try
             {
-                using var socket = new ClientWebSocket();
+                socket = new ClientWebSocket();
+                SetActiveSocket(socket);
+
                 var uri = new Uri($"ws://127.0.0.1:{_options.FridaApiPort}/ws");
                 await socket.ConnectAsync(uri, stoppingToken).ConfigureAwait(false);
                 _frida.NotifyBridgeConnected();
@@ -67,6 +78,58 @@ public sealed class FridaBridgeHostedService : BackgroundService
                 _logger.LogDebug(ex, "Frida bridge WS disconnected — retry in 3s");
                 await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken).ConfigureAwait(false);
             }
+            finally
+            {
+                ClearActiveSocket(socket);
+                socket?.Dispose();
+            }
+        }
+    }
+
+    private async Task AbortActiveSocketAsync()
+    {
+        ClientWebSocket? socket;
+        lock (_socketGate)
+        {
+            socket = _activeSocket;
+            _activeSocket = null;
+        }
+
+        if (socket is null)
+            return;
+
+        try
+        {
+            if (socket.State is WebSocketState.Open or WebSocketState.CloseReceived)
+            {
+                await socket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "shutdown",
+                    CancellationToken.None).ConfigureAwait(false);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Frida bridge WS close failed during shutdown");
+        }
+        finally
+        {
+            socket.Dispose();
+        }
+    }
+
+    private void SetActiveSocket(ClientWebSocket socket)
+    {
+        lock (_socketGate)
+            _activeSocket = socket;
+    }
+
+    private void ClearActiveSocket(ClientWebSocket? socket)
+    {
+        lock (_socketGate)
+        {
+            if (ReferenceEquals(_activeSocket, socket))
+                _activeSocket = null;
         }
     }
 

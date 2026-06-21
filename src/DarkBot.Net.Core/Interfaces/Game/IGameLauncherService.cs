@@ -16,5 +16,9 @@ public interface IGameLauncherService
 
     Task<GameClientConnectResult> ConnectAsync(CancellationToken cancellationToken = default);
 
+    Task<GameClientConnectResult> RestartClientAsync(
+        GameLaunchParameters launch,
+        CancellationToken cancellationToken = default);
+
     void AttachProcess(long pid);
 }

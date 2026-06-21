@@ -25,19 +25,6 @@ public sealed class ElectronControlClientTests
         Assert.Equal(payload, request[2..]);
     }
 
-    [Fact]
-    public void GamePacketReader_FlagsInvalidSessionNames()
-    {
-        var reader = new GamePacketReader();
-        GamePacketMessage? invalid = null;
-        reader.InvalidSessionDetected += msg => invalid = msg;
-
-        reader.HandleMessage("""{"type":"in","id":1,"name":"LogoutRequest","data":{}}""");
-
-        Assert.NotNull(invalid);
-        Assert.Equal("LogoutRequest", invalid!.Name);
-    }
-
     private static byte[] InvokeBuildRequest(short opcode, byte[]? payload)
     {
         var method = typeof(ElectronControlClient).GetMethod(

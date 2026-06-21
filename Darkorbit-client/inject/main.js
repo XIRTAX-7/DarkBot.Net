@@ -61,41 +61,13 @@ async function run() {
                     console.log(`Started ${path.basename(scriptPath)} pid=${python.pid}`);
                 }
 
-                if (data.Settings.Packet) {
-                    const WebSocket = require('ws');
-
-                    const wss = new WebSocket.WebSocketServer({ port: 44569 });
-
-                    wss.on('connection', ws => {
-                        ws.on('message', message => {
-                            let event = new CustomEvent("Packet", {
-                                detail: {
-                                    packet: JSON.parse(message.toString())
-                                }
-                            });
-                            window.dispatchEvent(event);
-                        });
-                    });
-
-                    for (;;) {
-                        if (document.readyState == "complete") {
-                            await new Promise(r => setTimeout(r, data.Settings.PacketTimeout));
-                            console.log('Start packet_dumper');
-                            spawnPython(await resolveDarkDevScript('packet_dumper.py'));
-                            break;
-                        } else {
-                            await new Promise(r => setTimeout(r, 50));
-                        }
-                    }
-                }
-
                 if (data.Settings.Movement) {
                     for (;;) {
                         if (document.readyState == "complete") {
                             await new Promise(r => setTimeout(r, data.Settings.MovementTimeout || 15000));
                             const port = data.Settings.MovementPort || 44570;
-                            console.log(`Start avm_move HTTP :${port}`);
-                            spawnPython(await resolveDarkDevScript('avm_move.py'), ['--serve', '--port', String(port)]);
+                            console.log(`Start game bridge HTTP :${port}`);
+                            spawnPython(await resolveDarkDevScript('game_bridge.py'), ['--serve', '--port', String(port)]);
                             break;
                         } else {
                             await new Promise(r => setTimeout(r, 50));

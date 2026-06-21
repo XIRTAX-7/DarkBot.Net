@@ -1,9 +1,8 @@
 /**
- * Frida game API agent: movement, select, collect, useItem, refine, callMethod via Flash AVM.
- * Based on Alph4rd/darkorbit_packet_dumper — enterFrame action queue + RPC.
+ * Frida game bridge agent: status snapshot, movement, select, collect, useItem, refine via Flash AVM.
+ * Loaded by avm_bridge (Python) into the Pepper Flash process.
  *
  * Offsets mirror Java BotInstaller (main + 504 → screenManager, +200 → eventManager).
- * Method index defaults to 10 (Kekka checkGotoMethod signature slot).
  */
 'use strict';
 
@@ -602,7 +601,7 @@ function installVerifyJitHook() {
         onMatch: function (addr) {
             if (verify_jit_hooked) return;
             verify_jit_hooked = true;
-            console.log('[avm_move] verifyJit @ ' + ptr(addr));
+            console.log('[game_bridge] verifyJit @ ' + ptr(addr));
             Interceptor.attach(ptr(addr), {
                 onEnter: function (args) {
                     this.method = ptr(args[1]);
@@ -629,7 +628,7 @@ function installVerifyJitHook() {
                                 }
                                 gameState.flashHookTarget = flash_hook_labels.join(' + ');
                             }
-                            console.log('[avm_move] Flash thread hook installed (after JIT)');
+                            console.log('[game_bridge] Flash thread hook installed (after JIT)');
                         } else {
                             hook.handler();
                         }
@@ -674,7 +673,7 @@ function invokeObjectMethod(obj_ptr, index, args, options) {
         var codePtr = safeReadPointer(env, 0x8);
         if (codePtr.isNull()) throw new Error('Method code pointer null: ' + methodName);
 
-        // argc is uint64 in AVM invoke (see packet_dumper getPacketIdFromObj).
+        // argc is uint64 in AVM invoke.
         var method_ptr = new NativeFunction(codePtr, 'int64', ['pointer', 'uint64', 'pointer']);
         var args_buf = Memory.alloc((args.length + 1) * 8);
         args_buf.writePointer(removeKind(ptr(obj_ptr)));
@@ -897,7 +896,7 @@ function attachFlashHook(method_info, label) {
         try {
             Interceptor.attach(method_info.add(0x8).readPointer(), { onEnter: onFlashActivity });
             markHooked();
-            console.log('[avm_move] Flash thread hook installed: ' + label);
+            console.log('[game_bridge] Flash thread hook installed: ' + label);
             return true;
         } catch (e) {
             send({ type: 'warn', message: 'Hook attach failed (' + label + '): ' + e });
@@ -905,7 +904,7 @@ function attachFlashHook(method_info, label) {
         }
     }
 
-    console.log('[avm_move] Waiting for JIT: ' + label);
+    console.log('[game_bridge] Waiting for JIT: ' + label);
     hookLater(method_info, onFlashActivity, { intercept: true });
     if (flash_hook_labels.indexOf(label + ' (pending JIT)') < 0) {
         flash_hook_labels.push(label + ' (pending JIT)');
@@ -939,7 +938,7 @@ function installFlashThreadHook() {
     if (!attached && !gameState.flashHookTarget) {
         send({ type: 'warn', message: 'No flash hook target found — stay on map and retry' });
     } else if (attached) {
-        console.log('[avm_move] Hooks installed: ' + gameState.flashHookTarget);
+        console.log('[game_bridge] Hooks installed: ' + gameState.flashHookTarget);
     }
 }
 
@@ -1183,7 +1182,7 @@ function resolveGamePointers(main_address, main_application_base) {
     if (!gotoMethodInfo.isNull() && !methodIsCompiled(gotoMethodInfo)) {
         hookLater(gotoMethodInfo, function () {
             send({ type: 'method_compiled', name: gameState.gotoMethodName });
-            console.log('[avm_move] JIT compiled: ' + gameState.gotoMethodName);
+            console.log('[game_bridge] JIT compiled: ' + gameState.gotoMethodName);
         });
     }
 
@@ -1194,7 +1193,7 @@ function resolveGamePointers(main_address, main_application_base) {
     }
 
     publishStatus('ready');
-    console.log('[avm_move] Ready — screenManager=' + screenManager + ' goto=' + gotoInfo.name + '@' + gotoInfo.index);
+    console.log('[game_bridge] Ready — screenManager=' + screenManager + ' goto=' + gotoInfo.name + '@' + gotoInfo.index);
 }
 
 function tryInitFromPattern(matchAddr) {

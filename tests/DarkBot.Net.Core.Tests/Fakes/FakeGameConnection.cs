@@ -16,6 +16,8 @@ public sealed class FakeGameConnection : IGameConnection
 
     public event Action<GameConnectionPhase>? PhaseChanged;
 
+    public event Action? BridgeDisconnected;
+
     public void MoveShip(long screenManager, long x, long y, long collectableAddress = 0) { }
     public void SelectEntity(ReadOnlySpan<int> taggedArgs) { }
     public void UseItem(long screenManager, string itemId, int methodIndex, params long[] args) { }

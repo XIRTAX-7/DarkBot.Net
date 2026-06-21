@@ -26,7 +26,7 @@ class BridgeService:
         self.pid = pid
         self.port = port
         base = Path(__file__).resolve().parent.parent
-        self._agent_path = agent_script_path or (base / "avm_move_agent.js")
+        self._agent_path = agent_script_path or (base / "game_bridge_agent.js")
 
         self._store = GameStateStore()
         self._bus = BridgeEventBus()

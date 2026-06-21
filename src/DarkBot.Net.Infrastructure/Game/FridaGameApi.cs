@@ -16,7 +16,6 @@ public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IDispos
 {
     private readonly HttpClient _http;
     private readonly ElectronControlClient _control;
-    private readonly GamePacketReader _packetReader;
     private readonly GameApiOptions _options;
     private readonly ILogger<FridaGameApi> _logger;
     private readonly object _statusLock = new();
@@ -32,12 +31,10 @@ public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IDispos
 
     public FridaGameApi(
         ElectronControlClient control,
-        GamePacketReader packetReader,
         IOptions<GameApiOptions> options,
         ILogger<FridaGameApi> logger)
     {
         _control = control;
-        _packetReader = packetReader;
         _options = options.Value;
         _logger = logger;
         _http = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
@@ -85,6 +82,8 @@ public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IDispos
 
     public event Action? StatusChanged;
 
+    public event Action? BridgeDisconnected;
+
     public void NotifyBridgeConnected()
     {
         _bridgeWsConnected = true;
@@ -98,7 +97,9 @@ public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IDispos
         _receivedSnapshot = false;
         if (_phase == GameConnectionPhase.Connected)
             SetPhase(GameConnectionPhase.WaitingForGameLoad);
+
         StatusChanged?.Invoke();
+        BridgeDisconnected?.Invoke();
     }
 
     public void RecordBridgeActivity() =>
@@ -295,10 +296,7 @@ public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IDispos
     public long LastInternetReadTime()
     {
         RefreshStatus();
-
-        var packetMs = _packetReader.LastPacketAt?.ToUnixTimeMilliseconds() ?? 0;
-        var activityMs = Math.Max(_lastActivityMs, packetMs);
-        return activityMs > 0 ? activityMs : Environment.TickCount64;
+        return _lastActivityMs > 0 ? _lastActivityMs : Environment.TickCount64;
     }
 
     public void ClearCache(string pattern) { }
@@ -346,6 +344,23 @@ public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IDispos
     {
         LastFailureReason = reason;
         SetPhase(GameConnectionPhase.Failed);
+    }
+
+    public void ResetConnectionState()
+    {
+        _pid = 0;
+        _bridgeWsConnected = false;
+        _receivedSnapshot = false;
+        LastFailureReason = null;
+        _lastBridgeActivityUtc = DateTime.MinValue;
+        _lastActivityMs = 0;
+
+        lock (_statusLock)
+            _cachedStatus = null;
+
+        ResetReadyWait();
+        SetPhase(GameConnectionPhase.NotStarted);
+        StatusChanged?.Invoke();
     }
 
     private void ResetReadyWait()

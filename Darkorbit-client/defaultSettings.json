@@ -34,8 +34,6 @@
         "DefaultDev": false,
         "Control": true,
         "ControlPort": 44568,
-        "Packet": true,
-        "PacketTimeout": 5000,
         "Movement": true,
         "MovementPort": 44570,
         "MovementTimeout": 5000

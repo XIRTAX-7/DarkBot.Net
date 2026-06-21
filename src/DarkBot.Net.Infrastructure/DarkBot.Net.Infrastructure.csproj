@@ -17,5 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="DarkBot.Net.Login.Tests" />
+    <InternalsVisibleTo Include="DarkBot.Net.Core.Tests" />
   </ItemGroup>
 </Project>

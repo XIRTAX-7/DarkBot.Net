@@ -91,8 +91,6 @@ curl http://127.0.0.1:44570/status
     "BrowserApi": "FridaClient",
     "FridaApiPort": 44570,
     "ControlPort": 44568,
-    "PacketPort": 44569,
-    "EnablePacketBridge": true,
     "DarkorbitClientPath": ""
   }
 }

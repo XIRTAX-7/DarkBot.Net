@@ -43,4 +43,7 @@ public interface IGameConnection
     void ClearCache(string pattern);
 
     event Action<GameConnectionPhase>? PhaseChanged;
+
+    /// <summary>Frida bridge WS отключился (push-событие от клиента через bridge).</summary>
+    event Action? BridgeDisconnected;
 }

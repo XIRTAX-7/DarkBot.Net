@@ -21,7 +21,7 @@
           RowSpacing="14"
           Margin="18">
       <Border Grid.Row="0" Classes="dbToolbar">
-        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto"
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto"
               ColumnSpacing="10">
           <Button Grid.Column="0"
                   Classes="dbButton primary"
@@ -38,7 +38,20 @@
                   Name="LoginButton"
                   Content="Login" />
 
-          <Border Grid.Column="3"
+          <Button Grid.Column="3"
+                  Classes="dbButton ghost dbIconButton"
+                  Command="{Binding RestartClientCommand}"
+                  IsEnabled="{Binding CanRestartClient}"
+                  ToolTip.Tip="Перезапуск клиента">
+            <Viewbox Width="16"
+                     Height="16"
+                     Stretch="Uniform">
+              <Path Data="{StaticResource DbRefreshIconGeometry}"
+                    Fill="{DynamicResource DbTextSecondary}" />
+            </Viewbox>
+          </Button>
+
+          <Border Grid.Column="4"
                   Classes="dbBadge"
                   HorizontalAlignment="Stretch"
                   Margin="4,0"
@@ -48,14 +61,15 @@
                        VerticalAlignment="Center" />
           </Border>
 
-          <Border Grid.Column="4" Classes="dbBadge success">
+          <Border Grid.Column="5"
+                  Classes="dbBadge success">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <TextBlock Text="Backpage" />
               <TextBlock Text="{Binding BackpageStatus}" />
             </StackPanel>
           </Border>
 
-          <TextBlock Grid.Column="5"
+          <TextBlock Grid.Column="6"
                      Classes="dbCaption"
                      VerticalAlignment="Center"
                      Text="DarkBot.Net Phase 3" />

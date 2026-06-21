@@ -19,18 +19,27 @@ public sealed class BackpageBackgroundService : BackgroundService
     {
         _logger.LogInformation("Backpage background service started");
 
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                _backpage.CheckSidValid();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Backpage SID check failed");
-            }
+                try
+                {
+                    _backpage.CheckSidValid();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Backpage SID check failed");
+                }
 
-            await Task.Delay(100, stoppingToken).ConfigureAwait(false);
+                await Task.Delay(100, stoppingToken).ConfigureAwait(false);
+            }
         }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected when the host cancels the background service during shutdown.
+        }
+
+        _logger.LogInformation("Backpage background service stopped");
     }
 }

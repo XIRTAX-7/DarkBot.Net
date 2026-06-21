@@ -12,12 +12,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\DarkBot.Net.Agent.Windows\DarkBot.Net.Agent.Windows.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <NativeLibDll Include="..\..\..\lib\*.dll" />
-    <NativeBridgeClass Include="..\..\src\DarkBot.Net.Agent.Bridge\build\classes\**\*.class" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="@(NativeLibDll)" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="@(NativeBridgeClass)" Link="bridge\classes\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
 </Project>

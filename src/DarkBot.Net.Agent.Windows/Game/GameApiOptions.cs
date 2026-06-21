@@ -28,8 +28,14 @@ public sealed class GameApiOptions
 
     public string? GameLanguage { get; set; }
 
-    /// <summary>darkDev avm_move.py HTTP port (default 44570).</summary>
+    /// <summary>darkDev avm_move.py bridge port — HTTP commands + WS status (default 44570).</summary>
     public int FridaApiPort { get; set; } = 44570;
+
+    /// <summary>Expected WS ping interval from Frida bridge (seconds).</summary>
+    public int FridaBridgeHeartbeatSec { get; set; } = 15;
+
+    /// <summary>Mark bridge offline if no WS status/ping for this many seconds.</summary>
+    public int FridaBridgeStaleSec { get; set; } = 30;
 
     /// <summary>Darkorbit-client control WS port (inject/controlServer.js, default 44568).</summary>
     public int ControlPort { get; set; } = 44568;
@@ -46,13 +52,13 @@ public sealed class GameApiOptions
     /// <summary>Seconds to wait for Pepper process after client launch.</summary>
     public int ClientConnectTimeoutSec { get; set; } = 180;
 
-    /// <summary>Seconds to wait for GET /status ready after map load.</summary>
+    /// <summary>Seconds to wait for Frida bridge ready (WS snapshot) after map load.</summary>
     public int FridaReadyTimeoutSec { get; set; } = 180;
 
     /// <summary>Milliseconds between Pepper process polls during connect.</summary>
     public int ConnectPollIntervalMs { get; set; } = 400;
 
-    /// <summary>Milliseconds between Frida /status polls during connect.</summary>
+    /// <summary>Milliseconds between Frida ready checks during connect (HTTP fallback only).</summary>
     public int FridaReadyPollIntervalMs { get; set; } = 500;
 
     /// <summary>Delay before Frida attach after page load (Darkorbit-client MovementTimeout).</summary>

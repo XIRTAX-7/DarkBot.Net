@@ -19,7 +19,7 @@ public class HostStartupTests
 
         host.Start();
         _ = host.Services.GetRequiredService<DarkBot.Net.Agent.Windows.Game.FridaGameApi>();
-        _ = host.Services.GetRequiredService<DarkBot.Net.Agent.Windows.Memory.ExtraMemoryReader>();
+        _ = host.Services.GetRequiredService<DarkBot.Net.Core.Managers.EntityManager>();
         host.StopAsync().GetAwaiter().GetResult();
         host.Dispose();
     }

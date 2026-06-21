@@ -1,6 +1,6 @@
 # DarkBot.Net
 
-DarkBot for DarkOrbit — .NET 10 rewrite with Avalonia UI, native memory bridge, and Frida-based game control.
+DarkBot for DarkOrbit — .NET 10 rewrite with Avalonia UI and **Frida-only** game control (no DarkMem / JNI).
 
 This repository is a **monorepo** with two main parts:
 
@@ -18,30 +18,30 @@ This repository is a **monorepo** with two main parts:
 DarkBot.Net.Ui (Avalonia)
     → login / backpage
     → spawns Darkorbit-client (--dosid)
+    → WS localhost:44570/ws (Frida — status push: map, hero, entities, stats)
     → HTTP localhost:44570 (Frida — move, select, collect)
     → WS localhost:44568 (control — reload, pid, window)
     → WS localhost:44569 (packets — invalid session detection)
-    → DarkMem native reads (entity lists, hero stats)
+    → C# managers consume Frida snapshot (no external memory reads)
     → bot loop @ 10 Hz
 ```
 
-See [PARITY_STATUS.md](PARITY_STATUS.md) for v1 game-client integration status and [MIGRATION_LOG.md](MIGRATION_LOG.md) for migration history from Java DarkBot.
+Legacy DarkMem / KekkaPlayer native code is archived locally under `archive/darkmem-native/` (gitignored).
+
+See [PARITY_STATUS.md](PARITY_STATUS.md) for v1 game-client integration status.
 
 ## Requirements
 
 - **Windows** (game path is Windows-only today)
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- **Java 11+** (JNI bridge for DarkMem)
 - **Node.js 18+** and `npm` (Darkorbit-client)
-- **Python 3** with `frida`, `psutil` (game actions sidecar)
+- **Python 3** with `frida`, `psutil`, `aiohttp` (Frida bridge sidecar)
 
 ```bash
 cd Darkorbit-client
 npm install
 pip install -r darkDev/requirements.txt
 ```
-
-Native DLLs (`DarkBotBridge.dll`, `DarkMemAPI.dll`, `DarkBot.jar`) are downloaded automatically on first run into `./lib/`.
 
 ## Quick start
 
@@ -55,12 +55,14 @@ dotnet run --project src/DarkBot.Net.Ui
 2. Log in (credentials or SID). The bot will:
    - launch **Darkorbit-client** with your session
    - patch client settings (`Movement`, `NoSandbox`)
-   - wait for Pepper Flash PID and Frida HTTP `/status`
+   - wait for Pepper Flash PID and Frida WS `/status`
 
 3. Wait until the game map loads (`internalMapRevolution`), then verify:
 
 ```bash
 curl http://127.0.0.1:44570/status
+# schemaVersion 2 — mapId, entities[], credits, heroHp
+# Status also pushed on ws://127.0.0.1:44570/ws
 ```
 
 ## Configuration
@@ -79,13 +81,3 @@ curl http://127.0.0.1:44570/status
   }
 }
 ```
-
-Leave `DarkorbitClientPath` empty to auto-detect `Darkorbit-client/` next to the solution root, or set `DARKORBIT_CLIENT_PATH`.
-
-## Client origin
-
-[`Darkorbit-client/`](Darkorbit-client/) is based on [kaiserdj/Darkorbit-client](https://github.com/kaiserdj/Darkorbit-client) with DarkBot-specific Frida integration in `darkDev/`.
-
-## License
-
-GPL-3.0 — see [LICENSE](LICENSE).

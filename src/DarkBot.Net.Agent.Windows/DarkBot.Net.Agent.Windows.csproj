@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>DarkBot.Net.Agent.Windows</RootNamespace>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
@@ -10,37 +9,5 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.0" />
     <ProjectReference Include="..\DarkBot.Net.Api\DarkBot.Net.Api.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <NativeLibDll Include="..\..\..\lib\*.dll" />
-    <NativeLibJar Include="..\..\..\lib\*.jar" />
-    <NativeBridgeClass Include="..\DarkBot.Net.Agent.Bridge\build\classes\**\*.class" />
-    <BridgeJavaSource Include="..\DarkBot.Net.Agent.Bridge\java\**\*.java" />
-  </ItemGroup>
-  <Target Name="CompileBridgeJava" BeforeTargets="PrepareForBuild"
-          Inputs="@(BridgeJavaSource)" Outputs="..\DarkBot.Net.Agent.Bridge\build\classes\eu\darkbot\bridge\KekkaAuthBootstrap.class"
-          Condition="'$(OS)' == 'Windows_NT' AND '$(JAVA_HOME)' != ''">
-    <PropertyGroup>
-      <_RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..'))</_RepoRoot>
-      <_BridgeClasses>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\DarkBot.Net.Agent.Bridge\build\classes'))</_BridgeClasses>
-      <_DarkBotJar Condition="Exists('$(_RepoRoot)\lib\DarkBot.jar')">$(_RepoRoot)\lib\DarkBot.jar</_DarkBotJar>
-      <_DarkBotJar Condition="'$(_DarkBotJar)' == '' AND Exists('C:\DarkBot\DarkBot.jar')">C:\DarkBot\DarkBot.jar</_DarkBotJar>
-      <_DarkBotBuildLibs>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\..\DarkBot\build\libs'))</_DarkBotBuildLibs>
-    </PropertyGroup>
-    <ItemGroup Condition="'$(_DarkBotJar)' == '' AND Exists('$(_DarkBotBuildLibs)')">
-      <_BuiltDarkBotJar Include="$(_DarkBotBuildLibs)\DarkBot-*.jar" Exclude="$(_DarkBotBuildLibs)\*sources*" />
-    </ItemGroup>
-    <PropertyGroup Condition="'$(_DarkBotJar)' == '' AND '@(_BuiltDarkBotJar)' != ''">
-      <_DarkBotJar>@(_BuiltDarkBotJar)</_DarkBotJar>
-    </PropertyGroup>
-    <Error Condition="'$(_DarkBotJar)' == ''"
-           Text="DarkBot.jar not found. Copy to $(_RepoRoot)\lib\DarkBot.jar, install C:\DarkBot\DarkBot.jar, or build DarkBot\build\libs." />
-    <MakeDir Directories="$(_BridgeClasses)" />
-    <Exec Command="&quot;$(JAVA_HOME)\bin\javac.exe&quot; -encoding UTF-8 -classpath &quot;$(_DarkBotJar)&quot; -d &quot;$(_BridgeClasses)&quot; @(BridgeJavaSource->'&quot;%(FullPath)&quot;', ' ')" />
-  </Target>
-  <ItemGroup>
-    <None Include="@(NativeLibDll)" Link="lib\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="@(NativeLibJar)" Link="lib\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="@(NativeBridgeClass)" Link="bridge\classes\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

@@ -27,6 +27,7 @@ var avm = { core: null, constant_pool: null, abc_env: null, toplevel: null };
 var offsets = {};
 
 var gameState = {
+    schemaVersion: 2,
     ready: false,
     error: null,
     lastScanNote: null,
@@ -43,10 +44,6 @@ var gameState = {
     mainApplicationAddress: null,
     heroStatic: null,
     connectionManager: null,
-    lastPacketActivityMs: 0,
-    flashHookInstalled: false,
-    flashHookTarget: null,
-    flashModule: flash_lib ? flash_lib.name : null,
     mapAddress: null,
     mapId: 0,
     mapWidth: 0,
@@ -56,7 +53,20 @@ var gameState = {
     heroY: 0,
     heroHp: 0,
     heroMaxHp: 0,
-    entityCount: 0
+    entityCount: 0,
+    entities: [],
+    credits: 0,
+    uridium: 0,
+    experience: 0,
+    honor: 0,
+    cargo: 0,
+    maxCargo: 0,
+    novaEnergy: 0,
+    userId: 0,
+    lastPacketActivityMs: 0,
+    flashHookInstalled: false,
+    flashHookTarget: null,
+    flashModule: flash_lib ? flash_lib.name : null
 };
 
 var hook_queue = [];
@@ -69,7 +79,29 @@ var hooked_method_infos = {};
 var actionQueue = [];
 var actionSeq = 0;
 var lastActionResult = null;
-var lastGameStateRefreshMs = 0;
+
+var lastStatusPublishMs = 0;
+var statusPublishPending = false;
+var STATUS_PUBLISH_MIN_MS = 100;
+
+function publishStatus(reason) {
+    var now = Date.now();
+    var elapsed = now - lastStatusPublishMs;
+    function emit() {
+        lastStatusPublishMs = Date.now();
+        statusPublishPending = false;
+        if (gameState.ready) refreshLiveSnapshot();
+        send({ type: 'status', state: gameState, reason: reason || 'update' });
+    }
+    if (elapsed >= STATUS_PUBLISH_MIN_MS) {
+        emit();
+        return;
+    }
+    if (!statusPublishPending) {
+        statusPublishPending = true;
+        setTimeout(emit, STATUS_PUBLISH_MIN_MS - elapsed);
+    }
+}
 
 var SELECT_MAP_ASSET = 'MapAssetNotificationTRY_TO_SELECT_MAPASSET';
 
@@ -138,6 +170,213 @@ function safeReadPointer(base, offset) {
     } catch (e) {
         return ptr(0);
     }
+}
+
+function safeReadInt(base, offset) {
+    try {
+        if (!isPlausiblePtr(base)) return 0;
+        return ptr(base).add(offset).readS32();
+    } catch (e) {
+        return 0;
+    }
+}
+
+function safeReadDouble(base, offset) {
+    try {
+        if (!isPlausiblePtr(base)) return 0;
+        return ptr(base).add(offset).readDouble();
+    } catch (e) {
+        return 0;
+    }
+}
+
+// DarkBot MemoryAPI.BINDABLE_INT_VALUE_OFFSET — bindable ints store value as double at +0x38
+var BINDABLE_INT_VALUE_OFFSET = 0x38;
+
+function readBindableInt(base, offset) {
+    if (!isPlausiblePtr(base)) return 0;
+    var value = safeReadDouble(base, offset + BINDABLE_INT_VALUE_OFFSET);
+    if (value > 2147483647) return 2147483647;
+    if (value < -2147483648) return -2147483648;
+    return value | 0;
+}
+
+function readAtomPointer(base, offset) {
+    try {
+        if (!isPlausiblePtr(base)) return ptr(0);
+        var raw = ptr(base).add(offset).readPointer();
+        return removeKind(raw);
+    } catch (e) {
+        return ptr(0);
+    }
+}
+
+function readFlashVectorLongs(vecAddress, maxItems) {
+    maxItems = maxItems || 256;
+    if (!isPlausiblePtr(vecAddress)) return [];
+    var size = safeReadInt(vecAddress, 56);
+    if (size <= 0 || size > 512) return [];
+    var table = readAtomPointer(vecAddress, 48);
+    if (table.isNull()) return [];
+    table = table.add(16);
+    var out = [];
+    for (var i = 0; i < size && out.length < maxItems; i++) {
+        var atom = readAtomPointer(table, i * 8);
+        if (!atom.isNull()) out.push(atom);
+    }
+    return out;
+}
+
+function classifyEntityKind(entityPtr) {
+    var portalType = safeReadInt(entityPtr, 112);
+    if (portalType > 0 && portalType < 200) return 'portal';
+    var npcInfo = readAtomPointer(entityPtr, 192);
+    if (!npcInfo.isNull()) {
+        var npcId = safeReadInt(npcInfo, 80);
+        if (npcId > 0) return 'npc';
+    }
+    var boxType = safeReadInt(entityPtr, 112);
+    if (boxType >= 200) return 'box';
+    return 'unknown';
+}
+
+function refreshEntitiesSnapshot(mapAddress, heroAddress) {
+    gameState.entities = [];
+    gameState.entityCount = 0;
+    if (mapAddress.isNull()) return;
+
+    var entitiesVec = readAtomPointer(mapAddress, 40);
+    if (entitiesVec.isNull()) return;
+
+    var heroId = heroAddress.isNull() ? 0 : safeReadInt(heroAddress, 56);
+    var ptrs = readFlashVectorLongs(entitiesVec, 256);
+    for (var i = 0; i < ptrs.length; i++) {
+        var entityPtr = ptrs[i];
+        if (entityPtr.isNull()) continue;
+        var id = safeReadInt(entityPtr, 56);
+        if (id <= 0 || id === heroId) continue;
+        var locPtr = readAtomPointer(entityPtr, 64);
+        if (locPtr.isNull()) continue;
+        var x = safeReadDouble(locPtr, 32);
+        var y = safeReadDouble(locPtr, 40);
+        if (x <= 0 && y <= 0) continue;
+        gameState.entities.push({
+            id: id,
+            x: x,
+            y: y,
+            kind: classifyEntityKind(entityPtr)
+        });
+    }
+    gameState.entityCount = gameState.entities.length;
+}
+
+function readPointerChain(base, offsets) {
+    var addr = ptr(base);
+    for (var i = 0; i < offsets.length; i++) {
+        addr = readAtomPointer(addr, offsets[i]);
+        if (addr.isNull()) return ptr(0);
+    }
+    return addr;
+}
+
+function findHeroInfoClosure(mainApplicationAddress, heroId) {
+    if (!mainApplicationAddress || heroId <= 0) return ptr(0);
+    var mainApp = ptr(mainApplicationAddress);
+    var table = readPointerChain(mainApp, [0x10, 0x10, 0x18]);
+    if (table.isNull()) return ptr(0);
+    var capacity = safeReadInt(table, 8) * 8;
+    if (capacity <= 0 || capacity > (2 << 20)) return ptr(0);
+
+    for (var offset = 0; offset + 8 <= capacity; offset += 8) {
+        var entry = readAtomPointer(table, 0x10 + offset);
+        if (entry.isNull()) continue;
+        var closure = readAtomPointer(entry, 0x20);
+        if (closure.isNull() || closure.toString() === '0x200000001') continue;
+        if (safeReadInt(closure, 0x30) !== heroId) continue;
+        var level = safeReadInt(closure, 0x34);
+        var boolVal = safeReadInt(closure, 0x3c);
+        var val = safeReadInt(closure, 0x40);
+        var cargo = readBindableInt(closure, 0x148);
+        var maxCargo = readBindableInt(closure, 0x150);
+        if (level >= 0 && level <= 100 && (boolVal === 1 || boolVal === 2) && val === 0
+            && cargo >= 0 && maxCargo >= 100 && maxCargo < 100000) {
+            return closure;
+        }
+    }
+    return ptr(0);
+}
+
+function refreshStatsSnapshot(heroId) {
+    gameState.userId = heroId;
+    if (!gameState.mainApplicationAddress || heroId <= 0) return;
+    var closure = findHeroInfoClosure(gameState.mainApplicationAddress, heroId);
+    if (closure.isNull()) return;
+    gameState.userId = safeReadInt(closure, 0x30);
+    gameState.credits = Math.floor(safeReadDouble(closure, 0x178));
+    gameState.uridium = Math.floor(safeReadDouble(closure, 0x180));
+    gameState.experience = Math.floor(safeReadDouble(closure, 0x190));
+    gameState.honor = Math.floor(safeReadDouble(closure, 0x198));
+    gameState.cargo = readBindableInt(closure, 0x148);
+    gameState.maxCargo = readBindableInt(closure, 0x150);
+    gameState.novaEnergy = readBindableInt(closure, 0x118);
+}
+
+function normalizeMapHeight(rawHeight) {
+    if (rawHeight === 13100) return 13500;
+    if (rawHeight === 26200) return 27000;
+    return rawHeight;
+}
+
+function refreshLiveSnapshot() {
+    if (!gameState.ready || !gameState.screenManager) return;
+
+    var screenManager = ptr(gameState.screenManager);
+    var heroAddress = safeReadPointer(screenManager, 240);
+    var mapAddress = safeReadPointer(screenManager, 256);
+
+    gameState.heroStatic = heroAddress.isNull() ? gameState.heroStatic : heroAddress.toString();
+    gameState.mapAddress = mapAddress.isNull() ? null : mapAddress.toString();
+
+    if (!mapAddress.isNull()) {
+        // DarkBot MapManager.update — Revolution client layout
+        gameState.mapWidth = safeReadInt(mapAddress, 76);
+        gameState.mapHeight = normalizeMapHeight(safeReadInt(mapAddress, 80));
+        gameState.mapId = safeReadInt(mapAddress, 84);
+    } else {
+        gameState.mapWidth = 0;
+        gameState.mapHeight = 0;
+        gameState.mapId = 0;
+    }
+
+    if (!heroAddress.isNull()) {
+        gameState.heroId = safeReadInt(heroAddress, 56);
+        var locationPtr = readAtomPointer(heroAddress, 64);
+        if (!locationPtr.isNull()) {
+            gameState.heroX = safeReadDouble(locationPtr, 32);
+            gameState.heroY = safeReadDouble(locationPtr, 40);
+        } else {
+            gameState.heroX = 0;
+            gameState.heroY = 0;
+        }
+
+        var healthPtr = readAtomPointer(heroAddress, 184);
+        if (!healthPtr.isNull()) {
+            gameState.heroHp = readBindableInt(healthPtr, 48);
+            gameState.heroMaxHp = readBindableInt(healthPtr, 56);
+        } else {
+            gameState.heroHp = 0;
+            gameState.heroMaxHp = 0;
+        }
+    } else {
+        gameState.heroId = 0;
+        gameState.heroX = 0;
+        gameState.heroY = 0;
+        gameState.heroHp = 0;
+        gameState.heroMaxHp = 0;
+    }
+
+    refreshEntitiesSnapshot(mapAddress, heroAddress);
+    refreshStatsSnapshot(gameState.heroId);
 }
 
 function resetAvm() {
@@ -641,6 +880,7 @@ function attachFlashHook(method_info, label) {
     function onFlashActivity() {
         gameState.lastPacketActivityMs = Date.now();
         processPendingActions();
+        publishStatus('flashActivity');
     }
 
     function markHooked() {
@@ -908,106 +1148,6 @@ function findGotoMethodIndex(object) {
     return { index: 10, name: '(default index 10)' };
 }
 
-function readBindableIntAt(object, fieldOffset) {
-    var bindable = safeReadPointer(object, fieldOffset);
-    if (bindable.isNull()) {
-        return 0;
-    }
-    return Math.floor(bindable.add(0x38).readDouble());
-}
-
-function refreshMapState() {
-    gameState.mapAddress = null;
-    gameState.mapId = 0;
-    gameState.mapWidth = 0;
-    gameState.mapHeight = 0;
-    gameState.entityCount = 0;
-
-    if (!gameState.ready || !gameState.screenManager) {
-        return;
-    }
-
-    try {
-        var screenManager = removeKind(ptr(gameState.screenManager));
-        var mapAddr = safeReadPointer(screenManager, 256);
-        if (mapAddr.isNull()) {
-            return;
-        }
-
-        gameState.mapAddress = mapAddr.toString();
-        gameState.mapWidth = mapAddr.add(76).readS32();
-        gameState.mapHeight = mapAddr.add(80).readS32();
-        gameState.mapId = mapAddr.add(84).readS32();
-
-        var entitiesHeader = safeReadPointer(mapAddr, 40);
-        if (!entitiesHeader.isNull()) {
-            var count = entitiesHeader.add(0x18).readS32();
-            if (count >= 0 && count < 10000) {
-                gameState.entityCount = count;
-            }
-        }
-    } catch (e) {
-        gameState.mapAddress = null;
-        gameState.mapId = 0;
-        gameState.mapWidth = 0;
-        gameState.mapHeight = 0;
-        gameState.entityCount = 0;
-    }
-}
-
-function refreshHeroState() {
-    gameState.heroId = 0;
-    gameState.heroX = 0;
-    gameState.heroY = 0;
-    gameState.heroHp = 0;
-    gameState.heroMaxHp = 0;
-
-    if (!gameState.ready || !gameState.screenManager) {
-        return;
-    }
-
-    try {
-        // Java HeroManager.tick: address = readLong(screenManager + 240) each frame.
-        var screenManager = removeKind(ptr(gameState.screenManager));
-        var hero = safeReadPointer(screenManager, 240);
-        if (hero.isNull()) {
-            gameState.heroStatic = null;
-            return;
-        }
-
-        gameState.heroStatic = hero.toString();
-
-        gameState.heroId = hero.add(56).readS32();
-        if (gameState.heroId <= 0) {
-            gameState.heroId = 0;
-            return;
-        }
-
-        var location = safeReadPointer(hero, 64);
-        if (!location.isNull()) {
-            gameState.heroX = location.add(32).readDouble();
-            gameState.heroY = location.add(40).readDouble();
-        }
-
-        var health = safeReadPointer(hero, 184);
-        if (!health.isNull()) {
-            gameState.heroHp = readBindableIntAt(health, 48);
-            gameState.heroMaxHp = readBindableIntAt(health, 56);
-        }
-    } catch (e) {
-        gameState.heroId = 0;
-        gameState.heroX = 0;
-        gameState.heroY = 0;
-        gameState.heroHp = 0;
-        gameState.heroMaxHp = 0;
-    }
-}
-
-function refreshGameState() {
-    refreshMapState();
-    refreshHeroState();
-}
-
 function resolveGamePointers(main_address, main_application_base) {
     var mainPtr = removeKind(main_address);
     var screenManager = safeReadPointer(mainPtr, 504);
@@ -1039,7 +1179,6 @@ function resolveGamePointers(main_address, main_application_base) {
     gameState.ready = true;
     gameState.error = null;
     gameState.lastScanNote = null;
-    refreshGameState();
 
     if (!gotoMethodInfo.isNull() && !methodIsCompiled(gotoMethodInfo)) {
         hookLater(gotoMethodInfo, function () {
@@ -1054,7 +1193,7 @@ function resolveGamePointers(main_address, main_application_base) {
         send({ type: 'warn', message: 'installFlashThreadHook: ' + hookErr });
     }
 
-    send({ type: 'ready', state: gameState });
+    publishStatus('ready');
     console.log('[avm_move] Ready — screenManager=' + screenManager + ' goto=' + gotoInfo.name + '@' + gotoInfo.index);
 }
 
@@ -1262,11 +1401,7 @@ function scanMainApplication() {
 rpc.exports = {
     isReady: function () { return gameState.ready; },
     getStatus: function () {
-        var now = Date.now();
-        if (now - lastGameStateRefreshMs >= 250) {
-            lastGameStateRefreshMs = now;
-            refreshGameState();
-        }
+        if (gameState.ready) refreshLiveSnapshot();
         return JSON.stringify(gameState);
     },
     moveTo: function (x, y) { return JSON.stringify(moveTo(x, y)); },
@@ -1305,7 +1440,7 @@ rpc.exports = {
 
 function startAgent() {
     if (gameState.error) {
-        send({ type: 'error', error: gameState.error });
+        publishStatus('error');
         return;
     }
 
@@ -1314,7 +1449,7 @@ function startAgent() {
         scanMainApplication();
     } catch (e) {
         gameState.error = String(e);
-        send({ type: 'error', error: gameState.error });
+        publishStatus('error');
     }
 
     var rescan = setInterval(function () {

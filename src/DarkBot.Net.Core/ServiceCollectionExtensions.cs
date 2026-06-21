@@ -1,6 +1,4 @@
 using DarkBot.Net.Agent.Windows;
-using DarkBot.Net.Agent.Windows.Game;
-using DarkBot.Net.Agent.Windows.Memory;
 using DarkBot.Net.Api.Managers;
 using DarkBot.Net.Core.Bot;
 using DarkBot.Net.Core.Managers;
@@ -20,14 +18,6 @@ public static class ServiceCollectionExtensions
         services.AddDarkBotAgent();
 
         services.AddSingleton<BotAddressRegistry>();
-        services.AddSingleton<IGameMemoryAccess, GameMemoryAccess>();
-        services.AddSingleton(sp =>
-        {
-            var registry = sp.GetRequiredService<BotAddressRegistry>();
-            var game = sp.GetRequiredService<IGameConnection>();
-            return new ExtraMemoryReader(game, () => registry.MainApplicationAddress);
-        });
-
         services.AddSingleton<StarManager>();
         services.AddSingleton<HeroManager>();
         services.AddSingleton<IHeroApi>(sp => sp.GetRequiredService<HeroManager>());
@@ -62,8 +52,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<BotLoopService>();
         services.AddSingleton<IBotController>(sp => sp.GetRequiredService<BotLoopService>());
         services.AddHostedService(sp => sp.GetRequiredService<BotLoopService>());
-        services.AddSingleton<NativeGameBridgeShutdownService>();
-        services.AddHostedService(sp => sp.GetRequiredService<NativeGameBridgeShutdownService>());
 
         return services;
     }

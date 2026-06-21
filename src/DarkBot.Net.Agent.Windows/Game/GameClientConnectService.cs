@@ -1,26 +1,23 @@
-using DarkBot.Net.Agent.Windows.Bridge;
+using DarkBot.Net.Agent.Windows.Game;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace DarkBot.Net.Agent.Windows.Game;
 
-/// <summary>Waits for Pepper + Frida HTTP after Darkorbit-client launch; attaches DarkMem.</summary>
+/// <summary>Waits for Pepper + Frida bridge after Darkorbit-client launch (Frida-only, no DarkMem).</summary>
 public sealed class GameClientConnectService
 {
-    private readonly NativeGameBridge _bridge;
     private readonly FridaGameApi _frida;
     private readonly ElectronControlClient _control;
     private readonly GameApiOptions _options;
     private readonly ILogger<GameClientConnectService> _logger;
 
     public GameClientConnectService(
-        NativeGameBridge bridge,
         FridaGameApi frida,
         ElectronControlClient control,
         IOptions<GameApiOptions> options,
         ILogger<GameClientConnectService> logger)
     {
-        _bridge = bridge;
         _frida = frida;
         _control = control;
         _options = options.Value;
@@ -29,11 +26,7 @@ public sealed class GameClientConnectService
 
     public async Task<GameClientConnectResult> ConnectAsync(CancellationToken cancellationToken = default)
     {
-        var existingPids = _bridge.IsInitialized
-            ? _bridge.GetProcesses().Select(p => p.Pid).ToHashSet()
-            : [];
-
-        var pepperPid = await WaitForNewPepperPidAsync(existingPids, cancellationToken).ConfigureAwait(false);
+        var pepperPid = await WaitForPepperPidAsync(cancellationToken).ConfigureAwait(false);
         if (pepperPid == 0)
         {
             return GameClientConnectResult.Fail(
@@ -41,9 +34,9 @@ public sealed class GameClientConnectService
         }
 
         _frida.AttachProcess(pepperPid);
-        _logger.LogInformation("Attached to Pepper pid={Pid}", pepperPid);
+        _logger.LogInformation("Game client Pepper pid={Pid} (Frida-only attach)", pepperPid);
 
-        var fridaReady = await WaitForFridaReadyAsync(cancellationToken).ConfigureAwait(false);
+        var fridaReady = await _frida.WaitForReadyAsync(cancellationToken).ConfigureAwait(false);
         if (!fridaReady)
         {
             return GameClientConnectResult.Fail(
@@ -53,7 +46,7 @@ public sealed class GameClientConnectService
         return GameClientConnectResult.Ok(pepperPid);
     }
 
-    private async Task<int> WaitForNewPepperPidAsync(HashSet<int> existingPids, CancellationToken cancellationToken)
+    private async Task<int> WaitForPepperPidAsync(CancellationToken cancellationToken)
     {
         var deadline = DateTime.UtcNow.AddSeconds(_options.ClientConnectTimeoutSec);
 
@@ -62,25 +55,10 @@ public sealed class GameClientConnectService
             cancellationToken.ThrowIfCancellationRequested();
 
             var controlPid = await TryGetPepperPidFromControlAsync(cancellationToken).ConfigureAwait(false);
-            if (controlPid > 0 && !existingPids.Contains(controlPid))
+            if (controlPid > 0)
             {
                 _logger.LogInformation("Detected Pepper pid={Pid} via control WS", controlPid);
                 return controlPid;
-            }
-
-            if (_bridge.IsInitialized)
-            {
-                foreach (var proc in _bridge.GetProcesses())
-                {
-                    if (existingPids.Contains(proc.Pid))
-                        continue;
-
-                    if (IsPepperProcess(proc.Name))
-                    {
-                        _logger.LogInformation("Detected Pepper process {Name} pid={Pid}", proc.Name, proc.Pid);
-                        return proc.Pid;
-                    }
-                }
             }
 
             await Task.Delay(_options.ConnectPollIntervalMs, cancellationToken).ConfigureAwait(false);
@@ -104,30 +82,6 @@ public sealed class GameClientConnectService
             return 0;
         }
     }
-
-    private async Task<bool> WaitForFridaReadyAsync(CancellationToken cancellationToken)
-    {
-        var deadline = DateTime.UtcNow.AddSeconds(_options.FridaReadyTimeoutSec);
-
-        while (DateTime.UtcNow < deadline)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            _frida.RefreshStatus();
-            if (_frida.CurrentStatus?.Ready == true)
-                return true;
-
-            await Task.Delay(_options.FridaReadyPollIntervalMs, cancellationToken).ConfigureAwait(false);
-        }
-
-        return false;
-    }
-
-    private static bool IsPepperProcess(string name) =>
-        name.Contains("ppapi", StringComparison.OrdinalIgnoreCase)
-        || name.Contains("pepper", StringComparison.OrdinalIgnoreCase)
-        || name.Contains("pepflash", StringComparison.OrdinalIgnoreCase)
-        || name.Contains("flash", StringComparison.OrdinalIgnoreCase);
 }
 
 public sealed class GameClientConnectResult

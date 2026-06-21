@@ -64,10 +64,7 @@ public sealed class GameLaunchOrchestrator
 
         try
         {
-            await Task.WhenAll(
-                    _launcher.LaunchAsync(launch, cancellationToken),
-                    _launcher.WarmupBridgeAsync(cancellationToken))
-                .ConfigureAwait(false);
+            await _launcher.LaunchAsync(launch, cancellationToken).ConfigureAwait(false);
             var result = await _launcher.ConnectAsync(cancellationToken).ConfigureAwait(false);
             if (result.Success)
                 _logger.LogInformation("Game connect OK — Pepper pid {Pid}", result.PepperPid);

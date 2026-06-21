@@ -1,3 +1,6 @@
+# Local archive (DarkMem native — not used in Frida-only v1)
+archive/
+
 # Build output
 **/bin/
 **/obj/

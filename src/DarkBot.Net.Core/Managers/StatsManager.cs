@@ -1,4 +1,4 @@
-using DarkBot.Net.Agent.Windows.Memory;
+using DarkBot.Net.Api.Game;
 using DarkBot.Net.Api.Game.Stats;
 using DarkBot.Net.Api.Managers;
 using DarkBot.Net.Core.Memory;
@@ -8,12 +8,11 @@ using StatKey = DarkBot.Net.Core.Statistics.StatKey;
 
 namespace DarkBot.Net.Core.Managers;
 
-/// <summary>Port of StatsManager — session stats from heroInfo memory block.</summary>
+/// <summary>Port of StatsManager — session stats from Frida bridge snapshot.</summary>
 public sealed class StatsManager : IStatsApi, ISessionMetadataProvider
 {
     private readonly BotAddressRegistry _addresses;
-    private readonly IGameMemoryAccess _memory;
-    private readonly GameMemoryReader _reader;
+    private readonly IGameFridaProbe _frida;
     private readonly Dictionary<StatKey, StatImpl> _statistics = new();
     private readonly StatImpl _runtime;
     private readonly StatImpl _credits;
@@ -31,11 +30,10 @@ public sealed class StatsManager : IStatsApi, ISessionMetadataProvider
 
     private bool _updateStats = true;
 
-    public StatsManager(BotAddressRegistry addresses, IGameMemoryAccess memory)
+    public StatsManager(BotAddressRegistry addresses, IGameFridaProbe frida)
     {
         _addresses = addresses;
-        _memory = memory;
-        _reader = new GameMemoryReader(new MemoryReaderAdapter(memory));
+        _frida = frida;
 
         Register(Stats.Bot.Runtime, _runtime = CreateStat());
         Register(Stats.General.Credits, _credits = CreateStat());
@@ -81,21 +79,23 @@ public sealed class StatsManager : IStatsApi, ISessionMetadataProvider
     {
         UpdateNonZero(_runtime, Environment.TickCount64);
 
-        var address = _addresses.HeroInfoAddress;
-        if (address == 0)
+        if (!_frida.IsReady || !_frida.TryGetStatsSnapshot(out var stats))
             return;
 
-        UpdateNonZero(_credits, _memory.ReadDouble(address + 0x178));
-        UpdateNonZero(_uridium, _memory.ReadDouble(address + 0x180));
-        UpdateNonZero(_experience, _memory.ReadDouble(address + 0x190));
-        UpdateNonZero(_honor, _memory.ReadDouble(address + 0x198));
+        if (stats.UserId > 0)
+            UserId = stats.UserId;
 
-        _cargo.Track(_reader.ReadBindableInt(address + 0x148));
-        _maxCargo.Track(_reader.ReadBindableInt(address + 0x150));
-        _novaEnergy.Track(_reader.ReadBindableInt(address + 0x118));
-        _teleportBonus.Track(ReadInt(address, 0x50));
+        UpdateNonZero(_credits, stats.Credits);
+        UpdateNonZero(_uridium, stats.Uridium);
+        UpdateNonZero(_experience, stats.Experience);
+        UpdateNonZero(_honor, stats.Honor);
 
-        UserId = ReadInt(address, 0x30);
+        if (stats.Cargo >= 0)
+            _cargo.Track(stats.Cargo);
+        if (stats.MaxCargo > 0)
+            _maxCargo.Track(stats.MaxCargo);
+        if (stats.NovaEnergy >= 0)
+            _novaEnergy.Track(stats.NovaEnergy);
     }
 
     public void TickAverageStats(double tickTimeMs, int ping = 0)
@@ -144,14 +144,5 @@ public sealed class StatsManager : IStatsApi, ISessionMetadataProvider
             return 0;
 
         return stat.Track(value);
-    }
-
-    private int ReadInt(long address, int offset) => _reader.ReadInt(address + offset);
-
-    private sealed class MemoryReaderAdapter(IGameMemoryAccess memory) : INativeMemory
-    {
-        public int ReadInt(long address) => memory.ReadInt(address);
-        public long ReadLong(long address) => memory.ReadLong(address);
-        public double ReadDouble(long address) => memory.ReadDouble(address);
     }
 }

@@ -5,11 +5,13 @@ namespace DarkBot.Net.Agent.Windows.Game;
 public sealed class FridaGameStateProbe : IGameFridaProbe
 {
     private const int MaxMapId = 1000;
+    private static readonly FridaEntitySnapshot[] EmptyEntities = [];
 
     private readonly FridaGameApi _frida;
     private long _mapPointer;
     private long _heroPointer;
     private int _entityCount;
+    private IReadOnlyList<FridaEntitySnapshot> _entities = EmptyEntities;
 
     public FridaGameStateProbe(FridaGameApi frida) => _frida = frida;
 
@@ -20,6 +22,8 @@ public sealed class FridaGameStateProbe : IGameFridaProbe
     public long HeroPointer => _heroPointer;
 
     public int EntityCount => _entityCount;
+
+    public IReadOnlyList<FridaEntitySnapshot> Entities => _entities;
 
     public void Refresh()
     {
@@ -33,6 +37,7 @@ public sealed class FridaGameStateProbe : IGameFridaProbe
             _mapPointer = 0;
             _heroPointer = 0;
             _entityCount = 0;
+            _entities = EmptyEntities;
             return;
         }
 
@@ -42,6 +47,29 @@ public sealed class FridaGameStateProbe : IGameFridaProbe
         _entityCount = status.EntityCount >= 0 && status.EntityCount < 10_000
             ? status.EntityCount
             : 0;
+
+        if (status.Entities is { Count: > 0 })
+        {
+            var list = new List<FridaEntitySnapshot>(status.Entities.Count);
+            foreach (var entity in status.Entities)
+            {
+                if (entity.Id <= 0)
+                    continue;
+
+                list.Add(new FridaEntitySnapshot(
+                    entity.Id,
+                    entity.X,
+                    entity.Y,
+                    string.IsNullOrWhiteSpace(entity.Kind) ? "unknown" : entity.Kind));
+            }
+
+            _entities = list;
+            _entityCount = list.Count;
+        }
+        else
+        {
+            _entities = EmptyEntities;
+        }
     }
 
     public bool TryGetMapSnapshot(out int mapId, out int width, out int height)
@@ -59,7 +87,6 @@ public sealed class FridaGameStateProbe : IGameFridaProbe
         width = status.MapWidth;
         height = status.MapHeight;
 
-        // Java MapManager.update — reject only obvious garbage, no fixed width check.
         if (mapId is <= 0 or >= MaxMapId)
             return false;
 
@@ -84,5 +111,30 @@ public sealed class FridaGameStateProbe : IGameFridaProbe
         hp = status.HeroHp;
         maxHp = status.HeroMaxHp;
         return true;
+    }
+
+    public bool TryGetStatsSnapshot(out FridaStatsSnapshot stats)
+    {
+        stats = default!;
+
+        if (!IsReady)
+            return false;
+
+        var status = _frida.CurrentStatus;
+        if (status?.Ready != true)
+            return false;
+
+        var userId = status.UserId > 0 ? status.UserId : status.HeroId;
+        stats = new FridaStatsSnapshot(
+            userId,
+            status.Credits,
+            status.Uridium,
+            status.Experience,
+            status.Honor,
+            status.Cargo,
+            status.MaxCargo,
+            status.NovaEnergy);
+
+        return userId > 0 || status.Credits > 0 || status.Uridium > 0;
     }
 }

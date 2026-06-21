@@ -1,36 +1,114 @@
 using DarkBot.Net.Api.Game;
+using DarkBot.Net.Api.Game.Entities;
+using DarkBot.Net.Core.Entities;
 using DarkBot.Net.Core.Memory;
 
 namespace DarkBot.Net.Core.Managers;
 
-/// <summary>Entity list size from Frida AVM (/status).</summary>
+/// <summary>Entity list from Frida bridge snapshot — port of EntityList (data only).</summary>
 public sealed class EntityManager
 {
     private readonly BotAddressRegistry _addresses;
     private readonly MapManager _map;
     private readonly IGameFridaProbe _frida;
+    private readonly EntitiesApi _entitiesApi;
 
-    private int _lastEntityCount;
+    private readonly List<ShipStub> _ships = [];
+    private readonly List<ShipStub> _npcs = [];
+    private readonly List<ShipStub> _boxes = [];
+    private readonly List<ShipStub> _portals = [];
 
-    public EntityManager(BotAddressRegistry addresses, MapManager map, IGameFridaProbe frida)
+    public EntityManager(
+        BotAddressRegistry addresses,
+        MapManager map,
+        IGameFridaProbe frida,
+        EntitiesApi entitiesApi)
     {
         _addresses = addresses;
         _map = map;
         _frida = frida;
+        _entitiesApi = entitiesApi;
         _addresses.Invalidated += OnInvalidated;
     }
 
-    public int EntityCount => _lastEntityCount;
+    public int EntityCount => _frida.EntityCount;
 
     public long EntitiesArrayAddress => 0;
+
+    public IReadOnlyList<ShipStub> Npcs => _npcs;
+
+    public IReadOnlyList<ShipStub> Boxes => _boxes;
+
+    public IReadOnlyList<ShipStub> Portals => _portals;
+
+    public IReadOnlyList<ShipStub> Ships => _ships;
 
     public void Tick()
     {
         if (_addresses.IsInvalid || _map.MapAddress == 0 || !_frida.IsReady)
+        {
+            Clear();
             return;
+        }
 
-        _lastEntityCount = _frida.EntityCount;
+        _frida.Refresh();
+        RebuildFromSnapshot(_frida.Entities);
     }
 
-    private void OnInvalidated() => _lastEntityCount = 0;
+    private void RebuildFromSnapshot(IReadOnlyList<FridaEntitySnapshot> entities)
+    {
+        _ships.Clear();
+        _npcs.Clear();
+        _boxes.Clear();
+        _portals.Clear();
+        _entitiesApi.ClearShips();
+
+        foreach (var entity in entities)
+        {
+            if (entity.Id <= 0 || !MapLoadValidator.IsSaneCoordinate(entity.X, entity.Y))
+                continue;
+
+            var location = new MutableLocationInfo();
+            location.Update(entity.X, entity.Y);
+
+            var stub = new ShipStub
+            {
+                Id = entity.Id,
+                EntityInfoData = new EntityInfoStub(),
+                Location = location
+            };
+
+            switch (entity.Kind)
+            {
+                case "npc":
+                    _npcs.Add(stub);
+                    break;
+                case "box":
+                    _boxes.Add(stub);
+                    break;
+                case "portal":
+                    _portals.Add(stub);
+                    break;
+                case "player":
+                case "ship":
+                    _ships.Add(stub);
+                    _entitiesApi.AddShip(stub);
+                    break;
+                default:
+                    _ships.Add(stub);
+                    break;
+            }
+        }
+    }
+
+    private void Clear()
+    {
+        _ships.Clear();
+        _npcs.Clear();
+        _boxes.Clear();
+        _portals.Clear();
+        _entitiesApi.ClearShips();
+    }
+
+    private void OnInvalidated() => Clear();
 }

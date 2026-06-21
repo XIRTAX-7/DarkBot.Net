@@ -1,26 +1,17 @@
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using DarkBot.Net.Agent.Windows.Bridge;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace DarkBot.Net.Agent.Windows.Game;
 
 /// <summary>
-/// Pepper / Darkorbit-client path: game state via Frida AVM (/status), actions via darkDev HTTP (:44570).
-/// Raw ReadInt/Long/Double remain for BotInstaller pattern search only — managers use <see cref="IGameFridaProbe"/>.
+/// Darkorbit-client path: game state via Frida bridge WS push, actions via HTTP POST (:44570).
+/// Frida-only — no DarkMem / external memory reads.
 /// </summary>
 public sealed class FridaGameApi : IGameConnection, IDisposable
 {
-    private static readonly byte[] MainApplicationPattern =
-    [
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-        0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
-    ];
-
-    private readonly NativeGameBridge _bridge;
     private readonly HttpClient _http;
     private readonly ElectronControlClient _control;
     private readonly GamePacketReader _packetReader;
@@ -31,16 +22,18 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
     private long _pid;
     private FridaBridgeStatus? _cachedStatus;
     private long _lastActivityMs;
-    private long _lastStatusRefreshMs;
+    private long _lastHttpFallbackMs;
+    private DateTime _lastBridgeActivityUtc = DateTime.MinValue;
+    private bool _bridgeWsConnected;
+    private bool _receivedSnapshot;
+    private TaskCompletionSource<bool>? _readyTcs;
 
     public FridaGameApi(
-        NativeGameBridge bridge,
         ElectronControlClient control,
         GamePacketReader packetReader,
         IOptions<GameApiOptions> options,
         ILogger<FridaGameApi> logger)
     {
-        _bridge = bridge;
         _control = control;
         _packetReader = packetReader;
         _options = options.Value;
@@ -54,12 +47,24 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
 
     public bool IsLaunched => _pid != 0;
 
+    public bool IsBridgeLive
+    {
+        get
+        {
+            if (!_bridgeWsConnected || !_receivedSnapshot)
+                return false;
+
+            var staleSec = _options.FridaBridgeStaleSec;
+            return (DateTime.UtcNow - _lastBridgeActivityUtc).TotalSeconds < staleSec;
+        }
+    }
+
     public bool IsValid
     {
         get
         {
             var status = CurrentStatus;
-            return status?.Ready == true && _pid != 0;
+            return IsBridgeLive && status?.Ready == true && _pid != 0;
         }
     }
 
@@ -76,80 +81,138 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
 
     public event Action<GameConnectionPhase>? PhaseChanged;
 
+    public event Action? StatusChanged;
+
+    public void NotifyBridgeConnected()
+    {
+        _bridgeWsConnected = true;
+        _receivedSnapshot = false;
+        _lastBridgeActivityUtc = DateTime.UtcNow;
+    }
+
+    public void NotifyBridgeDisconnected()
+    {
+        _bridgeWsConnected = false;
+        _receivedSnapshot = false;
+        if (_phase == GameConnectionPhase.Connected)
+            SetPhase(GameConnectionPhase.WaitingForGameLoad);
+        StatusChanged?.Invoke();
+    }
+
+    public void RecordBridgeActivity() =>
+        _lastBridgeActivityUtc = DateTime.UtcNow;
+
+    public void ApplyStatus(FridaBridgeStatus status, bool isSnapshot)
+    {
+        RecordBridgeActivity();
+        if (isSnapshot)
+            _receivedSnapshot = true;
+
+        lock (_statusLock)
+            _cachedStatus = status;
+
+        if (status.LastPacketActivityMs > 0)
+            _lastActivityMs = status.LastPacketActivityMs;
+
+        if (status.Ready && _phase == GameConnectionPhase.WaitingForGameLoad)
+            SetPhase(GameConnectionPhase.Connected);
+
+        StatusChanged?.Invoke();
+
+        if (status.Ready)
+            CompleteReadyWait(true);
+    }
+
     public void AttachProcess(long pid)
     {
-        _bridge.EnsureInitialized();
-        _bridge.OpenProcess(pid);
         _pid = pid;
         LastFailureReason = null;
+        ResetReadyWait();
         SetPhase(GameConnectionPhase.WaitingForGameLoad);
-        _logger.LogInformation("FridaClient attached to Pepper pid={Pid}, bridge http://127.0.0.1:{Port}", pid, _options.FridaApiPort);
+        _logger.LogInformation(
+            "FridaClient tracking Pepper pid={Pid}, bridge ws://127.0.0.1:{Port}/ws",
+            pid,
+            _options.FridaApiPort);
         RefreshStatus();
         if (IsValid)
             SetPhase(GameConnectionPhase.Connected);
     }
 
+    public async Task<bool> WaitForReadyAsync(CancellationToken cancellationToken = default)
+    {
+        if (CurrentStatus?.Ready == true && IsBridgeLive)
+            return true;
+
+        ResetReadyWait();
+        var tcs = _readyTcs!;
+        using var reg = cancellationToken.Register(() => tcs.TrySetCanceled(cancellationToken));
+
+        var deadline = DateTime.UtcNow.AddSeconds(_options.FridaReadyTimeoutSec);
+        while (DateTime.UtcNow < deadline)
+        {
+            if (CurrentStatus?.Ready == true && IsBridgeLive)
+                return true;
+
+            TryHttpFallback();
+
+            var remaining = deadline - DateTime.UtcNow;
+            if (remaining <= TimeSpan.Zero)
+                break;
+
+            var waitMs = (int)Math.Min(remaining.TotalMilliseconds, _options.FridaReadyPollIntervalMs);
+            try
+            {
+                var completed = await Task.WhenAny(tcs.Task, Task.Delay(waitMs, cancellationToken))
+                    .ConfigureAwait(false);
+                if (completed == tcs.Task)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (await tcs.Task.ConfigureAwait(false) && IsBridgeLive)
+                        return true;
+                }
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+        }
+
+        return CurrentStatus?.Ready == true && IsBridgeLive;
+    }
+
     public bool RefreshStatus()
     {
+        lock (_statusLock)
+        {
+            if (_cachedStatus is not null && IsBridgeLive)
+                return true;
+        }
+
+        return TryHttpFallback();
+    }
+
+    private bool TryHttpFallback()
+    {
         var now = Environment.TickCount64;
-        if (now - _lastStatusRefreshMs < 250)
+        if (now - _lastHttpFallbackMs < 500)
             return _cachedStatus is not null;
 
-        _lastStatusRefreshMs = now;
+        _lastHttpFallbackMs = now;
 
         try
         {
             var status = _http.GetFromJsonAsync<FridaBridgeStatus>(StatusUrl()).GetAwaiter().GetResult();
-            lock (_statusLock)
-                _cachedStatus = status;
+            if (status is not null)
+                ApplyStatus(status, isSnapshot: true);
 
-            if (status?.LastPacketActivityMs > 0)
-                _lastActivityMs = status.LastPacketActivityMs;
-
-            if (status?.Ready == true && _phase == GameConnectionPhase.WaitingForGameLoad)
-                SetPhase(GameConnectionPhase.Connected);
-
-            return true;
+            return status is not null;
         }
         catch (Exception ex)
         {
-            _logger.LogDebug(ex, "Frida /status poll failed");
+            _logger.LogDebug(ex, "Frida /status HTTP fallback failed");
             return false;
         }
     }
-
-    public int ReadInt(long address)
-    {
-        EnsureAttached();
-        return _bridge.ReadInt(address);
-    }
-
-    public long ReadLong(long address)
-    {
-        EnsureAttached();
-        return _bridge.ReadLong(address);
-    }
-
-    public double ReadDouble(long address)
-    {
-        EnsureAttached();
-        return _bridge.ReadDouble(address);
-    }
-
-    public long SearchPattern(ReadOnlySpan<byte> pattern)
-    {
-        RefreshStatus();
-        var status = CurrentStatus;
-        if (status?.Ready != true)
-            return 0;
-
-        if (pattern.SequenceEqual(MainApplicationPattern))
-            return FridaBridgeStatus.ParsePtr(status.MainApplicationAddress) + 228;
-
-        return 0;
-    }
-
-    public long SearchClassClosure(Func<long, bool> pattern) => 0;
 
     public void MoveShip(long screenManager, long x, long y, long collectableAddress = 0)
     {
@@ -167,20 +230,16 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
         PostAction("/move", new { x, y });
     }
 
-    public void SelectEntity(ReadOnlySpan<int> taggedArgs)
-    {
+    public void SelectEntity(ReadOnlySpan<int> taggedArgs) =>
         PostAction("/select", new { args = taggedArgs.ToArray() });
-    }
 
-    public void UseItem(long screenManager, string itemId, int methodIndex, params long[] args)
-    {
+    public void UseItem(long screenManager, string itemId, int methodIndex, params long[] args) =>
         PostAction("/useItem", new
         {
             itemId,
             methodIndex,
             args = args.Select(a => $"0x{a:x}").ToArray()
         });
-    }
 
     public void Refine(long refineUtilAddress, int oreId, int amount, int methodIndex = -1)
     {
@@ -226,6 +285,8 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
         lock (_statusLock)
             _cachedStatus = null;
 
+        _receivedSnapshot = false;
+        ResetReadyWait();
         Reload();
     }
 
@@ -240,10 +301,6 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
 
     public void ClearCache(string pattern) { }
 
-    public IReadOnlyList<GameProcessInfo> GetProcesses() => _bridge.GetProcesses();
-
-    public void OpenProcess(long pid) => AttachProcess(pid);
-
     public void Dispose() => _http.Dispose();
 
     private string BaseUrl() => $"http://127.0.0.1:{_options.FridaApiPort}";
@@ -252,6 +309,12 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
 
     private FridaActionResult? PostAction(string path, object body)
     {
+        if (!IsBridgeLive)
+        {
+            _logger.LogWarning("Frida POST {Path} blocked — bridge offline (no fresh WS status)", path);
+            return new FridaActionResult { Ok = false, Error = "bridge offline" };
+        }
+
         try
         {
             var json = JsonSerializer.Serialize(body);
@@ -273,12 +336,6 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
     private static object FormatInvokeArg(long value) =>
         value > 0x10000 ? $"0x{value:x}" : value;
 
-    private void EnsureAttached()
-    {
-        if (_pid == 0)
-            throw new InvalidOperationException("No Pepper process attached.");
-    }
-
     public void MarkLaunching() => SetPhase(GameConnectionPhase.Launching);
 
     public void MarkWaitingForGameLoad() => SetPhase(GameConnectionPhase.WaitingForGameLoad);
@@ -288,6 +345,14 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
         LastFailureReason = reason;
         SetPhase(GameConnectionPhase.Failed);
     }
+
+    private void ResetReadyWait()
+    {
+        _readyTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    }
+
+    private void CompleteReadyWait(bool success) =>
+        _readyTcs?.TrySetResult(success);
 
     private void SetPhase(GameConnectionPhase phase)
     {
@@ -301,6 +366,8 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
     private sealed class FridaActionResult
     {
         public bool Ok { get; init; }
+        public bool Accepted { get; init; }
+        public string? CommandId { get; init; }
         public string? Error { get; init; }
     }
 }

@@ -15,24 +15,22 @@ public sealed class FakeGameConnection : IGameConnection
 
     public event Action<GameConnectionPhase>? PhaseChanged;
 
-    public int ReadInt(long address) => 0;
-    public long ReadLong(long address) => 0;
-    public double ReadDouble(long address) => 0;
-    public long SearchPattern(ReadOnlySpan<byte> pattern) => 0;
-    public long SearchClassClosure(Func<long, bool> pattern) => 0;
     public void MoveShip(long screenManager, long x, long y, long collectableAddress = 0) { }
+    public void SelectEntity(ReadOnlySpan<int> taggedArgs) { }
+    public void UseItem(long screenManager, string itemId, int methodIndex, params long[] args) { }
+    public void Refine(long refineUtilAddress, int oreId, int amount, int methodIndex = -1) { }
+    public bool InvokeMethod(long objectPtr, int methodIndex, params long[] args) => false;
     public void Reload() { }
     public void HandleRefresh(bool useFakeDailyLogin = true) { }
+
     public long LastInternetReadTime()
     {
         LastInternetReadTimeCallCount++;
         if (ThrowOnLastInternetReadTime)
-            throw new InvalidOperationException("Native bridge is not initialized.");
+            throw new InvalidOperationException("Game connection not ready.");
 
         return LastInternetReadTimeValue;
     }
 
     public void ClearCache(string pattern) { }
-    public IReadOnlyList<GameProcessInfo> GetProcesses() => Array.Empty<GameProcessInfo>();
-    public void OpenProcess(long pid) { }
 }

@@ -5,6 +5,9 @@ namespace DarkBot.Net.Agent.Windows.Game;
 /// <summary>Snapshot from darkDev GET /status — Frida AVM game state.</summary>
 public sealed class FridaBridgeStatus
 {
+    [JsonPropertyName("schemaVersion")]
+    public int SchemaVersion { get; init; } = 1;
+
     [JsonPropertyName("ready")]
     public bool Ready { get; init; }
 
@@ -71,6 +74,33 @@ public sealed class FridaBridgeStatus
     [JsonPropertyName("entityCount")]
     public int EntityCount { get; init; }
 
+    [JsonPropertyName("entities")]
+    public List<FridaBridgeEntity>? Entities { get; init; }
+
+    [JsonPropertyName("credits")]
+    public long Credits { get; init; }
+
+    [JsonPropertyName("uridium")]
+    public long Uridium { get; init; }
+
+    [JsonPropertyName("experience")]
+    public long Experience { get; init; }
+
+    [JsonPropertyName("honor")]
+    public long Honor { get; init; }
+
+    [JsonPropertyName("cargo")]
+    public int Cargo { get; init; }
+
+    [JsonPropertyName("maxCargo")]
+    public int MaxCargo { get; init; }
+
+    [JsonPropertyName("novaEnergy")]
+    public int NovaEnergy { get; init; }
+
+    [JsonPropertyName("userId")]
+    public int UserId { get; init; }
+
     public static long ParsePtr(string? value)
     {
         if (string.IsNullOrWhiteSpace(value) || value == "0")
@@ -81,4 +111,19 @@ public sealed class FridaBridgeStatus
 
         return long.TryParse(value, out var parsed) ? parsed : 0;
     }
+}
+
+public sealed class FridaBridgeEntity
+{
+    [JsonPropertyName("id")]
+    public int Id { get; init; }
+
+    [JsonPropertyName("x")]
+    public double X { get; init; }
+
+    [JsonPropertyName("y")]
+    public double Y { get; init; }
+
+    [JsonPropertyName("kind")]
+    public string? Kind { get; init; }
 }

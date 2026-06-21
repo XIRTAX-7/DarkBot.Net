@@ -8,20 +8,20 @@ namespace DarkBot.Net.Core.Tests;
 public class StatsManagerTests
 {
     [Fact]
-    public void Tick_tracks_credits_from_heroInfo()
+    public void Tick_tracks_credits_from_frida_snapshot()
     {
         var addresses = new BotAddressRegistry();
-        var memory = new FakeGameMemoryAccess();
-        var stats = new StatsManager(addresses, memory);
-
-        const long heroInfo = 0x5000;
-        addresses.SetHeroInfoAddress(heroInfo);
-        memory.SetDouble(heroInfo + 0x178, 1000);
-        memory.SetDouble(heroInfo + 0x180, 50);
+        var frida = new FakeGameFridaProbe
+        {
+            HeroId = 42,
+            Credits = 1000,
+            IsReady = true
+        };
+        var stats = new StatsManager(addresses, frida);
 
         stats.Tick();
 
         Assert.Equal(1000, stats.GetStat(Stats.General.Credits).Current);
-        Assert.Equal(50, stats.GetStat(Stats.General.Uridium).Current);
+        Assert.Equal(42, stats.UserId);
     }
 }

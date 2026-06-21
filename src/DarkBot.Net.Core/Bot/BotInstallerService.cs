@@ -1,17 +1,15 @@
 using DarkBot.Net.Agent.Windows.Game;
-using DarkBot.Net.Agent.Windows.Memory;
 using DarkBot.Net.Core.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace DarkBot.Net.Core.Bot;
 
-/// <summary>Port of BotInstaller — memory scan and address registry population.</summary>
+/// <summary>Port of BotInstaller — address registry from Frida /status only (Frida-only).</summary>
 public sealed class BotInstallerService : IHostedService, IDisposable
 {
     private readonly BotAddressRegistry _addresses;
     private readonly IGameConnection _game;
-    private readonly ExtraMemoryReader _extraMemory;
     private readonly ILogger<BotInstallerService> _logger;
     private long _lastInternetRead;
     private long _invalidTimerDeadlineMs;
@@ -21,12 +19,10 @@ public sealed class BotInstallerService : IHostedService, IDisposable
     public BotInstallerService(
         BotAddressRegistry addresses,
         IGameConnection game,
-        ExtraMemoryReader extraMemory,
         ILogger<BotInstallerService> logger)
     {
         _addresses = addresses;
         _game = game;
-        _extraMemory = extraMemory;
         _logger = logger;
     }
 
@@ -41,8 +37,6 @@ public sealed class BotInstallerService : IHostedService, IDisposable
 
         if (_addresses.IsInvalid)
         {
-            // Skip installer until the game client has been launched — mirrors Java's
-            // BACKGROUND_ONLY / pre-createWindow guard.
             if (!_game.IsLaunched)
                 return;
 
@@ -50,7 +44,6 @@ public sealed class BotInstallerService : IHostedService, IDisposable
             if (TryInstall())
                 return;
 
-            // Install succeeded — disarm timer (mirrors Java: invalid.add(v -> if (!v) invalidTimer.disarm()))
             _invalidTimerArmed = false;
         }
         else if (_game.IsValid)
@@ -82,7 +75,6 @@ public sealed class BotInstallerService : IHostedService, IDisposable
         {
             _invalidTimerArmed = false;
             _game.ClearCache(".*");
-            _extraMemory.ResetCache();
             _game.HandleRefresh(useFakeDailyLogin: true);
             _logger.LogWarning("Triggering refresh: stuck at loading screen for too long");
         }
@@ -126,10 +118,6 @@ public sealed class BotInstallerService : IHostedService, IDisposable
 
         _addresses.SetHeroInfoAddress(0);
 
-        var settingsAddress = _extraMemory.SearchClassClosure(SettingsPattern);
-        if (settingsAddress != 0)
-            _addresses.SetSettingsAddress(settingsAddress);
-
         _logger.LogInformation(
             "BotInstaller connected (Frida): screenManager=0x{ScreenManager:X}, main=0x{Main:X}",
             screenManagerAddress,
@@ -147,71 +135,9 @@ public sealed class BotInstallerService : IHostedService, IDisposable
                 _logger.LogDebug("Frida no longer ready — invalidating addresses");
                 _installedScreenManager = 0;
                 _addresses.MarkInvalid();
-                return;
             }
-
-            return;
-        }
-
-        if (_game.ReadLong(_addresses.MainApplicationAddress + 1344) != _addresses.MainAddress)
-        {
-            _addresses.MarkInvalid();
-            return;
-        }
-
-        if (_addresses.HeroInfoAddress == 0)
-            CheckUserData();
-
-        if (_addresses.ConnectionManagerAddress == 0)
-        {
-            var connMgr = _game.ReadLong(_addresses.MainAddress + 560);
-            if (connMgr != 0)
-                _addresses.SetConnectionManagerAddress(connMgr);
         }
     }
-
-    private void CheckUserData()
-    {
-        var heroStatic = _game.ReadLong(_addresses.ScreenManagerAddress + 240);
-        var heroId = _game.ReadInt(heroStatic + 56);
-        if (heroId == 0)
-            return;
-
-        var address = _extraMemory.SearchClassClosure(closure =>
-        {
-            if (heroId != _game.ReadInt(closure + 0x30))
-                return false;
-
-            var level = _game.ReadInt(closure + 0x34);
-            var boolVal = _game.ReadInt(closure + 0x3c);
-            var val = _game.ReadInt(closure + 0x40);
-            var cargo = ReadBindableInt(closure, 0x148);
-            var maxCargo = ReadBindableInt(closure, 0x150);
-
-            return level is >= 0 and <= 100
-                   && boolVal is 1 or 2
-                   && val == 0
-                   && cargo >= 0
-                   && maxCargo is >= 100 and < 100_000;
-        });
-
-        if (address != 0)
-            _addresses.SetHeroInfoAddress(address);
-    }
-
-    private int ReadBindableInt(long closure, int offset)
-    {
-        var bindable = _game.ReadLong(closure + offset);
-        return bindable == 0 ? 0 : _game.ReadInt(bindable + 0x10);
-    }
-
-    private static bool SettingsPattern(long address, IGameConnection game) =>
-        game.ReadInt(address + 48) == -1
-        && game.ReadInt(address + 52) == 0
-        && game.ReadInt(address + 56) == 2
-        && game.ReadInt(address + 60) == 1;
-
-    private bool SettingsPattern(long address) => SettingsPattern(address, _game);
 
     private void ArmInvalidTimer(long delayMs)
     {

@@ -1,4 +1,3 @@
-using DarkBot.Net.Agent.Windows.Bridge;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -6,8 +5,6 @@ namespace DarkBot.Net.Agent.Windows.Game;
 
 public sealed class GameLauncherService
 {
-    private readonly NativeGameBridge _bridge;
-    private readonly NativeLibrarySetup _librarySetup;
     private readonly FridaGameApi _fridaApi;
     private readonly DarkorbitClientLauncher _clientLauncher;
     private readonly GameClientConnectService _connectService;
@@ -15,11 +12,8 @@ public sealed class GameLauncherService
     private readonly GameApiOptions _options;
     private readonly ILogger<GameLauncherService> _logger;
     private readonly SemaphoreSlim _launchLock = new(1, 1);
-    private readonly SemaphoreSlim _bridgeInitLock = new(1, 1);
 
     public GameLauncherService(
-        NativeGameBridge bridge,
-        NativeLibrarySetup librarySetup,
         FridaGameApi fridaApi,
         DarkorbitClientLauncher clientLauncher,
         GameClientConnectService connectService,
@@ -27,8 +21,6 @@ public sealed class GameLauncherService
         IOptions<GameApiOptions> options,
         ILogger<GameLauncherService> logger)
     {
-        _bridge = bridge;
-        _librarySetup = librarySetup;
         _fridaApi = fridaApi;
         _clientLauncher = clientLauncher;
         _connectService = connectService;
@@ -39,17 +31,11 @@ public sealed class GameLauncherService
 
     public IGameConnection ActiveConnection => _fridaApi;
 
-    public Task WarmupBridgeAsync(CancellationToken cancellationToken = default) =>
-        EnsureEmbeddedBridgeAsync(cancellationToken);
-
     public async Task<GameClientConnectResult> LaunchAndConnectAsync(
         GameLaunchParameters launch,
         CancellationToken cancellationToken = default)
     {
-        await Task.WhenAll(
-                LaunchAsync(launch, cancellationToken),
-                WarmupBridgeAsync(cancellationToken))
-            .ConfigureAwait(false);
+        await LaunchAsync(launch, cancellationToken).ConfigureAwait(false);
         return await ConnectAsync(cancellationToken).ConfigureAwait(false);
     }
 
@@ -75,7 +61,7 @@ public sealed class GameLauncherService
             {
                 _fridaApi.MarkLaunching();
                 _clientLauncher.Launch(launch);
-                _logger.LogInformation("Darkorbit-client started — load the map, then bot will attach via Frida");
+                _logger.LogInformation("Darkorbit-client started — load the map, bot connects via Frida bridge");
             }
         }
         finally
@@ -89,7 +75,6 @@ public sealed class GameLauncherService
         if (_options.BrowserApi != GameApiMode.BackpageOnly)
             _fridaApi.MarkWaitingForGameLoad();
 
-        await EnsureEmbeddedBridgeAsync(cancellationToken).ConfigureAwait(false);
         var result = await _connectService.ConnectAsync(cancellationToken).ConfigureAwait(false);
         if (!result.Success)
             _fridaApi.MarkFailed(result.Error ?? "Connect failed.");
@@ -98,44 +83,4 @@ public sealed class GameLauncherService
     }
 
     public void AttachProcess(long pid) => _fridaApi.AttachProcess(pid);
-
-    private async Task EnsureEmbeddedBridgeAsync(CancellationToken cancellationToken)
-    {
-        if (_bridge.IsInitialized)
-            return;
-
-        await _bridgeInitLock.WaitAsync(cancellationToken).ConfigureAwait(false);
-        try
-        {
-            if (_bridge.IsInitialized)
-                return;
-
-            await _librarySetup.EnsureLibrariesAsync(cancellationToken).ConfigureAwait(false);
-            _librarySetup.PrepareRuntimePath();
-
-            var libDir = NativeBridgePaths.ResolveLibDir(_options.LibPath);
-            var workingDir = NativeBridgePaths.ResolveJvmWorkingDirectory(_options.JvmWorkingDirectory, libDir);
-
-            if (!NativeBridgePaths.EnsureDarkBotJarInLib(libDir, _options.DarkBotJarPath, _logger))
-            {
-                _logger.LogWarning(
-                    "DarkBot.jar not found — DarkMem JNI may fail. Copy to ./lib/DarkBot.jar for memory reads.");
-            }
-
-            var classPath = NativeBridgePaths.BuildBridgeClassPath(
-                NativeBridgePaths.ResolveClassesDir(_options.ClassesPath),
-                libDir,
-                _options.DarkBotJarPath);
-
-            _logger.LogInformation(
-                "Initializing DarkMem bridge (lib={LibDir}, user.dir={WorkingDir})",
-                libDir,
-                workingDir);
-            _bridge.Initialize(libDir, classPath, workingDir);
-        }
-        finally
-        {
-            _bridgeInitLock.Release();
-        }
-    }
 }

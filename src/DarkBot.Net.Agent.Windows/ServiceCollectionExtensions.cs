@@ -1,4 +1,3 @@
-using DarkBot.Net.Agent.Windows.Bridge;
 using DarkBot.Net.Agent.Windows.Game;
 using DarkBot.Net.Api.Game;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,9 +8,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDarkBotAgent(this IServiceCollection services)
     {
-        services.AddSingleton<NativeGameBridge>();
         services.AddSingleton<GameSessionStore>();
-        services.AddSingleton<NativeLibrarySetup>();
         services.AddSingleton<ElectronControlClient>();
         services.AddSingleton<GamePacketReader>();
         services.AddSingleton<FridaGameApi>();
@@ -22,8 +19,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<GameClientConnectService>();
         services.AddSingleton<GameLauncherService>();
         services.AddSingleton<GameReloginService>();
-        services.AddHostedService<BridgeWarmupHostedService>();
         services.AddHostedService<GamePacketBridgeHostedService>();
+        services.AddHostedService<FridaBridgeHostedService>();
         services.AddSingleton<GameClientShutdownService>();
         services.AddHostedService(sp => sp.GetRequiredService<GameClientShutdownService>());
 

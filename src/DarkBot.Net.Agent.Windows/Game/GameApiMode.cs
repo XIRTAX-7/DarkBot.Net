@@ -3,7 +3,7 @@ namespace DarkBot.Net.Agent.Windows.Game;
 /// <summary>Game connection mode. v1 supports Darkorbit-client + Frida only.</summary>
 public enum GameApiMode
 {
-    /// <summary>Darkorbit-client (Electron) + darkDev Frida HTTP + DarkMem attach.</summary>
+    /// <summary>Darkorbit-client (Electron) + darkDev Frida HTTP bridge.</summary>
     FridaClient,
 
     /// <summary>Backpage session only — no game client.</summary>

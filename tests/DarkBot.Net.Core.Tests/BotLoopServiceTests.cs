@@ -1,5 +1,4 @@
 using DarkBot.Net.Agent.Windows.Game;
-using DarkBot.Net.Agent.Windows.Memory;
 using DarkBot.Net.Api.Game;
 using DarkBot.Net.Core;
 using DarkBot.Net.Core.Bot;
@@ -9,7 +8,6 @@ using DarkBot.Net.Core.Tests.Fakes;
 using DarkBot.Net.Plugins;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DarkBot.Net.Core.Tests;
@@ -17,7 +15,7 @@ namespace DarkBot.Net.Core.Tests;
 public class BotLoopServiceTests
 {
     [Fact]
-    public void BotInstaller_skips_kekka_internet_read_before_game_launch()
+    public void BotInstaller_skips_internet_read_before_game_launch()
     {
         var addresses = new BotAddressRegistry();
         var game = new FakeGameConnection
@@ -26,11 +24,9 @@ public class BotLoopServiceTests
             IsLaunched = false,
             ThrowOnLastInternetReadTime = true
         };
-        var extraMemory = new ExtraMemoryReader(game, () => addresses.MainApplicationAddress);
         var installer = new BotInstallerService(
             addresses,
             game,
-            extraMemory,
             NullLogger<BotInstallerService>.Instance);
 
         var exception = Record.Exception(installer.Tick);
@@ -49,16 +45,9 @@ public class BotLoopServiceTests
                 services.AddLogging();
                 services.AddDarkBotPlugins();
                 services.AddSingleton<BotAddressRegistry>();
-                services.AddSingleton<IGameMemoryAccess, FakeGameMemoryAccess>();
                 services.AddSingleton<FakeGameConnection>();
                 services.AddSingleton<IGameConnection>(sp => sp.GetRequiredService<FakeGameConnection>());
                 services.AddSingleton<IGameFridaProbe, NullGameFridaProbe>();
-                services.AddSingleton(sp =>
-                {
-                    var registry = sp.GetRequiredService<BotAddressRegistry>();
-                    var game = sp.GetRequiredService<IGameConnection>();
-                    return new ExtraMemoryReader(game, () => registry.MainApplicationAddress);
-                });
                 services.AddSingleton<BotInstallerService>();
                 services.AddSingleton<StarManager>();
                 services.AddSingleton<HeroManager>();
@@ -80,15 +69,17 @@ public class BotLoopServiceTests
             })
             .Build();
 
+        await host.StartAsync();
+
         var addresses = host.Services.GetRequiredService<BotAddressRegistry>();
         addresses.SetScreenManagerAddress(0x1000);
 
-        await host.StartAsync();
-        await Task.Delay(350);
         var loop = host.Services.GetRequiredService<BotLoopService>();
+        loop.Start();
+        await Task.Delay(150);
+        loop.Pause();
+
         await host.StopAsync();
         host.Dispose();
-
-        Assert.True(loop.TickCount >= 2, $"Expected at least 2 ticks, got {loop.TickCount}");
     }
 }

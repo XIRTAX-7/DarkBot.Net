@@ -4,6 +4,8 @@ namespace DarkBot.Net.Core.Tests.Fakes;
 
 internal sealed class NullGameFridaProbe : IGameFridaProbe
 {
+    private static readonly FridaEntitySnapshot[] Empty = [];
+
     public bool IsReady => false;
 
     public long MapPointer => 0;
@@ -11,6 +13,8 @@ internal sealed class NullGameFridaProbe : IGameFridaProbe
     public long HeroPointer => 0;
 
     public int EntityCount => 0;
+
+    public IReadOnlyList<FridaEntitySnapshot> Entities => Empty;
 
     public void Refresh() { }
 
@@ -26,10 +30,18 @@ internal sealed class NullGameFridaProbe : IGameFridaProbe
         x = y = 0;
         return false;
     }
+
+    public bool TryGetStatsSnapshot(out FridaStatsSnapshot stats)
+    {
+        stats = default;
+        return false;
+    }
 }
 
 internal sealed class FakeGameFridaProbe : IGameFridaProbe
 {
+    private static readonly FridaEntitySnapshot[] Empty = [];
+
     public bool IsReady { get; set; } = true;
 
     public long MapPointer { get; set; } = 0x5000;
@@ -37,6 +49,8 @@ internal sealed class FakeGameFridaProbe : IGameFridaProbe
     public long HeroPointer { get; set; } = 0x6000;
 
     public int EntityCount { get; set; }
+
+    public IReadOnlyList<FridaEntitySnapshot> Entities { get; set; } = Empty;
 
     public int MapId { get; set; }
 
@@ -53,6 +67,8 @@ internal sealed class FakeGameFridaProbe : IGameFridaProbe
     public int HeroHp { get; set; } = 1000;
 
     public int HeroMaxHp { get; set; } = 1000;
+
+    public long Credits { get; set; }
 
     public void Refresh() { }
 
@@ -76,5 +92,11 @@ internal sealed class FakeGameFridaProbe : IGameFridaProbe
         hp = HeroHp;
         maxHp = HeroMaxHp;
         return IsReady && heroId > 0;
+    }
+
+    public bool TryGetStatsSnapshot(out FridaStatsSnapshot stats)
+    {
+        stats = new FridaStatsSnapshot(HeroId, Credits, 0, 0, 0, 0, 0, 0);
+        return IsReady && (HeroId > 0 || Credits > 0);
     }
 }

@@ -1,6 +1,6 @@
-using DarkBot.Net.Api.Game;
+using DarkBot.Net.Core.Game;
 
-namespace DarkBot.Net.Core.Tests.Fakes;
+namespace DarkBot.Net.Application.Tests.Fakes;
 
 internal sealed class NullGameFridaProbe : IGameFridaProbe
 {

@@ -1,7 +1,7 @@
-using DarkBot.Net.Api.Game;
-using DarkBot.Net.Api.Utils;
+using DarkBot.Net.Core.Game;
+using DarkBot.Net.Core.Utils;
 
-namespace DarkBot.Net.Api.Tests;
+namespace DarkBot.Net.Core.Tests;
 
 public class ApiPortTests
 {

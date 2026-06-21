@@ -1,4 +1,6 @@
-namespace DarkBot.Net.Login.Tests;
+using DarkBot.Net.Core.Models.Auth;
+
+namespace DarkBot.Net.Infrastructure.Auth.Tests;
 
 public class LoginDataTests
 {

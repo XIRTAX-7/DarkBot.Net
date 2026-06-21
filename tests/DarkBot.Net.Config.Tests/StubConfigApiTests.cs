@@ -1,6 +1,6 @@
-using DarkBot.Net.Config;
+using DarkBot.Net.Infrastructure.Config;
 
-namespace DarkBot.Net.Config.Tests;
+namespace DarkBot.Net.Infrastructure.Config.Tests;
 
 public class StubConfigApiTests
 {

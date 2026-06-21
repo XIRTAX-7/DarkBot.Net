@@ -1,6 +1,7 @@
-using DarkBot.Net.Agent.Windows.Game;
+using DarkBot.Net.Core.Interfaces.Game;
+using DarkBot.Net.Core.Options;
 
-namespace DarkBot.Net.Core.Tests.Fakes;
+namespace DarkBot.Net.Application.Tests.Fakes;
 
 public sealed class FakeGameConnection : IGameConnection
 {

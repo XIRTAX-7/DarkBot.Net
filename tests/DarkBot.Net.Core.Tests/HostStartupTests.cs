@@ -1,25 +1,27 @@
-using DarkBot.Net.Core;
+using DarkBot.Net.Application.Extensions;
+using DarkBot.Net.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace DarkBot.Net.Core.Tests;
+namespace DarkBot.Net.Application.Tests;
 
 public class HostStartupTests
 {
     [Fact]
-    public void AddDarkBotCore_resolves_without_circular_dependency()
+    public void AddApplication_resolves_without_circular_dependency()
     {
         var host = Host.CreateDefaultBuilder()
-            .ConfigureServices(services =>
+            .ConfigureServices((ctx, services) =>
             {
                 services.AddLogging();
-                services.AddDarkBotCore();
+                services.AddApplication();
+                services.AddInfrastructure(ctx.Configuration);
             })
             .Build();
 
         host.Start();
-        _ = host.Services.GetRequiredService<DarkBot.Net.Agent.Windows.Game.FridaGameApi>();
-        _ = host.Services.GetRequiredService<DarkBot.Net.Core.Managers.EntityManager>();
+        _ = host.Services.GetRequiredService<DarkBot.Net.Infrastructure.Game.FridaGameApi>();
+        _ = host.Services.GetRequiredService<DarkBot.Net.Application.Managers.EntityManager>();
         host.StopAsync().GetAwaiter().GetResult();
         host.Dispose();
     }

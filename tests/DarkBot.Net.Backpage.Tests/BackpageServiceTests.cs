@@ -1,8 +1,8 @@
-using DarkBot.Net.Api.Managers;
-using DarkBot.Net.Backpage;
+using DarkBot.Net.Core.Managers;
+using DarkBot.Net.Infrastructure.Auth;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace DarkBot.Net.Backpage.Tests;
+namespace DarkBot.Net.Infrastructure.Auth.Tests;
 
 public class BackpageServiceTests
 {

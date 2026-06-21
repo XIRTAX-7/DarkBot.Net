@@ -1,17 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <RootNamespace>DarkBot.Net.Config.Tests</RootNamespace>
+    <RootNamespace>DarkBot.Net.Infrastructure.Config.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
-    <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\DarkBot.Net.Config\DarkBot.Net.Config.csproj" />
+    <ProjectReference Include="..\..\src\DarkBot.Net.Infrastructure\DarkBot.Net.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

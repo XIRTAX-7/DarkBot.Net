@@ -1,8 +1,8 @@
-using DarkBot.Net.Core.Managers;
-using DarkBot.Net.Core.Memory;
-using DarkBot.Net.Core.Tests.Fakes;
+using DarkBot.Net.Application.Managers;
+using DarkBot.Net.Application.Memory;
+using DarkBot.Net.Application.Tests.Fakes;
 
-namespace DarkBot.Net.Core.Tests;
+namespace DarkBot.Net.Application.Tests;
 
 public class HeroManagerTests
 {

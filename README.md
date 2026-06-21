@@ -6,24 +6,40 @@ This repository is a **monorepo** with two main parts:
 
 | Path | Description |
 |------|-------------|
-| [`src/`](src/) | .NET solution — bot core, UI, login, backpage, Windows agent |
+| [`src/`](src/) | .NET solution — 4-layer Clean Architecture |
 | [`tests/`](tests/) | xUnit test projects |
 | [`Darkorbit-client/`](Darkorbit-client/) | Electron game client (Pepper Flash) + Frida sidecar (`darkDev/`) |
-| [`plugins/`](plugins/) | Drop-in C# plugin assemblies |
 | [`sidecars/`](sidecars/) | Optional sidecar executables (backpage, captcha, etc.) |
 
-## Architecture
+## Architecture (4 layers)
 
+```text
+DarkBot.Net.Presentation   Avalonia UI, composition root
+        ↓
+DarkBot.Net.Application    Bot loop, managers, I*AppService
+        ↓
+DarkBot.Net.Core           Contracts, models, Options
+        ↑
+DarkBot.Net.Infrastructure Frida, Electron, Login, Backpage, Config
 ```
-DarkBot.Net.Ui (Avalonia)
-    → login / backpage
-    → spawns Darkorbit-client (--dosid)
-    → WS localhost:44570/ws (Frida — status push: map, hero, entities, stats)
-    → HTTP localhost:44570 (Frida — move, select, collect)
-    → WS localhost:44568 (control — reload, pid, window)
-    → WS localhost:44569 (packets — invalid session detection)
-    → C# managers consume Frida snapshot (no external memory reads)
-    → bot loop @ 10 Hz
+
+| Layer | Project | Responsibility |
+|-------|---------|----------------|
+| **Core** | `DarkBot.Net.Core` | `I*Api`, `IGameConnection`, models — no implementations |
+| **Application** | `DarkBot.Net.Application` | `BotLoopService`, managers, AppService facades |
+| **Infrastructure** | `DarkBot.Net.Infrastructure` | Frida, login/backpage HTTP, config persistence |
+| **Presentation** | `DarkBot.Net.Presentation` | Views, ViewModels, `Program.cs` |
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for layer rules and migration notes (old project names → new).
+
+### Game data path
+
+```text
+DarkBot.Net/Darkorbit-client
+  → avm_bridge (WS :44570/ws, HTTP :44570)
+  → Infrastructure.Game (FridaGameApi)
+  → Application managers (snapshot, not process memory)
+  → BotLoopService @ 10 Hz
 ```
 
 Legacy DarkMem / KekkaPlayer native code is archived locally under `archive/darkmem-native/` (gitignored).
@@ -49,7 +65,7 @@ pip install -r darkDev/requirements.txt
 
 ```bash
 dotnet build DarkBot.Net.slnx
-dotnet run --project src/DarkBot.Net.Ui
+dotnet run --project src/DarkBot.Net.Presentation
 ```
 
 2. Log in (credentials or SID). The bot will:
@@ -67,7 +83,7 @@ curl http://127.0.0.1:44570/status
 
 ## Configuration
 
-`src/DarkBot.Net.Ui/appsettings.json`:
+`src/DarkBot.Net.Presentation/appsettings.json`:
 
 ```json
 {

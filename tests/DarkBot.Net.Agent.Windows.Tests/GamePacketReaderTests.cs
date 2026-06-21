@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
-using DarkBot.Net.Agent.Windows.Game;
+using DarkBot.Net.Infrastructure.Game;
 
-namespace DarkBot.Net.Agent.Windows.Tests;
+namespace DarkBot.Net.Infrastructure.Game.Tests;
 
 public sealed class GamePacketReaderTests
 {

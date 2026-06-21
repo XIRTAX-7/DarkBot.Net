@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DarkBot.Net.Presentation.ViewModels"
+             x:Class="DarkBot.Net.Presentation.Controls.StatsPanelControl"
+             x:DataType="vm:StatsPanelViewModel">
+  <Border Padding="12" Background="#FF1E2430">
+    <StackPanel Spacing="8">
+      <TextBlock FontWeight="SemiBold" FontSize="16" Text="Stats" />
+      <TextBlock Text="{Binding Credits, StringFormat=Credits: {0:N0}}" />
+      <TextBlock Text="{Binding Uridium, StringFormat=Uridium: {0:N0}}" />
+      <TextBlock Text="{Binding Experience, StringFormat=Experience: {0:N0}}" />
+      <TextBlock Text="{Binding Honor, StringFormat=Honor: {0:N0}}" />
+      <Separator Margin="0,4" />
+      <TextBlock Text="{Binding Ping, StringFormat=Ping: {0} ms}" />
+      <TextBlock Text="{Binding TickCount, StringFormat=Ticks: {0}}" />
+      <TextBlock Text="{Binding LastTickMs, StringFormat=Last tick: {0:0.#} ms}" />
+      <TextBlock Text="{Binding Runtime, StringFormat=Runtime: {0}}" />
+    </StackPanel>
+  </Border>
+</UserControl>

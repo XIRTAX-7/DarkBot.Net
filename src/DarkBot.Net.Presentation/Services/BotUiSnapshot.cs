@@ -1,0 +1,25 @@
+namespace DarkBot.Net.Presentation.Services;
+
+public sealed record BotUiSnapshot(
+    bool HeroValid,
+    bool HeroOnMap,
+    int HeroId,
+    double HeroX,
+    double HeroY,
+    int HeroHp,
+    int HeroMaxHp,
+    int MapId,
+    string MapName,
+    int MapWidth,
+    int MapHeight,
+    IReadOnlyList<MapPortalSnapshot> Portals,
+    bool BotRunning,
+    long TickCount,
+    double LastTickMs,
+    double Credits,
+    double Uridium,
+    double Experience,
+    double Honor,
+    int Ping,
+    string BackpageStatus,
+    bool BackpageValid);

@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DarkBot.Net.Presentation.ViewModels"
+             x:Class="DarkBot.Net.Presentation.Controls.ConfigTreeControl"
+             x:DataType="vm:ConfigTreeViewModel">
+  <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*">
+    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,8"
+               Text="{Binding Profile, StringFormat=Profile: {0}}" />
+    <TreeView Grid.Row="1" Grid.Column="0" Margin="0,0,8,0"
+              ItemsSource="{Binding RootNodes}"
+              SelectedItem="{Binding SelectedNode}">
+      <TreeView.ItemTemplate>
+        <TreeDataTemplate ItemsSource="{Binding Children}">
+          <TextBlock Text="{Binding Name}" />
+        </TreeDataTemplate>
+      </TreeView.ItemTemplate>
+    </TreeView>
+    <StackPanel Grid.Row="1" Grid.Column="1" Spacing="8">
+      <TextBlock FontWeight="SemiBold" Text="Value editor" />
+      <TextBlock Text="{Binding SelectedNode.Path, FallbackValue=Select a setting}" />
+      <CheckBox IsChecked="{Binding SelectedNode.BoolValue}"
+                Content="Enabled" />
+      <TextBox Text="{Binding SelectedNode.EditorValue}" />
+    </StackPanel>
+  </Grid>
+</UserControl>

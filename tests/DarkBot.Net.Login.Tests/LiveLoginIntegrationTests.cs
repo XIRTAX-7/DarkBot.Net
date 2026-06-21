@@ -1,7 +1,8 @@
+using DarkBot.Net.Core.Options;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-namespace DarkBot.Net.Login.Tests;
+namespace DarkBot.Net.Infrastructure.Auth.Tests;
 
 /// <summary>Run with DARKBOT_LIVE_LOGIN=1 and DARKBOT_LOGIN_USER / DARKBOT_LOGIN_PASS env vars.</summary>
 public class LiveLoginIntegrationTests

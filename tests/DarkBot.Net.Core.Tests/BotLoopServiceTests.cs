@@ -1,16 +1,16 @@
-using DarkBot.Net.Agent.Windows.Game;
-using DarkBot.Net.Api.Game;
-using DarkBot.Net.Core;
-using DarkBot.Net.Core.Bot;
-using DarkBot.Net.Core.Managers;
-using DarkBot.Net.Core.Memory;
-using DarkBot.Net.Core.Tests.Fakes;
-using DarkBot.Net.Plugins;
+using DarkBot.Net.Application.Bot;
+using DarkBot.Net.Application.Extensions;
+using DarkBot.Net.Application.Managers;
+using DarkBot.Net.Application.Memory;
+using DarkBot.Net.Application.Tests.Fakes;
+using DarkBot.Net.Core.Game;
+using DarkBot.Net.Core.Interfaces.Game;
+using DarkBot.Net.Core.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace DarkBot.Net.Core.Tests;
+namespace DarkBot.Net.Application.Tests;
 
 public class BotLoopServiceTests
 {
@@ -43,11 +43,11 @@ public class BotLoopServiceTests
             .ConfigureServices(services =>
             {
                 services.AddLogging();
-                services.AddDarkBotPlugins();
                 services.AddSingleton<BotAddressRegistry>();
                 services.AddSingleton<FakeGameConnection>();
                 services.AddSingleton<IGameConnection>(sp => sp.GetRequiredService<FakeGameConnection>());
                 services.AddSingleton<IGameFridaProbe, NullGameFridaProbe>();
+                services.AddSingleton<BotModuleRunner>();
                 services.AddSingleton<BotInstallerService>();
                 services.AddSingleton<StarManager>();
                 services.AddSingleton<HeroManager>();
@@ -60,9 +60,6 @@ public class BotLoopServiceTests
                 services.AddSingleton<I18nApi>();
                 services.AddSingleton<OreApi>();
                 services.AddSingleton<StarSystemApi>();
-                services.AddSingleton<LegacyModuleApi>();
-                services.AddSingleton<ModuleController>();
-                services.AddSingleton<BotApi>();
                 services.AddSingleton<BotRuntime>();
                 services.AddSingleton<BotLoopService>();
                 services.AddHostedService(sp => sp.GetRequiredService<BotLoopService>());

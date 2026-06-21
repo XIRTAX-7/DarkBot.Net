@@ -1,18 +1,22 @@
 <Solution>
-  <Project Path="src/DarkBot.Net.Api/DarkBot.Net.Api.csproj" />
-  <Project Path="src/DarkBot.Net.Config/DarkBot.Net.Config.csproj" />
-  <Project Path="src/DarkBot.Net.Core/DarkBot.Net.Core.csproj" />
-  <Project Path="src/DarkBot.Net.Backpage/DarkBot.Net.Backpage.csproj" />
-  <Project Path="src/DarkBot.Net.Login/DarkBot.Net.Login.csproj" />
-  <Project Path="src/DarkBot.Net.Plugins.Abstractions/DarkBot.Net.Plugins.Abstractions.csproj" />
-  <Project Path="src/DarkBot.Net.Plugins/DarkBot.Net.Plugins.csproj" />
-  <Project Path="plugins/DarkBot.Net.DefaultPlugin/DarkBot.Net.DefaultPlugin.csproj" />
-  <Project Path="src/DarkBot.Net.Agent.Windows/DarkBot.Net.Agent.Windows.csproj" />
-  <Project Path="src/DarkBot.Net.Ui/DarkBot.Net.Ui.csproj" />
-  <Project Path="tests/DarkBot.Net.Api.Tests/DarkBot.Net.Api.Tests.csproj" />
-  <Project Path="tests/DarkBot.Net.Core.Tests/DarkBot.Net.Core.Tests.csproj" />
-  <Project Path="tests/DarkBot.Net.Backpage.Tests/DarkBot.Net.Backpage.Tests.csproj" />
-  <Project Path="tests/DarkBot.Net.Login.Tests/DarkBot.Net.Login.Tests.csproj" />
-  <Project Path="tests/DarkBot.Net.Config.Tests/DarkBot.Net.Config.Tests.csproj" />
-  <Project Path="tests/DarkBot.Net.Plugins.Tests/DarkBot.Net.Plugins.Tests.csproj" />
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+    <File Path="ARCHITECTURE.md" />
+    <File Path="PARITY_STATUS.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/DarkBot.Net.Core/DarkBot.Net.Core.csproj" />
+    <Project Path="src/DarkBot.Net.Application/DarkBot.Net.Application.csproj" />
+    <Project Path="src/DarkBot.Net.Infrastructure/DarkBot.Net.Infrastructure.csproj" />
+    <Project Path="src/DarkBot.Net.Presentation/DarkBot.Net.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DarkBot.Net.Api.Tests/DarkBot.Net.Api.Tests.csproj" />
+    <Project Path="tests/DarkBot.Net.Core.Tests/DarkBot.Net.Core.Tests.csproj" />
+    <Project Path="tests/DarkBot.Net.Agent.Windows.Tests/DarkBot.Net.Agent.Windows.Tests.csproj" />
+    <Project Path="tests/DarkBot.Net.Backpage.Tests/DarkBot.Net.Backpage.Tests.csproj" />
+    <Project Path="tests/DarkBot.Net.Config.Tests/DarkBot.Net.Config.Tests.csproj" />
+    <Project Path="tests/DarkBot.Net.Login.Tests/DarkBot.Net.Login.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -1,0 +1,338 @@
+---
+alwaysApply: true
+---
+
+# Cursor AI — Правила для .NET 10 / C# 14
+
+## Язык общения
+- Всегда общаться на **русском языке**
+- Комментарии в коде — на русском
+- XML-документация (`/// <summary>`) — на русском
+- Сообщения об ошибках и логи — на английском (стандарт .NET экосистемы)
+
+---
+
+## Платформа и версии
+- **Целевой фреймворк:** `net10.0`
+- **Версия языка:** C# 14 (все новые возможности разрешены и приветствуются)
+- **Nullable reference types:** всегда включены (`<Nullable>enable</Nullable>`)
+- **ImplicitUsings:** включены (`<ImplicitUsings>enable</ImplicitUsings>`)
+
+---
+
+## Стиль кода
+
+### Общие принципы
+- Следовать официальным [Microsoft C# Coding Conventions](https://learn.microsoft.com/dotnet/csharp/fundamentals/coding-style/coding-conventions)
+- Предпочитать **читаемость** над краткостью
+- Один файл — один публичный тип (кроме record/enum вспомогательных типов)
+- Максимальная длина метода — ~30 строк; если больше — рефакторить
+
+### Именование
+```
+PascalCase     → классы, интерфейсы, методы, свойства, события, константы
+camelCase      → локальные переменные, параметры методов
+_camelCase     → приватные поля
+IPascalCase    → интерфейсы (префикс I)
+TPascalCase    → generic-параметры типов (префикс T)
+```
+
+### Форматирование
+- Отступы — **4 пробела** (не табы)
+- Фигурные скобки — **Allman style** (на новой строке)
+- Одна пустая строка между методами
+- `using` директивы — вверху файла, сортировать: System → Microsoft → сторонние → свои
+
+---
+
+## Возможности C# 14 — использовать активно
+
+```csharp
+// ✅ Primary constructors
+public class OrderService(IOrderRepository repository, ILogger<OrderService> logger)
+{
+    public async Task<Order> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var order = await repository.GetByIdAsync(id, ct)
+            ?? throw new NotFoundException($"Заказ {id} не найден");
+        return order;
+    }
+}
+
+// ✅ Collection expressions
+int[] numbers = [1, 2, 3, 4, 5];
+List<string> names = ["Alice", "Bob"];
+Span<int> span = [..numbers, 6, 7];
+
+// ✅ Pattern matching (расширенный)
+var description = order.Status switch
+{
+    OrderStatus.Pending => "Ожидает обработки",
+    OrderStatus.Processing => "В обработке",
+    OrderStatus.Completed => "Завершён",
+    _ => "Неизвестный статус"
+};
+
+// ✅ Record types для DTO/Value Objects
+public record CreateOrderRequest(Guid CustomerId, IReadOnlyList<OrderItem> Items);
+public record OrderId(Guid Value);
+
+// ✅ Required members
+public class UserProfile
+{
+    public required string Email { get; init; }
+    public required string Name { get; init; }
+    public string? Bio { get; init; }
+}
+
+// ✅ Raw string literals
+var json = """
+    {
+        "key": "value"
+    }
+    """;
+
+// ✅ Interceptors (C# 14)
+// ✅ Params collections
+// ✅ Inline arrays (где уместно)
+```
+
+---
+
+## Асинхронное программирование
+
+```csharp
+// ✅ Всегда async/await, никогда .Result или .Wait()
+// ✅ CancellationToken везде где есть I/O
+// ✅ ConfigureAwait(false) в библиотечном коде
+
+public async Task<IReadOnlyList<Product>> GetProductsAsync(
+    ProductFilter filter,
+    CancellationToken cancellationToken = default)
+{
+    return await dbContext.Products
+        .Where(p => p.IsActive)
+        .OrderBy(p => p.Name)
+        .ToListAsync(cancellationToken)
+        .ConfigureAwait(false);
+}
+
+// ✅ IAsyncEnumerable для потоков данных
+public async IAsyncEnumerable<LogEntry> StreamLogsAsync(
+    [EnumeratorCancellation] CancellationToken ct = default)
+{
+    await foreach (var entry in logSource.ReadAsync(ct))
+        yield return entry;
+}
+```
+
+---
+
+## Архитектура и паттерны
+
+### Чистая архитектура (предпочтительна)
+```
+Domain        → сущности, value objects, доменные события, интерфейсы репозиториев
+Application   → use cases (команды/запросы MediatR), DTO, маппинг
+Infrastructure→ EF Core, репозитории, внешние сервисы, SignalR hubs
+Presentation  → Controllers/Minimal API, Middleware, DI регистрация
+```
+
+### Обязательные паттерны
+- **Result<T>** вместо исключений для ожидаемых ошибок
+- **CQRS** через MediatR (команды отделены от запросов)
+- **Repository + UnitOfWork** для доступа к данным
+- **Domain Events** через MediatR `INotification`
+
+```csharp
+// ✅ Result pattern
+public readonly record struct Result<T>
+{
+    public T? Value { get; }
+    public string? Error { get; }
+    public bool IsSuccess => Error is null;
+
+    private Result(T value) => Value = value;
+    private Result(string error) => Error = error;
+
+    public static Result<T> Ok(T value) => new(value);
+    public static Result<T> Fail(string error) => new(error);
+}
+
+// ✅ MediatR команда
+public record CreateOrderCommand(Guid CustomerId, IReadOnlyList<OrderItemDto> Items)
+    : IRequest<Result<Guid>>;
+
+public class CreateOrderCommandHandler(
+    IOrderRepository orders,
+    IUnitOfWork unitOfWork,
+    IPublisher publisher)
+    : IRequestHandler<CreateOrderCommand, Result<Guid>>
+{
+    public async Task<Result<Guid>> Handle(
+        CreateOrderCommand request,
+        CancellationToken cancellationToken)
+    {
+        // логика...
+    }
+}
+```
+
+---
+
+## Dependency Injection
+
+```csharp
+// ✅ Регистрация через extension methods
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddOrderModule(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IOrderService, OrderService>();
+        return services;
+    }
+}
+
+// ✅ Жизненные циклы:
+// Scoped    → репозитории, DbContext, use cases
+// Singleton → кэши, конфигурация, фоновые сервисы
+// Transient → лёгкие stateless-сервисы
+```
+
+---
+
+## Entity Framework Core
+
+```csharp
+// ✅ Fluent API в отдельных IEntityTypeConfiguration<T>
+public class OrderConfiguration : IEntityTypeConfiguration<Order>
+{
+    public void Configure(EntityTypeBuilder<Order> builder)
+    {
+        builder.HasKey(o => o.Id);
+        builder.Property(o => o.Id)
+            .HasConversion(id => id.Value, value => new OrderId(value));
+        builder.OwnsOne(o => o.Address);
+        builder.HasMany(o => o.Items).WithOne().HasForeignKey("OrderId");
+    }
+}
+
+// ✅ AsNoTracking для read-only запросов
+// ✅ Проекции через Select для DTO
+// ✅ Не выставлять IQueryable за пределы репозитория
+```
+
+---
+
+## Обработка ошибок
+
+```csharp
+// ✅ Кастомные исключения для доменных ошибок
+public class DomainException(string message) : Exception(message);
+public class NotFoundException(string message) : DomainException(message);
+public class ValidationException(IEnumerable<string> errors)
+    : DomainException("Ошибка валидации")
+{
+    public IReadOnlyList<string> Errors { get; } = errors.ToList();
+}
+
+// ✅ Глобальный обработчик через Middleware или IExceptionHandler (.NET 8+)
+// ✅ ProblemDetails для API ответов об ошибках
+// ✅ Логировать с контекстом через structured logging
+logger.LogError(ex, "Ошибка при создании заказа для клиента {CustomerId}", customerId);
+```
+
+---
+
+## Логирование и наблюдаемость
+
+```csharp
+// ✅ Microsoft.Extensions.Logging (ILogger<T>)
+// ✅ Serilog как провайдер с sink в файл/seq/loki
+// ✅ Structured logging — всегда именованные параметры
+
+// ✅ Source generators для логирования (производительность)
+[LoggerMessage(Level = LogLevel.Information, Message = "Заказ {OrderId} создан")]
+private static partial void LogOrderCreated(ILogger logger, Guid orderId);
+
+// ✅ OpenTelemetry для трейсинга
+// ✅ Activity.Current для кастомных spans
+```
+
+---
+
+## Тестирование
+
+```csharp
+// ✅ xUnit как тестовый фреймворк
+// ✅ FluentAssertions для читаемых assertions
+// ✅ NSubstitute для моков
+// ✅ Bogus для генерации тестовых данных
+// ✅ Testcontainers для интеграционных тестов с реальной БД
+
+public class CreateOrderCommandHandlerTests
+{
+    private readonly IOrderRepository _repository = Substitute.For<IOrderRepository>();
+    private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
+
+    [Fact]
+    public async Task Handle_ValidCommand_ReturnsSuccessResult()
+    {
+        // Arrange
+        var command = new CreateOrderCommand(Guid.NewGuid(), []);
+
+        // Act
+        var result = await _sut.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+}
+```
+
+---
+
+## Безопасность
+- Никогда не хранить секреты в коде — только `IConfiguration` / `IOptions<T>`
+- Валидировать все входные данные через FluentValidation
+- Использовать `SecureString` или `ReadOnlyMemory<char>` для паролей
+- Параметризованные запросы всегда (EF Core делает это автоматически)
+
+---
+
+## Запрещено
+```csharp
+// ❌ var result = task.Result;          — дедлок
+// ❌ task.Wait();                        — дедлок
+// ❌ catch (Exception ex) { }           — поглощение ошибок
+// ❌ public List<T> Items { get; set; } — изменяемые коллекции в API
+// ❌ DateTime.Now                        — использовать TimeProvider (.NET 8+)
+// ❌ Guid.NewGuid() в доменных объектах — инжектировать IIdGenerator
+// ❌ static изменяемое состояние        — проблемы с многопоточностью
+// ❌ Magic strings/numbers              — использовать константы или enums
+```
+
+---
+
+## Предпочтительные NuGet-пакеты
+| Назначение | Пакет |
+|---|---|
+| CQRS / Mediator | `MediatR` |
+| Валидация | `FluentValidation` |
+| Маппинг | `Mapperly` (source gen) |
+| ORM | `Microsoft.EntityFrameworkCore` |
+| Message Bus | `MassTransit` + `MassTransit.RabbitMQ` |
+| Outbox Pattern | `MassTransit.EntityFrameworkCore` (Outbox) |
+| Фоновые задачи | `Quartz.NET` (`Quartz.Extensions.Hosting`) |
+| Логирование | `Serilog` + `Serilog.Sinks.GrafanaLoki` |
+| Тесты | `xunit`, `FluentAssertions`, `NSubstitute`, `Bogus` |
+| Integration тесты | `Testcontainers.PostgreSql` |
+| OpenAPI | `Scalar` |
+| Resilience | `Polly` / `Microsoft.Extensions.Http.Resilience` |
+| Real-time | `Microsoft.AspNetCore.SignalR` + `MessagePack` |
+| Auth Server | `OpenIddict` (сервер + валидация) |
+| Обработка ошибок | `ErrorOr` |

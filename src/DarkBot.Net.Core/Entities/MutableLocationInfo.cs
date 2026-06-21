@@ -1,4 +1,4 @@
-using DarkBot.Net.Api.Game;
+using DarkBot.Net.Core.Game;
 
 namespace DarkBot.Net.Core.Entities;
 

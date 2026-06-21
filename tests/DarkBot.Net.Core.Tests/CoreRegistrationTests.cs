@@ -1,17 +1,16 @@
-using DarkBot.Net.Core;
+using DarkBot.Net.Application.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DarkBot.Net.Core.Tests;
+namespace DarkBot.Net.Application.Tests;
 
 public class CoreRegistrationTests
 {
     [Fact]
-    public void AddDarkBotCore_registers_managers_and_bot_loop()
+    public void AddApplication_registers_managers_and_bot_loop()
     {
         var services = new ServiceCollection();
-        services.AddDarkBotCore();
+        services.AddApplication();
 
-        Assert.Same(services, services);
         Assert.Contains(services, d => d.ServiceType == typeof(Bot.BotLoopService));
         Assert.Contains(services, d => d.ServiceType == typeof(Managers.HeroManager));
         Assert.Contains(services, d => d.ServiceType == typeof(Managers.MapManager));

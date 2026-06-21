@@ -1,4 +1,4 @@
-namespace DarkBot.Net.Login.Tests;
+namespace DarkBot.Net.Infrastructure.Auth.Tests;
 
 public class DarkBackpageCaptchaSolverTests
 {

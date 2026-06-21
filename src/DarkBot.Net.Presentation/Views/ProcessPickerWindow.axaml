@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:game="using:DarkBot.Net.Infrastructure.Game"
+        x:Class="DarkBot.Net.Presentation.Views.ProcessPickerWindow"
+        Title="Select Flash process"
+        Width="520"
+        Height="360"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="12">
+    <TextBlock DockPanel.Dock="Top" Margin="0,0,0,8"
+               Text="Select the DarkOrbit Flash process to attach:" />
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+      <Button Content="Attach" Click="OnAttachClick" />
+      <Button Content="Cancel" Click="OnCancelClick" />
+    </StackPanel>
+    <ListBox x:Name="ProcessList">
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="game:GameProcessInfo">
+          <TextBlock Text="{Binding Name}" />
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</Window>

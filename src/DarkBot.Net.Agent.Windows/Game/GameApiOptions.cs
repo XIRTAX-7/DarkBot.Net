@@ -31,6 +31,15 @@ public sealed class GameApiOptions
     /// <summary>darkDev avm_move.py HTTP port (default 44570).</summary>
     public int FridaApiPort { get; set; } = 44570;
 
+    /// <summary>Darkorbit-client control WS port (inject/controlServer.js, default 44568).</summary>
+    public int ControlPort { get; set; } = 44568;
+
+    /// <summary>packet_dumper.py WebSocket port (default 44569).</summary>
+    public int PacketPort { get; set; } = 44569;
+
+    /// <summary>Enable packet bridge from Darkorbit-client to .NET.</summary>
+    public bool EnablePacketBridge { get; set; } = true;
+
     /// <summary>Path to Darkorbit-client repo (auto-detected if empty).</summary>
     public string DarkorbitClientPath { get; set; } = string.Empty;
 
@@ -39,4 +48,13 @@ public sealed class GameApiOptions
 
     /// <summary>Seconds to wait for GET /status ready after map load.</summary>
     public int FridaReadyTimeoutSec { get; set; } = 180;
+
+    /// <summary>Milliseconds between Pepper process polls during connect.</summary>
+    public int ConnectPollIntervalMs { get; set; } = 400;
+
+    /// <summary>Milliseconds between Frida /status polls during connect.</summary>
+    public int FridaReadyPollIntervalMs { get; set; } = 500;
+
+    /// <summary>Delay before Frida attach after page load (Darkorbit-client MovementTimeout).</summary>
+    public int MovementTimeoutMs { get; set; } = 8000;
 }

@@ -15,17 +15,29 @@ public static class DarkorbitClientPaths
         if (!string.IsNullOrWhiteSpace(env) && IsClientRoot(env))
             return Path.GetFullPath(env);
 
+        string? fallback = null;
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         for (var i = 0; i < 8 && dir is not null; i++, dir = dir.Parent)
         {
             var candidate = Path.Combine(dir.FullName, "Darkorbit-client");
-            if (IsClientRoot(candidate))
+            if (!IsClientRoot(candidate))
+                continue;
+
+            if (HasNpmDependencies(candidate))
                 return candidate;
+
+            fallback ??= candidate;
         }
+
+        if (fallback is not null)
+            return fallback;
 
         throw new DirectoryNotFoundException(
             "Darkorbit-client not found. Set DarkBot:DarkorbitClientPath or DARKORBIT_CLIENT_PATH.");
     }
+
+    public static bool HasNpmDependencies(string clientRoot) =>
+        Directory.Exists(Path.Combine(clientRoot, "node_modules", "electron"));
 
     public static bool IsClientRoot(string path) =>
         File.Exists(Path.Combine(path, "package.json"))

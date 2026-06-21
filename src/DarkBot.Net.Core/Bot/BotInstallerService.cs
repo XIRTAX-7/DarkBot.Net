@@ -16,6 +16,7 @@ public sealed class BotInstallerService : IHostedService, IDisposable
     private long _lastInternetRead;
     private long _invalidTimerDeadlineMs;
     private bool _invalidTimerArmed;
+    private long _installedScreenManager;
 
     public BotInstallerService(
         BotAddressRegistry addresses,
@@ -111,13 +112,13 @@ public sealed class BotInstallerService : IHostedService, IDisposable
         if (mainApplicationAddress == 0 || mainAddress == 0 || screenManagerAddress == 0)
             return true;
 
+        if (_installedScreenManager == screenManagerAddress && !_addresses.IsInvalid)
+            return false;
+
         _addresses.SetMainApplicationAddress(mainApplicationAddress);
         _addresses.SetMainAddress(mainAddress);
         _addresses.SetScreenManagerAddress(screenManagerAddress);
-
-        var guiManagerAddress = _game.ReadLong(mainAddress + 512);
-        if (guiManagerAddress != 0)
-            _addresses.SetGuiManagerAddress(guiManagerAddress);
+        _installedScreenManager = screenManagerAddress;
 
         var connectionManager = FridaBridgeStatus.ParsePtr(status.ConnectionManager);
         if (connectionManager != 0)
@@ -139,6 +140,19 @@ public sealed class BotInstallerService : IHostedService, IDisposable
 
     private void ValidateInstalledAddresses()
     {
+        if (_game.Mode == GameApiMode.FridaClient)
+        {
+            if (!_game.IsValid)
+            {
+                _logger.LogDebug("Frida no longer ready — invalidating addresses");
+                _installedScreenManager = 0;
+                _addresses.MarkInvalid();
+                return;
+            }
+
+            return;
+        }
+
         if (_game.ReadLong(_addresses.MainApplicationAddress + 1344) != _addresses.MainAddress)
         {
             _addresses.MarkInvalid();

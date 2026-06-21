@@ -51,6 +51,8 @@ class Client {
 
             tools.contextMenu(this.arg.dev);
 
+            this.registerControlIpc();
+
             this.createWindow(this.shouldLaunchGameMap() ? "game" : "client");
 
             if (!settings.getSync().master && typeof this.arg.login === "undefined" && typeof this.arg.sid === "undefined" && !settings.getSync().hideMasterRegister) {
@@ -67,6 +69,46 @@ class Client {
 
             return this;
         })()
+    }
+
+    registerControlIpc() {
+        if (this._controlIpcRegistered) {
+            return;
+        }
+
+        this._controlIpcRegistered = true;
+
+        ipcMain.handle("getIdBrowser", async (event) => event.sender.id);
+        ipcMain.handle("getAppMetrics", async () => this.core.app.getAppMetrics());
+        ipcMain.handle("getAppVersion", async () => this.core.app.getVersion());
+        ipcMain.handle("controlSetSize", async (event, width, height) => {
+            const window = BrowserWindow.fromWebContents(event.sender);
+            window?.setSize(width, height);
+        });
+        ipcMain.handle("controlSetVisible", async (event, visible) => {
+            const window = BrowserWindow.fromWebContents(event.sender);
+            if (!window) {
+                return;
+            }
+
+            if (visible) {
+                window.show();
+            } else {
+                window.hide();
+            }
+        });
+        ipcMain.handle("controlSetMinimized", async (event, minimized) => {
+            const window = BrowserWindow.fromWebContents(event.sender);
+            if (!window) {
+                return;
+            }
+
+            if (minimized) {
+                window.minimize();
+            } else {
+                window.restore();
+            }
+        });
     }
 
     shouldLaunchGameMap() {

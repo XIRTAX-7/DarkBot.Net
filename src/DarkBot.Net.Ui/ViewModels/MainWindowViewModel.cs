@@ -33,7 +33,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private BotUiSnapshot _snapshot = new(
-        false, 0, 0, 0, 0, 0, -1, "unknown", 21000, 13500,
+        false, false, 0, 0, 0, 0, 0, -1, "Загрузка", 21000, 13500,
+        Array.Empty<MapPortalSnapshot>(),
         false, 0, 0, 0, 0, 0, 0, 0, "unknown", false);
 
     public MainWindowViewModel(
@@ -64,7 +65,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         GameStatusLine = _gameStatus.StatusLine;
         StatusLine = Snapshot.HeroValid
             ? $"{Snapshot.MapName} — HP {Snapshot.HeroHp}/{Snapshot.HeroMaxHp} — tick {Snapshot.LastTickMs:0.#} ms"
-            : _gameStatus.StatusLine;
+            : Snapshot.HeroOnMap
+                ? $"{Snapshot.MapName} — ({Snapshot.HeroX:0}, {Snapshot.HeroY:0}) — {_gameStatus.StatusLine}"
+                : Snapshot.MapId == -1
+                ? _gameStatus.StatusLine
+                : $"{Snapshot.MapName} — {_gameStatus.StatusLine}";
     }
 
     [RelayCommand]

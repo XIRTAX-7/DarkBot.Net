@@ -112,13 +112,41 @@ public sealed class MapCanvasControl : Control
                 canvas.DrawLine(x, offsetY, x, offsetY + mapHeight * scale, gridPaint);
             }
 
+            var mapId = _snapshot?.MapId ?? -1;
+            var isLoading = mapId == -1;
+
             for (var gy = 0; gy <= mapHeight; gy += gridStep)
             {
                 var y = offsetY + gy * scale;
                 canvas.DrawLine(offsetX, y, offsetX + mapWidth * scale, y, gridPaint);
             }
 
-            if (_snapshot?.HeroValid == true)
+            if (!isLoading && _snapshot?.Portals is { Count: > 0 } portals)
+            {
+                using var portalRing = new SKPaint
+                {
+                    Color = new SKColor(174, 174, 174),
+                    IsStroke = true,
+                    StrokeWidth = 2,
+                    IsAntialias = true
+                };
+                using var portalFont = new SKFont { Size = 10 };
+                using var portalLabelPaint = new SKPaint
+                {
+                    Color = new SKColor(190, 190, 190),
+                    IsAntialias = true
+                };
+
+                foreach (var portal in portals)
+                {
+                    var px = offsetX + portal.X * scale;
+                    var py = offsetY + portal.Y * scale;
+                    canvas.DrawCircle(px, py, 6, portalRing);
+                    canvas.DrawText(portal.TargetLabel, px, py - 10, SKTextAlign.Center, portalFont, portalLabelPaint);
+                }
+            }
+
+            if (_snapshot?.HeroOnMap == true)
             {
                 var heroX = offsetX + (float)_snapshot.HeroX * scale;
                 var heroY = offsetY + (float)_snapshot.HeroY * scale;
@@ -146,14 +174,36 @@ public sealed class MapCanvasControl : Control
                 Color = SKColors.White,
                 IsAntialias = true
             };
-            using var labelFont = new SKFont { Size = 14 };
-            var mapLabel = _snapshot is null ? "Map" : $"{_snapshot.MapName} ({_snapshot.MapId})";
-            canvas.DrawText(mapLabel, 8, 20, SKTextAlign.Left, labelFont, labelPaint);
 
-            if (_snapshot is { HeroValid: true })
+            var mapName = _snapshot?.MapName ?? "Загрузка";
+
+            if (isLoading)
             {
-                var hpLabel = $"HP {_snapshot.HeroHp}/{_snapshot.HeroMaxHp}";
-                canvas.DrawText(hpLabel, 8, 38, SKTextAlign.Left, labelFont, labelPaint);
+                using var loadingFont = new SKFont { Size = 20 };
+                using var loadingPaint = new SKPaint
+                {
+                    Color = new SKColor(200, 210, 220),
+                    IsAntialias = true
+                };
+                canvas.DrawText(
+                    mapName,
+                    width / 2f,
+                    height / 2f - 5,
+                    SKTextAlign.Center,
+                    loadingFont,
+                    loadingPaint);
+            }
+            else
+            {
+                using var labelFont = new SKFont { Size = 14 };
+                var mapLabel = $"{mapName} ({mapId})";
+                canvas.DrawText(mapLabel, 8, 20, SKTextAlign.Left, labelFont, labelPaint);
+
+                if (_snapshot is { HeroValid: true })
+                {
+                    var hpLabel = $"HP {_snapshot.HeroHp}/{_snapshot.HeroMaxHp}";
+                    canvas.DrawText(hpLabel, 8, 38, SKTextAlign.Left, labelFont, labelPaint);
+                }
             }
         }
 

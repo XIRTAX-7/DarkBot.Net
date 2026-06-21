@@ -32,8 +32,10 @@
         "PreventCloseGame": false,
         "PreventCloseSessionWindow": false,
         "DefaultDev": false,
-        "Packet": false,
-        "PacketTimeout": 15000,
+        "Control": true,
+        "ControlPort": 44568,
+        "Packet": true,
+        "PacketTimeout": 5000,
         "Movement": true,
         "MovementPort": 44570,
         "MovementTimeout": 5000

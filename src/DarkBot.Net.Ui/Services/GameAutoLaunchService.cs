@@ -12,7 +12,7 @@ public sealed class GameAutoLaunchService : IHostedService
 {
     private readonly IBackpageApi _backpage;
     private readonly GameSessionStore _sessionStore;
-    private readonly GameLauncherService _launcher;
+    private readonly GameLaunchOrchestrator _orchestrator;
     private readonly LoginService _loginService;
     private readonly GameApiOptions _options;
     private readonly ILogger<GameAutoLaunchService> _logger;
@@ -20,14 +20,14 @@ public sealed class GameAutoLaunchService : IHostedService
     public GameAutoLaunchService(
         IBackpageApi backpage,
         GameSessionStore sessionStore,
-        GameLauncherService launcher,
+        GameLaunchOrchestrator orchestrator,
         LoginService loginService,
         IOptions<GameApiOptions> options,
         ILogger<GameAutoLaunchService> logger)
     {
         _backpage = backpage;
         _sessionStore = sessionStore;
-        _launcher = launcher;
+        _orchestrator = orchestrator;
         _loginService = loginService;
         _options = options.Value;
         _logger = logger;
@@ -77,12 +77,7 @@ public sealed class GameAutoLaunchService : IHostedService
             _sessionStore.Save(launch);
         }
 
-        await _launcher.LaunchAsync(launch, cancellationToken).ConfigureAwait(false);
-        var result = await _launcher.ConnectAsync(cancellationToken).ConfigureAwait(false);
-        if (result.Success)
-            _logger.LogInformation("Auto-connect OK — Pepper pid {Pid}", result.PepperPid);
-        else
-            _logger.LogWarning("Auto-connect failed: {Error}", result.Error);
+        await _orchestrator.LaunchAndConnectAsync(launch, cancellationToken).ConfigureAwait(false);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

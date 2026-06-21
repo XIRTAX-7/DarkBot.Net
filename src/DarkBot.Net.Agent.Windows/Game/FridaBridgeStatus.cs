@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace DarkBot.Net.Agent.Windows.Game;
 
-/// <summary>Snapshot from darkDev GET /status — game pointers for BotInstaller / DarkMem.</summary>
+/// <summary>Snapshot from darkDev GET /status — Frida AVM game state.</summary>
 public sealed class FridaBridgeStatus
 {
     [JsonPropertyName("ready")]
@@ -40,6 +40,36 @@ public sealed class FridaBridgeStatus
 
     [JsonPropertyName("gotoMethodName")]
     public string? GotoMethodName { get; init; }
+
+    [JsonPropertyName("mapAddress")]
+    public string? MapAddress { get; init; }
+
+    [JsonPropertyName("mapId")]
+    public int MapId { get; init; }
+
+    [JsonPropertyName("mapWidth")]
+    public int MapWidth { get; init; }
+
+    [JsonPropertyName("mapHeight")]
+    public int MapHeight { get; init; }
+
+    [JsonPropertyName("heroId")]
+    public int HeroId { get; init; }
+
+    [JsonPropertyName("heroX")]
+    public double HeroX { get; init; }
+
+    [JsonPropertyName("heroY")]
+    public double HeroY { get; init; }
+
+    [JsonPropertyName("heroHp")]
+    public int HeroHp { get; init; }
+
+    [JsonPropertyName("heroMaxHp")]
+    public int HeroMaxHp { get; init; }
+
+    [JsonPropertyName("entityCount")]
+    public int EntityCount { get; init; }
 
     public static long ParsePtr(string? value)
     {

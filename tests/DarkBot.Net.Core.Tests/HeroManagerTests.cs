@@ -7,25 +7,28 @@ namespace DarkBot.Net.Core.Tests;
 public class HeroManagerTests
 {
     [Fact]
-    public void Tick_reads_hero_hp_from_memory()
+    public void Tick_reads_hero_from_frida_snapshot()
     {
         var addresses = new BotAddressRegistry();
-        var memory = new FakeGameMemoryAccess();
-        var hero = new HeroManager(addresses, memory, new StarManager());
+        var frida = new FakeGameFridaProbe
+        {
+            HeroId = 42,
+            HeroHp = 180000,
+            HeroMaxHp = 250000,
+            HeroX = 193,
+            HeroY = 113
+        };
+        var hero = new HeroManager(addresses, frida, new StarManager());
 
-        const long screenManager = 0x1000;
-        const long heroStatic = screenManager + 240;
-        const long shipAddress = 0x3000;
-
-        addresses.SetScreenManagerAddress(screenManager);
-        memory.SetLong(heroStatic, shipAddress);
-        memory.SetInt(shipAddress + 56, 42);
-        memory.SetHeroHp(shipAddress, 180000);
-
+        addresses.SetScreenManagerAddress(0x1000);
         hero.Tick();
 
         Assert.True(hero.IsValid);
+        Assert.True(hero.HasMapPosition);
         Assert.Equal(42, hero.Id);
         Assert.Equal(180000, hero.Health.Hp);
+        Assert.Equal(250000, hero.Health.MaxHp);
+        Assert.Equal(193, hero.X);
+        Assert.Equal(113, hero.Y);
     }
 }

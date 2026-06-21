@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddDarkBotLogin();
 
         services.Configure<DarkBotUiOptions>(Program.Configuration.GetSection(DarkBotUiOptions.SectionName));
+        services.Configure<TestLoginOptions>(Program.Configuration.GetSection(TestLoginOptions.SectionName));
         services.Configure<GameApiOptions>(options =>
         {
             var ui = Program.Configuration.GetSection(DarkBotUiOptions.SectionName).Get<DarkBotUiOptions>()
@@ -48,6 +49,7 @@ public static class ServiceCollectionExtensions
         services.Configure<PluginOptions>(Program.Configuration.GetSection(DarkBotUiOptions.SectionName));
 
         services.AddSingleton<BotUiStateService>();
+        services.AddSingleton<GameLaunchOrchestrator>();
         services.AddSingleton<GameConnectionStatusService>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<LoginViewModel>();

@@ -1,5 +1,6 @@
 using DarkBot.Net.Agent.Windows.Game;
 using DarkBot.Net.Agent.Windows.Memory;
+using DarkBot.Net.Api.Game;
 using DarkBot.Net.Core;
 using DarkBot.Net.Core.Bot;
 using DarkBot.Net.Core.Managers;
@@ -51,6 +52,7 @@ public class BotLoopServiceTests
                 services.AddSingleton<IGameMemoryAccess, FakeGameMemoryAccess>();
                 services.AddSingleton<FakeGameConnection>();
                 services.AddSingleton<IGameConnection>(sp => sp.GetRequiredService<FakeGameConnection>());
+                services.AddSingleton<IGameFridaProbe, NullGameFridaProbe>();
                 services.AddSingleton(sp =>
                 {
                     var registry = sp.GetRequiredService<BotAddressRegistry>();

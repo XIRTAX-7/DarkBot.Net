@@ -2,6 +2,7 @@ namespace DarkBot.Net.Ui.Services;
 
 public sealed record BotUiSnapshot(
     bool HeroValid,
+    bool HeroOnMap,
     int HeroId,
     double HeroX,
     double HeroY,
@@ -11,6 +12,7 @@ public sealed record BotUiSnapshot(
     string MapName,
     int MapWidth,
     int MapHeight,
+    IReadOnlyList<MapPortalSnapshot> Portals,
     bool BotRunning,
     long TickCount,
     double LastTickMs,

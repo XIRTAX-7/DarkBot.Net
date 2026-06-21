@@ -17,6 +17,7 @@ internal static class Program
         Configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables(prefix: "DARKBOT_")
             .Build();
 
@@ -49,6 +50,16 @@ internal static class Program
         finally
         {
             Log.Information("DarkBot.Net UI shutting down");
+            try
+            {
+                AppHost?.StopAsync(CancellationToken.None).GetAwaiter().GetResult();
+                AppHost?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Error stopping application host");
+            }
+
             Log.CloseAndFlush();
         }
     }

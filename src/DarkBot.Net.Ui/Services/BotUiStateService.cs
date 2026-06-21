@@ -7,14 +7,14 @@ namespace DarkBot.Net.Ui.Services;
 
 public sealed class BotUiStateService
 {
-    private readonly IHeroApi _hero;
+    private readonly HeroManager _hero;
     private readonly MapManager _map;
     private readonly IStatsApi _stats;
     private readonly IBotController _bot;
     private readonly IBackpageApi _backpage;
 
     public BotUiStateService(
-        IHeroApi hero,
+        HeroManager hero,
         MapManager map,
         IStatsApi stats,
         IBotController bot,
@@ -32,6 +32,7 @@ public sealed class BotUiStateService
         var health = _hero.Health;
         return new BotUiSnapshot(
             HeroValid: _hero.IsValid,
+            HeroOnMap: _hero.HasMapPosition,
             HeroId: _hero.ShipId,
             HeroX: _hero.X,
             HeroY: _hero.Y,
@@ -41,6 +42,9 @@ public sealed class BotUiStateService
             MapName: _hero.Map.Name,
             MapWidth: _map.InternalWidth,
             MapHeight: _map.InternalHeight,
+            Portals: _map.Portals
+                .Select(p => new MapPortalSnapshot(p.X, p.Y, p.TargetShortName))
+                .ToArray(),
             BotRunning: _bot.IsRunning,
             TickCount: _bot.TickCount,
             LastTickMs: _bot.LastTickMs,

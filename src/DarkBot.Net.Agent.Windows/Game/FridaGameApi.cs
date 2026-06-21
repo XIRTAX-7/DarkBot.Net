@@ -8,7 +8,8 @@ using Microsoft.Extensions.Options;
 namespace DarkBot.Net.Agent.Windows.Game;
 
 /// <summary>
-/// Pepper / Darkorbit-client path: memory via DarkMem attach, game actions via darkDev HTTP (:44570).
+/// Pepper / Darkorbit-client path: game state via Frida AVM (/status), actions via darkDev HTTP (:44570).
+/// Raw ReadInt/Long/Double remain for BotInstaller pattern search only — managers use <see cref="IGameFridaProbe"/>.
 /// </summary>
 public sealed class FridaGameApi : IGameConnection, IDisposable
 {
@@ -21,6 +22,8 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
 
     private readonly NativeGameBridge _bridge;
     private readonly HttpClient _http;
+    private readonly ElectronControlClient _control;
+    private readonly GamePacketReader _packetReader;
     private readonly GameApiOptions _options;
     private readonly ILogger<FridaGameApi> _logger;
     private readonly object _statusLock = new();
@@ -28,13 +31,18 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
     private long _pid;
     private FridaBridgeStatus? _cachedStatus;
     private long _lastActivityMs;
+    private long _lastStatusRefreshMs;
 
     public FridaGameApi(
         NativeGameBridge bridge,
+        ElectronControlClient control,
+        GamePacketReader packetReader,
         IOptions<GameApiOptions> options,
         ILogger<FridaGameApi> logger)
     {
         _bridge = bridge;
+        _control = control;
+        _packetReader = packetReader;
         _options = options.Value;
         _logger = logger;
         _http = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
@@ -81,8 +89,14 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
             SetPhase(GameConnectionPhase.Connected);
     }
 
-    public void RefreshStatus()
+    public bool RefreshStatus()
     {
+        var now = Environment.TickCount64;
+        if (now - _lastStatusRefreshMs < 250)
+            return _cachedStatus is not null;
+
+        _lastStatusRefreshMs = now;
+
         try
         {
             var status = _http.GetFromJsonAsync<FridaBridgeStatus>(StatusUrl()).GetAwaiter().GetResult();
@@ -94,10 +108,13 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
 
             if (status?.Ready == true && _phase == GameConnectionPhase.WaitingForGameLoad)
                 SetPhase(GameConnectionPhase.Connected);
+
+            return true;
         }
         catch (Exception ex)
         {
             _logger.LogDebug(ex, "Frida /status poll failed");
+            return false;
         }
     }
 
@@ -190,20 +207,35 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
         return result?.Ok == true;
     }
 
-    public void Reload() { }
+    public void Reload()
+    {
+        try
+        {
+            _control.ReloadAsync().GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Darkorbit-client reload failed");
+        }
+    }
 
     public void HandleRefresh(bool useFakeDailyLogin = true)
     {
-        _logger.LogWarning("FridaClient refresh requested — reload via Darkorbit-client WS");
+        _logger.LogInformation("FridaClient refresh — reloading Darkorbit-client page");
         SetPhase(GameConnectionPhase.WaitingForGameLoad);
         lock (_statusLock)
             _cachedStatus = null;
+
+        Reload();
     }
 
     public long LastInternetReadTime()
     {
         RefreshStatus();
-        return _lastActivityMs > 0 ? _lastActivityMs : Environment.TickCount64;
+
+        var packetMs = _packetReader.LastPacketAt?.ToUnixTimeMilliseconds() ?? 0;
+        var activityMs = Math.Max(_lastActivityMs, packetMs);
+        return activityMs > 0 ? activityMs : Environment.TickCount64;
     }
 
     public void ClearCache(string pattern) { }
@@ -245,6 +277,16 @@ public sealed class FridaGameApi : IGameConnection, IDisposable
     {
         if (_pid == 0)
             throw new InvalidOperationException("No Pepper process attached.");
+    }
+
+    public void MarkLaunching() => SetPhase(GameConnectionPhase.Launching);
+
+    public void MarkWaitingForGameLoad() => SetPhase(GameConnectionPhase.WaitingForGameLoad);
+
+    public void MarkFailed(string reason)
+    {
+        LastFailureReason = reason;
+        SetPhase(GameConnectionPhase.Failed);
     }
 
     private void SetPhase(GameConnectionPhase phase)

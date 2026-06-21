@@ -46,7 +46,17 @@ var gameState = {
     lastPacketActivityMs: 0,
     flashHookInstalled: false,
     flashHookTarget: null,
-    flashModule: flash_lib ? flash_lib.name : null
+    flashModule: flash_lib ? flash_lib.name : null,
+    mapAddress: null,
+    mapId: 0,
+    mapWidth: 0,
+    mapHeight: 0,
+    heroId: 0,
+    heroX: 0,
+    heroY: 0,
+    heroHp: 0,
+    heroMaxHp: 0,
+    entityCount: 0
 };
 
 var hook_queue = [];
@@ -59,6 +69,7 @@ var hooked_method_infos = {};
 var actionQueue = [];
 var actionSeq = 0;
 var lastActionResult = null;
+var lastGameStateRefreshMs = 0;
 
 var SELECT_MAP_ASSET = 'MapAssetNotificationTRY_TO_SELECT_MAPASSET';
 
@@ -897,6 +908,106 @@ function findGotoMethodIndex(object) {
     return { index: 10, name: '(default index 10)' };
 }
 
+function readBindableIntAt(object, fieldOffset) {
+    var bindable = safeReadPointer(object, fieldOffset);
+    if (bindable.isNull()) {
+        return 0;
+    }
+    return Math.floor(bindable.add(0x38).readDouble());
+}
+
+function refreshMapState() {
+    gameState.mapAddress = null;
+    gameState.mapId = 0;
+    gameState.mapWidth = 0;
+    gameState.mapHeight = 0;
+    gameState.entityCount = 0;
+
+    if (!gameState.ready || !gameState.screenManager) {
+        return;
+    }
+
+    try {
+        var screenManager = removeKind(ptr(gameState.screenManager));
+        var mapAddr = safeReadPointer(screenManager, 256);
+        if (mapAddr.isNull()) {
+            return;
+        }
+
+        gameState.mapAddress = mapAddr.toString();
+        gameState.mapWidth = mapAddr.add(76).readS32();
+        gameState.mapHeight = mapAddr.add(80).readS32();
+        gameState.mapId = mapAddr.add(84).readS32();
+
+        var entitiesHeader = safeReadPointer(mapAddr, 40);
+        if (!entitiesHeader.isNull()) {
+            var count = entitiesHeader.add(0x18).readS32();
+            if (count >= 0 && count < 10000) {
+                gameState.entityCount = count;
+            }
+        }
+    } catch (e) {
+        gameState.mapAddress = null;
+        gameState.mapId = 0;
+        gameState.mapWidth = 0;
+        gameState.mapHeight = 0;
+        gameState.entityCount = 0;
+    }
+}
+
+function refreshHeroState() {
+    gameState.heroId = 0;
+    gameState.heroX = 0;
+    gameState.heroY = 0;
+    gameState.heroHp = 0;
+    gameState.heroMaxHp = 0;
+
+    if (!gameState.ready || !gameState.screenManager) {
+        return;
+    }
+
+    try {
+        // Java HeroManager.tick: address = readLong(screenManager + 240) each frame.
+        var screenManager = removeKind(ptr(gameState.screenManager));
+        var hero = safeReadPointer(screenManager, 240);
+        if (hero.isNull()) {
+            gameState.heroStatic = null;
+            return;
+        }
+
+        gameState.heroStatic = hero.toString();
+
+        gameState.heroId = hero.add(56).readS32();
+        if (gameState.heroId <= 0) {
+            gameState.heroId = 0;
+            return;
+        }
+
+        var location = safeReadPointer(hero, 64);
+        if (!location.isNull()) {
+            gameState.heroX = location.add(32).readDouble();
+            gameState.heroY = location.add(40).readDouble();
+        }
+
+        var health = safeReadPointer(hero, 184);
+        if (!health.isNull()) {
+            gameState.heroHp = readBindableIntAt(health, 48);
+            gameState.heroMaxHp = readBindableIntAt(health, 56);
+        }
+    } catch (e) {
+        gameState.heroId = 0;
+        gameState.heroX = 0;
+        gameState.heroY = 0;
+        gameState.heroHp = 0;
+        gameState.heroMaxHp = 0;
+    }
+}
+
+function refreshGameState() {
+    refreshMapState();
+    refreshHeroState();
+}
+
 function resolveGamePointers(main_address, main_application_base) {
     var mainPtr = removeKind(main_address);
     var screenManager = safeReadPointer(mainPtr, 504);
@@ -928,6 +1039,7 @@ function resolveGamePointers(main_address, main_application_base) {
     gameState.ready = true;
     gameState.error = null;
     gameState.lastScanNote = null;
+    refreshGameState();
 
     if (!gotoMethodInfo.isNull() && !methodIsCompiled(gotoMethodInfo)) {
         hookLater(gotoMethodInfo, function () {
@@ -1149,7 +1261,14 @@ function scanMainApplication() {
 
 rpc.exports = {
     isReady: function () { return gameState.ready; },
-    getStatus: function () { return JSON.stringify(gameState); },
+    getStatus: function () {
+        var now = Date.now();
+        if (now - lastGameStateRefreshMs >= 250) {
+            lastGameStateRefreshMs = now;
+            refreshGameState();
+        }
+        return JSON.stringify(gameState);
+    },
     moveTo: function (x, y) { return JSON.stringify(moveTo(x, y)); },
     collectTo: function (x, y, collectableAdr) {
         return JSON.stringify(collectTo(x, y, collectableAdr));

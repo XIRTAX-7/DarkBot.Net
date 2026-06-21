@@ -69,6 +69,31 @@ public sealed class DarkorbitClientLauncher
         _logger.LogInformation("Darkorbit-client electron pid {Pid}, log: {Log}", _process.Id, logPath);
     }
 
+    public void Stop()
+    {
+        if (_process is null)
+            return;
+
+        try
+        {
+            if (!_process.HasExited)
+            {
+                _logger.LogInformation("Stopping Darkorbit-client (pid {Pid})", _process.Id);
+                _process.Kill(entireProcessTree: true);
+                _process.WaitForExit(5000);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to stop Darkorbit-client");
+        }
+        finally
+        {
+            _process.Dispose();
+            _process = null;
+        }
+    }
+
     // Output pump removed — Electron GUI must not have redirected streams.
 
     private void EnsureBotSettings(string clientRoot)
@@ -99,7 +124,11 @@ public sealed class DarkorbitClientLauncher
             settings["NoSandbox"] = true;
             settings["Movement"] = true;
             settings["MovementPort"] = _options.FridaApiPort;
-            settings["MovementTimeout"] = 5000;
+            settings["MovementTimeout"] = _options.MovementTimeoutMs;
+            settings["Control"] = true;
+            settings["ControlPort"] = _options.ControlPort;
+            settings["Packet"] = _options.EnablePacketBridge;
+            settings["PacketTimeout"] = 5000;
             root["Settings"] = settings;
             root["check"] = true;
 
@@ -114,11 +143,10 @@ public sealed class DarkorbitClientLauncher
 
     private static void EnsureNpmDependencies(string clientRoot)
     {
-        var electronDir = Path.Combine(clientRoot, "node_modules", "electron");
-        if (Directory.Exists(electronDir))
+        if (DarkorbitClientPaths.HasNpmDependencies(clientRoot))
             return;
 
         throw new InvalidOperationException(
-            $"Darkorbit-client dependencies missing. Run in {clientRoot}: npm install");
+            $"Darkorbit-client dependencies missing in {clientRoot}. Run: npm install");
     }
 }

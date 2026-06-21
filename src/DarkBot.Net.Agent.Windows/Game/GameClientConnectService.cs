@@ -9,17 +9,20 @@ public sealed class GameClientConnectService
 {
     private readonly NativeGameBridge _bridge;
     private readonly FridaGameApi _frida;
+    private readonly ElectronControlClient _control;
     private readonly GameApiOptions _options;
     private readonly ILogger<GameClientConnectService> _logger;
 
     public GameClientConnectService(
         NativeGameBridge bridge,
         FridaGameApi frida,
+        ElectronControlClient control,
         IOptions<GameApiOptions> options,
         ILogger<GameClientConnectService> logger)
     {
         _bridge = bridge;
         _frida = frida;
+        _control = control;
         _options = options.Value;
         _logger = logger;
     }
@@ -58,6 +61,13 @@ public sealed class GameClientConnectService
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            var controlPid = await TryGetPepperPidFromControlAsync(cancellationToken).ConfigureAwait(false);
+            if (controlPid > 0 && !existingPids.Contains(controlPid))
+            {
+                _logger.LogInformation("Detected Pepper pid={Pid} via control WS", controlPid);
+                return controlPid;
+            }
+
             if (_bridge.IsInitialized)
             {
                 foreach (var proc in _bridge.GetProcesses())
@@ -73,10 +83,26 @@ public sealed class GameClientConnectService
                 }
             }
 
-            await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(_options.ConnectPollIntervalMs, cancellationToken).ConfigureAwait(false);
         }
 
         return 0;
+    }
+
+    private async Task<int> TryGetPepperPidFromControlAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (!await _control.TryConnectAsync(cancellationToken).ConfigureAwait(false))
+                return 0;
+
+            return await _control.GetPepperPidAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Control WS getPid failed");
+            return 0;
+        }
     }
 
     private async Task<bool> WaitForFridaReadyAsync(CancellationToken cancellationToken)
@@ -91,7 +117,7 @@ public sealed class GameClientConnectService
             if (_frida.CurrentStatus?.Ready == true)
                 return true;
 
-            await Task.Delay(1500, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(_options.FridaReadyPollIntervalMs, cancellationToken).ConfigureAwait(false);
         }
 
         return false;

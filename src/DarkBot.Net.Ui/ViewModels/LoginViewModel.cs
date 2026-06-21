@@ -4,7 +4,9 @@ using Avalonia.Controls;
 using DarkBot.Net.Backpage;
 using DarkBot.Net.Core.Managers;
 using DarkBot.Net.Login;
+using DarkBot.Net.Ui.Configuration;
 using DarkBot.Net.Ui.Game;
+using DarkBot.Net.Ui.Services;
 using DarkBot.Net.Agent.Windows.Game;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,7 +18,7 @@ public sealed partial class LoginViewModel : ViewModelBase
     private readonly LoginService _loginService;
     private readonly BackpageService _backpage;
     private readonly StatsManager _stats;
-    private readonly GameLauncherService _gameLauncher;
+    private readonly GameLaunchOrchestrator _gameLaunch;
     private readonly GameSessionStore _sessionStore;
     private readonly GameApiOptions _gameOptions;
     private readonly ILogger<LoginViewModel> _logger;
@@ -53,18 +55,32 @@ public sealed partial class LoginViewModel : ViewModelBase
         LoginService loginService,
         BackpageService backpage,
         StatsManager stats,
-        GameLauncherService gameLauncher,
+        GameLaunchOrchestrator gameLaunch,
         GameSessionStore sessionStore,
         IOptions<GameApiOptions> gameOptions,
+        IOptions<TestLoginOptions> testLoginOptions,
         ILogger<LoginViewModel> logger)
     {
         _loginService = loginService;
         _backpage = backpage;
         _stats = stats;
-        _gameLauncher = gameLauncher;
+        _gameLaunch = gameLaunch;
         _sessionStore = sessionStore;
         _gameOptions = gameOptions.Value;
         _logger = logger;
+
+        ApplyTestLoginDefaults(testLoginOptions.Value);
+    }
+
+    private void ApplyTestLoginDefaults(TestLoginOptions testLogin)
+    {
+        if (string.IsNullOrWhiteSpace(testLogin.Username) && string.IsNullOrWhiteSpace(testLogin.Password))
+            return;
+
+        Username = testLogin.Username.Trim();
+        Password = testLogin.Password;
+        SelectedTabIndex = 0;
+        _logger.LogDebug("Login form pre-filled from appsettings.Local.json");
     }
 
     public Window? OwnerWindow { get; set; }
@@ -94,28 +110,18 @@ public sealed partial class LoginViewModel : ViewModelBase
             var launchParameters = GameLaunchMapper.ToLaunchParameters(loginData);
             _sessionStore.Save(launchParameters);
 
-            StatusMessage = "Запуск Darkorbit-client…";
-            await _gameLauncher.LaunchAsync(launchParameters).ConfigureAwait(true);
-
-            if (_gameOptions.BrowserApi != GameApiMode.BackpageOnly)
-            {
-                StatusMessage = "Клиент запущен. Ждём карту и подключаем Frida (до 3 мин)…";
-                var connect = await _gameLauncher.ConnectAsync().ConfigureAwait(true);
-                StatusMessage = connect.Success
-                    ? $"Игра подключена (Pepper pid {connect.PepperPid})."
-                    : connect.Error ?? "Не удалось подключиться к игре.";
-                HasError = !connect.Success;
-            }
-            else
+            if (_gameOptions.BrowserApi == GameApiMode.BackpageOnly)
             {
                 StatusMessage = "Session saved.";
             }
-
-            if (!HasError)
+            else
             {
-                _logger.LogInformation("Login dialog completed successfully ({Mode})", loginMode);
-                LoginSucceeded?.Invoke();
+                StatusMessage = "Вход выполнен. Загрузка карты…";
+                _gameLaunch.ScheduleLaunch(launchParameters);
             }
+
+            _logger.LogInformation("Login dialog completed successfully ({Mode})", loginMode);
+            LoginSucceeded?.Invoke();
         }
         catch (WrongCredentialsException ex)
         {

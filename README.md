@@ -18,7 +18,9 @@ This repository is a **monorepo** with two main parts:
 DarkBot.Net.Ui (Avalonia)
     → login / backpage
     → spawns Darkorbit-client (--dosid)
-    → HTTP localhost:44570 (Frida avm_move.py — move, select, collect)
+    → HTTP localhost:44570 (Frida — move, select, collect)
+    → WS localhost:44568 (control — reload, pid, window)
+    → WS localhost:44569 (packets — invalid session detection)
     → DarkMem native reads (entity lists, hero stats)
     → bot loop @ 10 Hz
 ```
@@ -70,6 +72,9 @@ curl http://127.0.0.1:44570/status
   "DarkBot": {
     "BrowserApi": "FridaClient",
     "FridaApiPort": 44570,
+    "ControlPort": 44568,
+    "PacketPort": 44569,
+    "EnablePacketBridge": true,
     "DarkorbitClientPath": ""
   }
 }

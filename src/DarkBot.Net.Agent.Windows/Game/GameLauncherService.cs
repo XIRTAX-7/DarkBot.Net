@@ -15,6 +15,7 @@ public sealed class GameLauncherService
     private readonly GameApiOptions _options;
     private readonly ILogger<GameLauncherService> _logger;
     private readonly SemaphoreSlim _launchLock = new(1, 1);
+    private readonly SemaphoreSlim _bridgeInitLock = new(1, 1);
 
     public GameLauncherService(
         NativeGameBridge bridge,
@@ -38,11 +39,17 @@ public sealed class GameLauncherService
 
     public IGameConnection ActiveConnection => _fridaApi;
 
+    public Task WarmupBridgeAsync(CancellationToken cancellationToken = default) =>
+        EnsureEmbeddedBridgeAsync(cancellationToken);
+
     public async Task<GameClientConnectResult> LaunchAndConnectAsync(
         GameLaunchParameters launch,
         CancellationToken cancellationToken = default)
     {
-        await LaunchAsync(launch, cancellationToken).ConfigureAwait(false);
+        await Task.WhenAll(
+                LaunchAsync(launch, cancellationToken),
+                WarmupBridgeAsync(cancellationToken))
+            .ConfigureAwait(false);
         return await ConnectAsync(cancellationToken).ConfigureAwait(false);
     }
 
@@ -60,9 +67,16 @@ public sealed class GameLauncherService
 
             _sessionStore.Save(launch);
 
-            // Start Electron immediately — JVM bridge init can take 30+ s and must not block the client window.
-            _clientLauncher.Launch(launch);
-            _logger.LogInformation("Darkorbit-client started — load the map, then bot will attach via Frida");
+            if (_clientLauncher.IsRunning)
+            {
+                _logger.LogInformation("Darkorbit-client already running — skipping spawn");
+            }
+            else
+            {
+                _fridaApi.MarkLaunching();
+                _clientLauncher.Launch(launch);
+                _logger.LogInformation("Darkorbit-client started — load the map, then bot will attach via Frida");
+            }
         }
         finally
         {
@@ -72,8 +86,15 @@ public sealed class GameLauncherService
 
     public async Task<GameClientConnectResult> ConnectAsync(CancellationToken cancellationToken = default)
     {
+        if (_options.BrowserApi != GameApiMode.BackpageOnly)
+            _fridaApi.MarkWaitingForGameLoad();
+
         await EnsureEmbeddedBridgeAsync(cancellationToken).ConfigureAwait(false);
-        return await _connectService.ConnectAsync(cancellationToken).ConfigureAwait(false);
+        var result = await _connectService.ConnectAsync(cancellationToken).ConfigureAwait(false);
+        if (!result.Success)
+            _fridaApi.MarkFailed(result.Error ?? "Connect failed.");
+
+        return result;
     }
 
     public void AttachProcess(long pid) => _fridaApi.AttachProcess(pid);
@@ -83,27 +104,38 @@ public sealed class GameLauncherService
         if (_bridge.IsInitialized)
             return;
 
-        await _librarySetup.EnsureLibrariesAsync(cancellationToken).ConfigureAwait(false);
-        _librarySetup.PrepareRuntimePath();
-
-        var libDir = NativeBridgePaths.ResolveLibDir(_options.LibPath);
-        var workingDir = NativeBridgePaths.ResolveJvmWorkingDirectory(_options.JvmWorkingDirectory, libDir);
-
-        if (!NativeBridgePaths.EnsureDarkBotJarInLib(libDir, _options.DarkBotJarPath, _logger))
+        await _bridgeInitLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
         {
-            _logger.LogWarning(
-                "DarkBot.jar not found — DarkMem JNI may fail. Copy to ./lib/DarkBot.jar for memory reads.");
+            if (_bridge.IsInitialized)
+                return;
+
+            await _librarySetup.EnsureLibrariesAsync(cancellationToken).ConfigureAwait(false);
+            _librarySetup.PrepareRuntimePath();
+
+            var libDir = NativeBridgePaths.ResolveLibDir(_options.LibPath);
+            var workingDir = NativeBridgePaths.ResolveJvmWorkingDirectory(_options.JvmWorkingDirectory, libDir);
+
+            if (!NativeBridgePaths.EnsureDarkBotJarInLib(libDir, _options.DarkBotJarPath, _logger))
+            {
+                _logger.LogWarning(
+                    "DarkBot.jar not found — DarkMem JNI may fail. Copy to ./lib/DarkBot.jar for memory reads.");
+            }
+
+            var classPath = NativeBridgePaths.BuildBridgeClassPath(
+                NativeBridgePaths.ResolveClassesDir(_options.ClassesPath),
+                libDir,
+                _options.DarkBotJarPath);
+
+            _logger.LogInformation(
+                "Initializing DarkMem bridge (lib={LibDir}, user.dir={WorkingDir})",
+                libDir,
+                workingDir);
+            _bridge.Initialize(libDir, classPath, workingDir);
         }
-
-        var classPath = NativeBridgePaths.BuildBridgeClassPath(
-            NativeBridgePaths.ResolveClassesDir(_options.ClassesPath),
-            libDir,
-            _options.DarkBotJarPath);
-
-        _logger.LogInformation(
-            "Initializing DarkMem bridge (lib={LibDir}, user.dir={WorkingDir})",
-            libDir,
-            workingDir);
-        _bridge.Initialize(libDir, classPath, workingDir);
+        finally
+        {
+            _bridgeInitLock.Release();
+        }
     }
 }

@@ -69,8 +69,8 @@ curl http://127.0.0.1:44570/status
 
 ### Phase B — пакеты / invalid (частично)
 - [x] `lastPacketActivityMs` в агенте
-- [ ] Packet WS → .NET PacketReader
-- [ ] Refresh через Electron WS `reload`
+- [x] Packet WS → .NET `GamePacketReader` + `GamePacketBridgeHostedService`
+- [x] Refresh через Electron control WS `reload` (`ElectronControlClient`)
 
 ### Phase C — client hardening (частично)
 - [x] Movement + NoSandbox в `defaultSettings.json` и патч при запуске

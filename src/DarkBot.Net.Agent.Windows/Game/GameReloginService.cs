@@ -9,19 +9,35 @@ public sealed class GameReloginService
     private readonly GameSessionStore _sessionStore;
     private readonly IGameConnection _game;
     private readonly GameLauncherService _launcher;
+    private readonly GamePacketReader _packetReader;
     private readonly ILogger<GameReloginService> _logger;
     private long _lastFailedLoginMs;
+    private long _lastInvalidSessionMs;
 
     public GameReloginService(
         GameSessionStore sessionStore,
         IGameConnection game,
         GameLauncherService launcher,
+        GamePacketReader packetReader,
         ILogger<GameReloginService> logger)
     {
         _sessionStore = sessionStore;
         _game = game;
         _launcher = launcher;
+        _packetReader = packetReader;
         _logger = logger;
+
+        _packetReader.InvalidSessionDetected += OnInvalidSessionPacket;
+    }
+
+    private void OnInvalidSessionPacket(GamePacketMessage message)
+    {
+        if (_lastInvalidSessionMs + 60_000 > Environment.TickCount64)
+            return;
+
+        _lastInvalidSessionMs = Environment.TickCount64;
+        _logger.LogWarning("Invalid session packet detected ({Name}) — requesting client refresh", message.Name);
+        HandleRefresh();
     }
 
     public bool CanRelogin =>

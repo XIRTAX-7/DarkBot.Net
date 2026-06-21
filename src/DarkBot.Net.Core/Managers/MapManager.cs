@@ -1,32 +1,33 @@
+using DarkBot.Net.Api.Game;
 using DarkBot.Net.Core.Entities;
 using DarkBot.Net.Core.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace DarkBot.Net.Core.Managers;
 
-/// <summary>Port of MapManager — map id/dimensions from native memory.</summary>
+/// <summary>Port of MapManager — map state from Frida AVM (/status).</summary>
 public sealed class MapManager
 {
-    private const int MapAddressStaticOffset = 256;
-
     private readonly BotAddressRegistry _addresses;
-    private readonly IGameMemoryAccess _memory;
+    private readonly IGameFridaProbe _frida;
     private readonly StarManager _starManager;
     private readonly HeroManager _hero;
+    private readonly ILogger<MapManager> _logger;
 
-    private long _mapAddressStatic;
     private long _mapAddress;
 
     public MapManager(
         BotAddressRegistry addresses,
-        IGameMemoryAccess memory,
+        IGameFridaProbe frida,
         StarManager starManager,
-        HeroManager hero)
+        HeroManager hero,
+        ILogger<MapManager> logger)
     {
         _addresses = addresses;
-        _memory = memory;
+        _frida = frida;
         _starManager = starManager;
         _hero = hero;
-        _addresses.ScreenManagerAddressChanged += OnScreenManagerAddressChanged;
+        _logger = logger;
         _addresses.Invalidated += OnInvalidated;
     }
 
@@ -36,48 +37,74 @@ public sealed class MapManager
     public int InternalHeight { get; private set; } = 13500;
     public int TickCount { get; private set; }
 
+    public IReadOnlyList<MapPortalInfo> Portals { get; private set; } = Array.Empty<MapPortalInfo>();
+
     public void Tick()
     {
-        if (!_addresses.HasScreenManager)
+        if (!_addresses.HasScreenManager || !_frida.IsReady)
             return;
 
         TickCount++;
-        var temp = _memory.ReadLong(_mapAddressStatic);
-        if (_mapAddress != temp)
-            UpdateMap(temp);
+
+        if (!TryApplyFridaMap())
+            return;
     }
 
-    private void UpdateMap(long address)
+    private bool TryApplyFridaMap()
     {
-        _mapAddress = address;
-        if (address == 0)
-            return;
+        if (!_frida.TryGetMapSnapshot(out var currMap, out var width, out var height))
+            return false;
 
-        InternalWidth = _memory.ReadInt(address + 76);
-        InternalHeight = _memory.ReadInt(address + 80);
-        if (InternalHeight == 13100)
-            InternalHeight = 13500;
-        if (InternalHeight == 26200)
-            InternalHeight = 27000;
+        var ptr = _frida.MapPointer;
+        if (ptr != 0)
+            _mapAddress = ptr;
 
-        var currMap = _memory.ReadInt(address + 84);
-        if (currMap != MapId)
-            SwitchMap(currMap);
+        ApplyDimensions(width, height);
+
+        if (currMap == MapId)
+            return true;
+
+        SwitchMap(currMap);
+        return true;
+    }
+
+    private void ApplyDimensions(int width, int height)
+    {
+        InternalWidth = width;
+
+        if (height == 13100)
+            height = 13500;
+        else if (height == 26200)
+            height = 27000;
+
+        InternalHeight = height;
     }
 
     private void SwitchMap(int mapId)
     {
         MapId = mapId;
-        _hero.SetMap(_starManager.ById(mapId));
+        var map = _starManager.ById(mapId);
+        Portals = _starManager.GetPortals(mapId);
+        _hero.SetMap(map);
+        _logger.LogInformation(
+            "Map switched to {MapId} ({MapName}), {PortalCount} portals",
+            mapId,
+            map.Name,
+            Portals.Count);
     }
 
-    private void OnScreenManagerAddressChanged(long screenManagerAddress) =>
-        _mapAddressStatic = screenManagerAddress + MapAddressStaticOffset;
-
-    private void OnInvalidated()
+    private void ResetToLoading()
     {
-        MapId = -1;
         _mapAddress = 0;
+        Portals = Array.Empty<MapPortalInfo>();
+
+        if (MapId == -1)
+            return;
+
+        MapId = -1;
         _hero.SetMap(_starManager.ById(-1));
+        _logger.LogDebug("Map reset to loading");
     }
+
+    private void OnInvalidated() => ResetToLoading();
 }

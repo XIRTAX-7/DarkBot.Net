@@ -103,6 +103,11 @@ async function run() {
                     }
                 }
 
+                if (data.Settings.Control !== false) {
+                    const controlPort = data.Settings.ControlPort || 44568;
+                    require("./controlServer").startControlServer(controlPort);
+                }
+
                 if (data.Settings.PreventCloseGame) {
                     api.injectJs("bpCloseWindow = function() {}");
                     window.removeEventListener("beforeunload");

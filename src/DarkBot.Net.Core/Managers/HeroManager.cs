@@ -9,32 +9,28 @@ using DarkBot.Net.Core.Memory;
 
 namespace DarkBot.Net.Core.Managers;
 
-/// <summary>Port of HeroManager — hero state from native memory; mode/keybinds in Phase 3+.</summary>
+/// <summary>Port of HeroManager — hero state from Frida AVM (/status).</summary>
 public sealed class HeroManager : IHeroApi
 {
-    private const int HeroStaticOffset = 240;
-
     private readonly BotAddressRegistry _addresses;
-    private readonly IGameMemoryAccess _memory;
+    private readonly IGameFridaProbe _frida;
     private readonly StarManager _starManager;
     private readonly TrackedHealth _health = new();
     private readonly MutableLocationInfo _locationInfo = new();
     private readonly EntityInfoStub _entityInfo = new();
     private readonly Dictionary<string, object?> _metadata = new(StringComparer.Ordinal);
 
-    private long _staticAddress;
     private long _address;
     private ILockable? _localTarget;
     private GameMapModel _map;
     private HeroConfiguration _configuration = HeroConfiguration.Unknown;
 
-    public HeroManager(BotAddressRegistry addresses, IGameMemoryAccess memory, StarManager starManager)
+    public HeroManager(BotAddressRegistry addresses, IGameFridaProbe frida, StarManager starManager)
     {
         _addresses = addresses;
-        _memory = memory;
+        _frida = frida;
         _starManager = starManager;
         _map = starManager.ById(-1);
-        _addresses.ScreenManagerAddressChanged += OnScreenManagerAddressChanged;
     }
 
     internal void SetMap(GameMapModel map) => _map = map;
@@ -44,40 +40,26 @@ public sealed class HeroManager : IHeroApi
 
     public void Tick()
     {
-        if (!_addresses.HasScreenManager)
+        if (!_addresses.HasScreenManager || !_frida.IsReady)
             return;
 
-        var address = _memory.ReadLong(_staticAddress);
-        if (_address != address)
-            UpdateAddress(address);
-
-        Update();
-    }
-
-    private void UpdateAddress(long address)
-    {
-        _address = address;
-        if (address == 0)
+        if (!_frida.TryGetHeroSnapshot(out var heroId, out var x, out var y, out var hp, out var maxHp))
+        {
+            _address = 0;
+            HeroId = 0;
             return;
+        }
 
-        HeroId = _memory.ReadInt(address + 56);
-        var hp = _memory.ReadHeroHp(address);
-        _health.Update(hp);
+        _address = _frida.HeroPointer;
+        HeroId = heroId;
+        _health.Update(hp, maxHp > 0 ? maxHp : hp);
+
+        if (MapLoadValidator.IsSaneCoordinate(x, y))
+            _locationInfo.Update(x, y);
     }
 
-    private void Update()
-    {
-        if (_address == 0)
-            return;
-
-        var hp = _memory.ReadHeroHp(_address);
-        _health.Update(hp);
-    }
-
-    private void OnScreenManagerAddressChanged(long screenManagerAddress)
-    {
-        _staticAddress = screenManagerAddress + HeroStaticOffset;
-    }
+    public bool HasMapPosition =>
+        HeroId > 0 && MapLoadValidator.IsSaneCoordinate(X, Y);
 
     // IHeroApi + entity surface
 
@@ -132,7 +114,7 @@ public sealed class HeroManager : IHeroApi
     public ILocation? Destination => null;
 
     public int Id => HeroId;
-    public bool IsValid => _address != 0;
+    public bool IsValid => HeroId > 0 && _health.MaxHp > 0;
     public bool IsSelectable => false;
     public bool TrySelect(bool tryAttack) => false;
     public ILocationInfo LocationInfo => _locationInfo;

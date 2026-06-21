@@ -2,6 +2,7 @@ using Avalonia;
 using DarkBot.Net.Presentation.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using ReactiveUI.Avalonia;
 using Serilog;
 
 namespace DarkBot.Net.Presentation;
@@ -71,5 +72,7 @@ internal static class Program
             .WithDeveloperTools()
 #endif
             .WithInterFont()
+            .UseReactiveUI(_ => { })
+            .RegisterReactiveUIViewsFromEntryAssembly()
             .LogToTrace();
 }

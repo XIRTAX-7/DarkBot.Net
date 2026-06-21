@@ -1,0 +1,31 @@
+<rxui:ReactiveWindow xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:rxui="http://reactiveui.net"
+        xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels.Shell"
+        mc:Ignorable="d"
+        x:Class="DarkBot.Net.Presentation.Views.Shell.ShellWindowView"
+        x:TypeArguments="vm:ShellWindowViewModel"
+        x:DataType="vm:ShellWindowViewModel"
+        Title="DarkBot.Net"
+        Width="1280" Height="820"
+        MinWidth="1100" MinHeight="720"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent"
+        Design.Width="1280"
+        Design.Height="820">
+
+  <Design.DataContext>
+    <vm:ShellWindowViewModel />
+  </Design.DataContext>
+
+  <Grid>
+    <Border ClipToBounds="True"
+            Background="{StaticResource DbShellBackgroundImage}" />
+
+    <Border Background="#660A0D16" />
+
+    <rxui:ViewModelViewHost ViewModel="{Binding CurrentViewModel}" />
+  </Grid>
+</rxui:ReactiveWindow>

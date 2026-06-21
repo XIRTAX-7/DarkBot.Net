@@ -1,7 +1,7 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Presentation.Services;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace DarkBot.Net.Presentation.ViewModels;
 
@@ -11,28 +11,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly BotUiStateService _state;
     private readonly GameConnectionStatusService _gameStatus;
 
-    [ObservableProperty]
-    private string _title = "DarkBot.Net";
-
-    [ObservableProperty]
-    private bool _botRunning;
-
-    public string RunButtonText => BotRunning ? "Pause" : "Start";
-
-    [ObservableProperty]
-    private string _statusLine = "Ready";
-
-    [ObservableProperty]
-    private string _gameStatusLine = "Game not launched";
-
-    [ObservableProperty]
-    private string _backpageStatus = "unknown";
-
-    [ObservableProperty]
-    private bool _backpageValid;
-
-    [ObservableProperty]
-    private BotUiSnapshot _snapshot = new(
+    [Reactive] private string _title = "DarkBot.Net";
+    [Reactive] private bool _botRunning;
+    [Reactive] private string _runButtonText = "Start";
+    [Reactive] private string _statusLine = "Ready";
+    [Reactive] private string _gameStatusLine = "Game not launched";
+    [Reactive] private string _backpageStatus = "unknown";
+    [Reactive] private bool _backpageValid;
+    [Reactive] private BotUiSnapshot _snapshot = new(
         false, false, 0, 0, 0, 0, 0, -1, "Загрузка", 21000, 13500,
         Array.Empty<MapPortalSnapshot>(),
         false, 0, 0, 0, 0, 0, 0, 0, "unknown", false);
@@ -45,8 +31,19 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _bot = bot;
         _state = state;
         _gameStatus = gameStatus;
-        _gameStatus.StatusChanged += () => RefreshGameStatus();
+        _gameStatus.StatusChanged += RefreshGameStatus;
         Refresh();
+    }
+
+    /// <summary>Конструктор для design mode / XAML previewer.</summary>
+    public MainWindowViewModel()
+    {
+        _bot = null!;
+        _state = null!;
+        _gameStatus = null!;
+        Title = "DarkBot.Net";
+        StatusLine = "Ready — design mode";
+        BackpageStatus = "valid";
     }
 
     public void Refresh()
@@ -57,7 +54,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         BackpageValid = Snapshot.BackpageValid;
         RefreshGameStatus();
         Title = BotRunning ? "DarkBot.Net — running" : "DarkBot.Net — paused";
-        OnPropertyChanged(nameof(RunButtonText));
+        RunButtonText = BotRunning ? "Pause" : "Start";
     }
 
     private void RefreshGameStatus()
@@ -68,11 +65,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             : Snapshot.HeroOnMap
                 ? $"{Snapshot.MapName} — ({Snapshot.HeroX:0}, {Snapshot.HeroY:0}) — {_gameStatus.StatusLine}"
                 : Snapshot.MapId == -1
-                ? _gameStatus.StatusLine
-                : $"{Snapshot.MapName} — {_gameStatus.StatusLine}";
+                    ? _gameStatus.StatusLine
+                    : $"{Snapshot.MapName} — {_gameStatus.StatusLine}";
     }
 
-    [RelayCommand]
+    [ReactiveCommand]
     private void ToggleBot()
     {
         if (_bot.IsRunning)
@@ -83,6 +80,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         Refresh();
     }
 
-    [RelayCommand]
+    [ReactiveCommand]
     private void ToggleBotFromMap() => ToggleBot();
 }

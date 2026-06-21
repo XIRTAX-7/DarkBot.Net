@@ -1,20 +1,116 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<rxui:ReactiveUserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:DarkBot.Net.Presentation.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:rxui="http://reactiveui.net"
+             xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels"
+             mc:Ignorable="d"
              x:Class="DarkBot.Net.Presentation.Controls.StatsPanelControl"
-             x:DataType="vm:StatsPanelViewModel">
-  <Border Padding="12" Background="#FF1E2430">
-    <StackPanel Spacing="8">
-      <TextBlock FontWeight="SemiBold" FontSize="16" Text="Stats" />
-      <TextBlock Text="{Binding Credits, StringFormat=Credits: {0:N0}}" />
-      <TextBlock Text="{Binding Uridium, StringFormat=Uridium: {0:N0}}" />
-      <TextBlock Text="{Binding Experience, StringFormat=Experience: {0:N0}}" />
-      <TextBlock Text="{Binding Honor, StringFormat=Honor: {0:N0}}" />
-      <Separator Margin="0,4" />
-      <TextBlock Text="{Binding Ping, StringFormat=Ping: {0} ms}" />
-      <TextBlock Text="{Binding TickCount, StringFormat=Ticks: {0}}" />
-      <TextBlock Text="{Binding LastTickMs, StringFormat=Last tick: {0:0.#} ms}" />
-      <TextBlock Text="{Binding Runtime, StringFormat=Runtime: {0}}" />
-    </StackPanel>
+             x:TypeArguments="vm:StatsPanelViewModel"
+             x:DataType="vm:StatsPanelViewModel"
+             Design.Width="240"
+             Design.Height="480">
+
+  <Design.DataContext>
+    <vm:StatsPanelViewModel />
+  </Design.DataContext>
+
+  <Border Classes="dbPanel soft">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="14">
+        <StackPanel Spacing="3">
+          <TextBlock Classes="dbSectionTitle" Text="Ship telemetry" />
+          <TextBlock Classes="dbCaption" Text="Economy, runtime and network metrics." />
+        </StackPanel>
+
+        <Grid RowDefinitions="Auto,Auto"
+              ColumnDefinitions="*,*"
+              RowSpacing="10"
+              ColumnSpacing="10">
+          <Border Grid.Row="0" Grid.Column="0" Classes="dbMetricTile">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="dbMetricLabel" Text="Credits" />
+              <TextBlock Classes="dbMetricValue"
+                         Text="{Binding Credits, StringFormat={}{0:N0}}" />
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Row="0" Grid.Column="1" Classes="dbMetricTile">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="dbMetricLabel" Text="Uridium" />
+              <TextBlock Classes="dbMetricValue"
+                         Text="{Binding Uridium, StringFormat={}{0:N0}}" />
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Row="1" Grid.Column="0" Classes="dbMetricTile">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="dbMetricLabel" Text="Experience" />
+              <TextBlock Classes="dbMetricValue"
+                         Text="{Binding Experience, StringFormat={}{0:N0}}" />
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Row="1" Grid.Column="1" Classes="dbMetricTile">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="dbMetricLabel" Text="Honor" />
+              <TextBlock Classes="dbMetricValue"
+                         Text="{Binding Honor, StringFormat={}{0:N0}}" />
+            </StackPanel>
+          </Border>
+        </Grid>
+
+        <Border Classes="dbDivider" />
+
+        <StackPanel Spacing="10">
+          <Border Classes="dbCard">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="dbMetricLabel" Text="Ping" />
+                <TextBlock Classes="dbSubtitle" Text="Current connection latency" />
+              </StackPanel>
+              <TextBlock Grid.Column="1"
+                         Classes="dbSectionTitle dbMono"
+                         Text="{Binding Ping, StringFormat={}{0} ms}" />
+            </Grid>
+          </Border>
+
+          <Border Classes="dbCard">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="dbMetricLabel" Text="Ticks" />
+                <TextBlock Classes="dbSubtitle" Text="Bot loop updates" />
+              </StackPanel>
+              <TextBlock Grid.Column="1"
+                         Classes="dbSectionTitle dbMono"
+                         Text="{Binding TickCount}" />
+            </Grid>
+          </Border>
+
+          <Border Classes="dbCard">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="dbMetricLabel" Text="Last tick" />
+                <TextBlock Classes="dbSubtitle" Text="Processing duration" />
+              </StackPanel>
+              <TextBlock Grid.Column="1"
+                         Classes="dbSectionTitle dbMono"
+                         Text="{Binding LastTickMs, StringFormat={}{0:0.#} ms}" />
+            </Grid>
+          </Border>
+        </StackPanel>
+
+        <Border Classes="dbBadge accent"
+                HorizontalAlignment="Stretch"
+                Padding="12,8">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Text="Runtime" />
+            <TextBlock Grid.Column="1"
+                       Classes="dbMono"
+                       Text="{Binding Runtime}" />
+          </Grid>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
   </Border>
-</UserControl>
+</rxui:ReactiveUserControl>

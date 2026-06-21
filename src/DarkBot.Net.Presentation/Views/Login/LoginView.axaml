@@ -1,0 +1,93 @@
+<rxui:ReactiveUserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:rxui="http://reactiveui.net"
+        xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels"
+        mc:Ignorable="d"
+        x:Class="DarkBot.Net.Presentation.Views.Login.LoginView"
+        x:TypeArguments="vm:LoginViewModel"
+        x:DataType="vm:LoginViewModel"
+        Design.Width="520"
+        Design.Height="420">
+
+  <Design.DataContext>
+    <vm:LoginViewModel />
+  </Design.DataContext>
+
+  <Border Background="Transparent" Padding="24">
+    <Grid RowDefinitions="*,Auto,*">
+      <Border Grid.Row="1"
+              Classes="dbPanel"
+              MaxWidth="520"
+              HorizontalAlignment="Center">
+        <StackPanel Spacing="18">
+          <Border Classes="dbHero">
+            <StackPanel Spacing="6">
+              <Border Classes="dbBadge accent" HorizontalAlignment="Left">
+                <TextBlock Text="Secure session" />
+              </Border>
+              <TextBlock Classes="dbTitle" Text="DarkOrbit login" />
+              <TextBlock Classes="dbSubtitle"
+                         Text="Sign in with username/password or paste a browser SID. User id is resolved from the spacemap preloader." />
+            </StackPanel>
+          </Border>
+
+          <TabControl Classes="dbSegmented"
+                      SelectedIndex="{Binding SelectedTabIndex}">
+            <TabItem Header="User &amp; password">
+              <StackPanel Spacing="10" Margin="0,14,0,0">
+                <TextBox Classes="dbInput"
+                         PlaceholderText="Username"
+                         Text="{Binding Username}"
+                         IsEnabled="{Binding !IsBusy}" />
+                <TextBox Classes="dbInput"
+                         PlaceholderText="Password"
+                         Text="{Binding Password}"
+                         PasswordChar="●"
+                         IsEnabled="{Binding !IsBusy}" />
+                <TextBox Classes="dbInput"
+                         PlaceholderText="g-recaptcha-response (manual fallback)"
+                         Text="{Binding CaptchaToken}"
+                         IsEnabled="{Binding !IsBusy}" />
+              </StackPanel>
+            </TabItem>
+
+            <TabItem Header="SID">
+              <StackPanel Spacing="10" Margin="0,14,0,0">
+                <TextBox Classes="dbInput"
+                         PlaceholderText="Server (ru1, us1, ...)"
+                         Text="{Binding Server}"
+                         IsEnabled="{Binding !IsBusy}" />
+                <TextBox Classes="dbInput"
+                         PlaceholderText="SID (dosid)"
+                         Text="{Binding Sid}"
+                         IsEnabled="{Binding !IsBusy}" />
+              </StackPanel>
+            </TabItem>
+          </TabControl>
+
+          <Border Classes="dbCard">
+            <TextBlock Classes="dbSubtitle"
+                       Text="{Binding StatusMessage}"
+                       TextWrapping="Wrap" />
+          </Border>
+
+          <StackPanel Orientation="Horizontal"
+                      HorizontalAlignment="Right"
+                      Spacing="10">
+            <Button Classes="dbButton ghost"
+                    Content="Cancel"
+                    IsCancel="True"
+                    Click="OnCancelClick" />
+            <Button Classes="dbButton primary"
+                    Content="Log in"
+                    IsDefault="True"
+                    Command="{Binding LoginCommand}"
+                    IsEnabled="{Binding !IsBusy}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </Border>
+</rxui:ReactiveUserControl>

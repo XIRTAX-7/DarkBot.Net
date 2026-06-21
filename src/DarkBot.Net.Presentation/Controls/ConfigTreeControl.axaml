@@ -1,26 +1,633 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<rxui:ReactiveUserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:DarkBot.Net.Presentation.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:rxui="http://reactiveui.net"
+             xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels"
+             mc:Ignorable="d"
              x:Class="DarkBot.Net.Presentation.Controls.ConfigTreeControl"
-             x:DataType="vm:ConfigTreeViewModel">
-  <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,*">
-    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,8"
-               Text="{Binding Profile, StringFormat=Profile: {0}}" />
-    <TreeView Grid.Row="1" Grid.Column="0" Margin="0,0,8,0"
-              ItemsSource="{Binding RootNodes}"
-              SelectedItem="{Binding SelectedNode}">
-      <TreeView.ItemTemplate>
-        <TreeDataTemplate ItemsSource="{Binding Children}">
-          <TextBlock Text="{Binding Name}" />
-        </TreeDataTemplate>
-      </TreeView.ItemTemplate>
-    </TreeView>
-    <StackPanel Grid.Row="1" Grid.Column="1" Spacing="8">
-      <TextBlock FontWeight="SemiBold" Text="Value editor" />
-      <TextBlock Text="{Binding SelectedNode.Path, FallbackValue=Select a setting}" />
-      <CheckBox IsChecked="{Binding SelectedNode.BoolValue}"
-                Content="Enabled" />
-      <TextBox Text="{Binding SelectedNode.EditorValue}" />
-    </StackPanel>
-  </Grid>
-</UserControl>
+             x:TypeArguments="vm:ConfigTreeViewModel"
+             x:DataType="vm:ConfigTreeViewModel"
+             Design.Width="1180"
+             Design.Height="760">
+
+  <Design.DataContext>
+    <vm:ConfigTreeViewModel />
+  </Design.DataContext>
+
+  <TabControl Classes="dbSegmented">
+    <TabItem Header="Общие настройки">
+      <Grid ColumnDefinitions="220,*"
+            ColumnSpacing="0"
+            Margin="0,14,0,0">
+        <Border Grid.Column="0"
+                Classes="dbConfigSidebar">
+          <ListBox Classes="dbConfigNav"
+                   SelectedIndex="0">
+            <ListBoxItem Content="Главная" />
+            <ListBoxItem Content="Сбор" />
+            <ListBoxItem Content="Убийство NPC" />
+            <ListBoxItem Content="PET" />
+            <ListBoxItem Content="Группа" />
+            <ListBoxItem Content="Прочее" />
+            <ListBoxItem Content="Настройки бота" />
+            <ListBoxItem Content="Plugins" />
+          </ListBox>
+        </Border>
+
+        <Border Grid.Column="1" Classes="dbConfigContent">
+          <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="0">
+              <Grid Classes="dbConfigRow">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" MinWidth="280" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Classes="dbConfigLabel"
+                           Text="Модуль" />
+                <ComboBox Grid.Column="1"
+                          Classes="dbConfigCombo"
+                          SelectedIndex="0">
+                  <ComboBoxItem Content="Kill &amp; Collect" />
+                </ComboBox>
+              </Grid>
+
+              <Grid Classes="dbConfigRow">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" MinWidth="280" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Classes="dbConfigLabel"
+                           Text="Рабочая карта" />
+                <ComboBox Grid.Column="1"
+                          Classes="dbConfigCombo"
+                          SelectedIndex="0">
+                  <ComboBoxItem Content="2-5" />
+                </ComboBox>
+              </Grid>
+
+              <Grid Classes="dbConfigRow">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" MinWidth="280" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Classes="dbConfigLabel"
+                           Text="Конфигурация атаки" />
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="10">
+                  <StackPanel Classes="dbConfigToggleGroup"
+                              Orientation="Horizontal">
+                    <ToggleButton Classes="dbConfigToggle"
+                                  Content="1"
+                                  IsChecked="True" />
+                    <ToggleButton Classes="dbConfigToggle"
+                                  Content="2" />
+                  </StackPanel>
+                  <ComboBox Classes="dbConfigCombo narrow"
+                            SelectedIndex="0">
+                    <ComboBoxItem Content="Formation" />
+                  </ComboBox>
+                  <NumericUpDown Classes="dbConfigNumeric"
+                                 Value="9"
+                                 Minimum="0"
+                                 Maximum="99"
+                                 Width="72" />
+                </StackPanel>
+              </Grid>
+
+              <Grid Classes="dbConfigRow">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" MinWidth="280" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Classes="dbConfigLabel"
+                           Text="Конфигурация поиска" />
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="10">
+                  <StackPanel Classes="dbConfigToggleGroup"
+                              Orientation="Horizontal">
+                    <ToggleButton Classes="dbConfigToggle"
+                                  Content="1"
+                                  IsChecked="True" />
+                    <ToggleButton Classes="dbConfigToggle"
+                                  Content="2" />
+                  </StackPanel>
+                  <ComboBox Classes="dbConfigCombo narrow"
+                            SelectedIndex="0">
+                    <ComboBoxItem Content="Formation" />
+                  </ComboBox>
+                  <NumericUpDown Classes="dbConfigNumeric"
+                                 Value="0"
+                                 Minimum="0"
+                                 Maximum="99"
+                                 Width="72" />
+                </StackPanel>
+              </Grid>
+
+              <Grid Classes="dbConfigRow">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" MinWidth="280" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Classes="dbConfigLabel"
+                           Text="Конфигурация побега" />
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="10">
+                  <StackPanel Classes="dbConfigToggleGroup"
+                              Orientation="Horizontal">
+                    <ToggleButton Classes="dbConfigToggle"
+                                  Content="1"
+                                  IsChecked="True" />
+                    <ToggleButton Classes="dbConfigToggle"
+                                  Content="2" />
+                  </StackPanel>
+                  <ComboBox Classes="dbConfigCombo narrow"
+                            SelectedIndex="0">
+                    <ComboBoxItem Content="Formation" />
+                  </ComboBox>
+                  <NumericUpDown Classes="dbConfigNumeric"
+                                 Value="0"
+                                 Minimum="0"
+                                 Maximum="99"
+                                 Width="72" />
+                </StackPanel>
+              </Grid>
+
+              <Expander Classes="dbConfigSection"
+                        IsExpanded="True"
+                        Header="Безопасность">
+                <StackPanel Spacing="0">
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Сохранять прочность в интервале" />
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="6">
+                      <NumericUpDown Classes="dbConfigNumeric"
+                                     Value="75"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     Width="72" />
+                      <TextBlock Classes="dbConfigSuffix"
+                                 VerticalAlignment="Center"
+                                 Text="%" />
+                      <TextBlock Classes="dbConfigSuffix"
+                                 VerticalAlignment="Center"
+                                 Text="-" />
+                      <NumericUpDown Classes="dbConfigNumeric"
+                                     Value="95"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     Width="72" />
+                      <TextBlock Classes="dbConfigSuffix"
+                                 VerticalAlignment="Center"
+                                 Text="%" />
+                    </StackPanel>
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Ремонт при перемещении, когда прочность ниже" />
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="6">
+                      <NumericUpDown Classes="dbConfigNumeric"
+                                     Value="65"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     Width="72" />
+                      <TextBlock Classes="dbConfigSuffix"
+                                 VerticalAlignment="Center"
+                                 Text="%" />
+                    </StackPanel>
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Мин. кол-во щита" />
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="6">
+                      <NumericUpDown Classes="dbConfigNumeric"
+                                     Value="100"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     Width="72" />
+                      <TextBlock Classes="dbConfigSuffix"
+                                 VerticalAlignment="Center"
+                                 Text="%" />
+                    </StackPanel>
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Ремонтный конфиг" />
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="10">
+                      <StackPanel Classes="dbConfigToggleGroup"
+                                  Orientation="Horizontal">
+                        <ToggleButton Classes="dbConfigToggle"
+                                      Content="1" />
+                        <ToggleButton Classes="dbConfigToggle"
+                                      Content="2"
+                                      IsChecked="True" />
+                      </StackPanel>
+                      <ComboBox Classes="dbConfigCombo narrow"
+                                SelectedIndex="0">
+                        <ComboBoxItem Content="Formation" />
+                      </ComboBox>
+                      <NumericUpDown Classes="dbConfigNumeric"
+                                     Value="0"
+                                     Minimum="0"
+                                     Maximum="99"
+                                     Width="72" />
+                    </StackPanel>
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Макс. смертей" />
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="10">
+                      <CheckBox IsChecked="True"
+                                VerticalAlignment="Center" />
+                      <NumericUpDown Classes="dbConfigNumeric"
+                                     Value="10"
+                                     Minimum="0"
+                                     Maximum="999"
+                                     Width="72" />
+                    </StackPanel>
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Место возрождения" />
+                    <ComboBox Grid.Column="1"
+                              Classes="dbConfigCombo"
+                              SelectedIndex="0">
+                      <ComboBoxItem Content="База" />
+                    </ComboBox>
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Ожидание после возрождения (сек)" />
+                    <NumericUpDown Grid.Column="1"
+                                   Classes="dbConfigNumeric"
+                                   Value="5"
+                                   Minimum="0"
+                                   Maximum="9999"
+                                   Width="72" />
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Ожидание после возрождения (сек)" />
+                    <NumericUpDown Grid.Column="1"
+                                   Classes="dbConfigNumeric"
+                                   Value="90"
+                                   Minimum="0"
+                                   Maximum="9999"
+                                   Width="72" />
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Использовать мгновенный ремонт, когда выше" />
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="10">
+                      <CheckBox VerticalAlignment="Center" />
+                      <NumericUpDown Classes="dbConfigNumeric"
+                                     Value="500"
+                                     Minimum="0"
+                                     Maximum="999999"
+                                     Width="88" />
+                    </StackPanel>
+                  </Grid>
+                </StackPanel>
+              </Expander>
+
+              <Expander Classes="dbConfigSection"
+                        IsExpanded="True"
+                        Header="Бег">
+                <StackPanel Spacing="0">
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Убегать от врагов" />
+                    <CheckBox Grid.Column="1"
+                              IsChecked="True"
+                              HorizontalAlignment="Left" />
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Тег врага" />
+                    <ComboBox Grid.Column="1"
+                              Classes="dbConfigCombo"
+                              SelectedIndex="0">
+                      <ComboBoxItem Content="(Никто)" />
+                    </ComboBox>
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Запоминание врагов" />
+                    <NumericUpDown Grid.Column="1"
+                                   Classes="dbConfigNumeric"
+                                   Value="300"
+                                   Minimum="0"
+                                   Maximum="99999"
+                                   Width="88" />
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Убегать от врагов в поле зрения" />
+                    <CheckBox Grid.Column="1"
+                              HorizontalAlignment="Left" />
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Прекращает убегать, когда скрыты из виду" />
+                    <CheckBox Grid.Column="1"
+                              IsChecked="True"
+                              HorizontalAlignment="Left" />
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Максимальное поле зрения" />
+                    <NumericUpDown Grid.Column="1"
+                                   Classes="dbConfigNumeric"
+                                   Value="4000"
+                                   Minimum="0"
+                                   Maximum="999999"
+                                   Width="88" />
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Способность корабля" />
+                    <Button Grid.Column="1"
+                            Classes="dbConfigIconButton"
+                            Content="▦" />
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Мин. дистанция для способности" />
+                    <NumericUpDown Grid.Column="1"
+                                   Classes="dbConfigNumeric"
+                                   Value="1500"
+                                   Minimum="0"
+                                   Maximum="999999"
+                                   Width="88" />
+                  </Grid>
+
+                  <Grid Classes="dbConfigRow nested">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Classes="dbConfigLabel"
+                               Text="Макс. расстояние до ближайшего порта" />
+                    <NumericUpDown Grid.Column="1"
+                                   Classes="dbConfigNumeric"
+                                   Value="1500"
+                                   Minimum="0"
+                                   Maximum="999999"
+                                   Width="88" />
+                  </Grid>
+                </StackPanel>
+              </Expander>
+            </StackPanel>
+          </ScrollViewer>
+        </Border>
+      </Grid>
+    </TabItem>
+
+    <TabItem Header="Зоны карты">
+      <Grid RowDefinitions="Auto,*"
+            RowSpacing="14"
+            Margin="0,14,0,0">
+        <Border Classes="dbZoneToolbar">
+          <Grid ColumnDefinitions="*,Auto"
+                ColumnSpacing="14">
+            <StackPanel Spacing="3">
+              <TextBlock Classes="dbSectionTitle" Text="Зоны карты" />
+              <TextBlock Classes="dbCaption"
+                         Text="Редактор разметки 30 x 30 для предпочтительных, запретных и безопасных зон." />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="8"
+                        VerticalAlignment="Center">
+              <Button Classes="dbButton secondary"
+                      Content="Очистить" />
+              <Button Classes="dbButton primary"
+                      Content="Применить" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Grid Grid.Row="1"
+              ColumnDefinitions="*,300"
+              ColumnSpacing="14">
+          <Border Classes="dbPanel">
+            <Grid RowDefinitions="Auto,*"
+                  RowSpacing="12">
+              <TabControl Classes="dbZoneTypeTabs">
+                <TabItem Header="Предпочтительные зоны" />
+                <TabItem Header="Запретные зоны" />
+                <TabItem Header="Безопасные зоны" />
+              </TabControl>
+
+              <Border Grid.Row="1" Classes="dbZoneMapFrame">
+                <Grid RowDefinitions="Auto,*">
+                  <Border Classes="dbMapTopBar">
+                    <Grid ColumnDefinitions="Auto,Auto,*"
+                          ColumnSpacing="10">
+                      <TextBlock Classes="dbSectionTitle"
+                                 VerticalAlignment="Center"
+                                 Text="2-5" />
+                      <TextBlock Grid.Column="1"
+                                 Classes="dbCaption dbMono"
+                                 VerticalAlignment="Center"
+                                 Text="30 x 30" />
+                      <TextBlock Grid.Column="2"
+                                 Classes="dbCaption"
+                                 HorizontalAlignment="Right"
+                                 VerticalAlignment="Center"
+                                 Text="Выберите квадраты зон на карте" />
+                    </Grid>
+                  </Border>
+
+                  <Border Grid.Row="1" Classes="dbZoneMapEditor">
+                    <Grid ColumnDefinitions="*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*"
+                          RowDefinitions="*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*">
+                      <Border Grid.Row="4" Grid.Column="6" Classes="dbZoneCell preferred" />
+                      <Border Grid.Row="5" Grid.Column="7" Classes="dbZoneCell preferred" />
+                      <Border Grid.Row="7" Grid.Column="8" Classes="dbZoneCell preferred" />
+                      <Border Grid.Row="10" Grid.Column="14" Classes="dbZoneCell forbidden" />
+                      <Border Grid.Row="11" Grid.Column="14" Classes="dbZoneCell forbidden" />
+                      <Border Grid.Row="12" Grid.Column="15" Classes="dbZoneCell forbidden" />
+                      <Border Grid.Row="20" Grid.Column="5" Classes="dbZoneCell safe" />
+                      <Border Grid.Row="21" Grid.Column="5" Classes="dbZoneCell safe" />
+                      <Border Grid.Row="21" Grid.Column="6" Classes="dbZoneCell safe" />
+
+                      <Ellipse Grid.Row="14"
+                               Grid.Column="15"
+                               Classes="dbZoneShipMarker" />
+                    </Grid>
+                  </Border>
+                </Grid>
+              </Border>
+            </Grid>
+          </Border>
+
+          <Border Grid.Column="1" Classes="dbPanel soft">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <StackPanel Spacing="14">
+                <StackPanel Spacing="3">
+                  <TextBlock Classes="dbSectionTitle" Text="Параметры зон" />
+                  <TextBlock Classes="dbCaption"
+                             Text="UI для будущего выбора типа зоны, цвета и режима выделения." />
+                </StackPanel>
+
+                <Border Classes="dbDivider" />
+
+                <Border Classes="dbZoneLegend preferred">
+                  <Grid ColumnDefinitions="Auto,*">
+                    <Border Classes="dbZoneColorDot preferred" />
+                    <StackPanel Grid.Column="1" Spacing="2">
+                      <TextBlock Classes="dbSectionTitle" Text="Предпочтительные" />
+                      <TextBlock Classes="dbCaption" Text="Зоны, где боту желательно находиться." />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+
+                <Border Classes="dbZoneLegend forbidden">
+                  <Grid ColumnDefinitions="Auto,*">
+                    <Border Classes="dbZoneColorDot forbidden" />
+                    <StackPanel Grid.Column="1" Spacing="2">
+                      <TextBlock Classes="dbSectionTitle" Text="Запретные" />
+                      <TextBlock Classes="dbCaption" Text="Квадраты, которых бот должен избегать." />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+
+                <Border Classes="dbZoneLegend safe">
+                  <Grid ColumnDefinitions="Auto,*">
+                    <Border Classes="dbZoneColorDot safe" />
+                    <StackPanel Grid.Column="1" Spacing="2">
+                      <TextBlock Classes="dbSectionTitle" Text="Безопасные" />
+                      <TextBlock Classes="dbCaption" Text="Места для ожидания, ремонта или отступления." />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+
+                <Border Classes="dbCard">
+                  <StackPanel Spacing="10">
+                    <TextBlock Classes="dbMetricLabel" Text="Режим выделения" />
+                    <ComboBox SelectedIndex="0">
+                      <ComboBoxItem Content="Кисть: добавить квадраты" />
+                      <ComboBoxItem Content="Ластик: удалить квадраты" />
+                      <ComboBoxItem Content="Прямоугольник" />
+                    </ComboBox>
+                  </StackPanel>
+                </Border>
+
+                <Border Classes="dbCard">
+                  <StackPanel Spacing="10">
+                    <TextBlock Classes="dbMetricLabel" Text="Размер кисти" />
+                    <Slider Minimum="1"
+                            Maximum="5"
+                            Value="1" />
+                    <TextBlock Classes="dbCaption"
+                               Text="Настройка только визуальная: подключение сохранения будет отдельно." />
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+            </ScrollViewer>
+          </Border>
+        </Grid>
+      </Grid>
+    </TabItem>
+  </TabControl>
+</rxui:ReactiveUserControl>

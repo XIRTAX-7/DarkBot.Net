@@ -1,10 +1,8 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
-using DarkBot.Net.Core.Managers;
-using DarkBot.Net.Presentation.Views;
+using DarkBot.Net.Presentation.Services.Shell;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
@@ -16,32 +14,19 @@ public partial class App : global::Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        if (Program.AppHost is null)
+        {
+            base.OnFrameworkInitializationCompleted();
+            return;
+        }
+
         SetupGlobalExceptionLogging();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var mainWindow = new MainWindow();
-            desktop.MainWindow = mainWindow;
-            desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
-
-            var backpage = Program.AppHost.Services.GetRequiredService<IBackpageApi>();
-            if (!backpage.IsInstanceValid())
-            {
-                Log.Information("No valid session — opening login dialog");
-                mainWindow.Opened += OnMainWindowOpenedShowLogin;
-                void OnMainWindowOpenedShowLogin(object? sender, EventArgs e)
-                {
-                    mainWindow.Opened -= OnMainWindowOpenedShowLogin;
-                    new LoginWindow().ShowDialog(mainWindow);
-                }
-            }
-            else
-            {
-                Log.Information(
-                    "Existing session detected: userId={UserId}, instance={Instance}",
-                    backpage.UserId,
-                    backpage.InstanceUri?.Host);
-            }
+            Program.AppHost.Services
+                .GetRequiredService<IShellWindowService>()
+                .ShowShellWindow();
         }
 
         base.OnFrameworkInitializationCompleted();

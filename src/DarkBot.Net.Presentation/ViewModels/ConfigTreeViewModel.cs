@@ -1,6 +1,7 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using DarkBot.Net.Core.Config;
 using DarkBot.Net.Core.Managers;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace DarkBot.Net.Presentation.ViewModels;
 
@@ -24,6 +25,25 @@ public sealed partial class ConfigTreeNodeViewModel : ViewModelBase
         }
 
         UpdateEditorValue();
+
+        this.WhenAnyValue(x => x.BoolValue)
+            .Subscribe(value =>
+            {
+                if (!IsBoolean)
+                    return;
+
+                Setting.Value = value;
+                EditorValue = value.ToString();
+            });
+
+        this.WhenAnyValue(x => x.EditorValue)
+            .Subscribe(value =>
+            {
+                if (IsBoolean)
+                    return;
+
+                Setting.Value = ConvertValue(value, Setting.ValueType) ?? Setting.Value;
+            });
     }
 
     public IConfigSetting<object> Setting { get; }
@@ -33,14 +53,9 @@ public sealed partial class ConfigTreeNodeViewModel : ViewModelBase
     public bool IsParent { get; }
     public IList<ConfigTreeNodeViewModel> Children { get; } = new List<ConfigTreeNodeViewModel>();
 
-    [ObservableProperty]
-    private string _editorValue = string.Empty;
-
-    [ObservableProperty]
-    private bool _isBoolean;
-
-    [ObservableProperty]
-    private bool _boolValue;
+    [Reactive] private string _editorValue = string.Empty;
+    [Reactive] private bool _isBoolean;
+    [Reactive] private bool _boolValue;
 
     public void UpdateEditorValue()
     {
@@ -54,23 +69,6 @@ public sealed partial class ConfigTreeNodeViewModel : ViewModelBase
 
         IsBoolean = false;
         EditorValue = Setting.Value?.ToString() ?? string.Empty;
-    }
-
-    partial void OnBoolValueChanged(bool value)
-    {
-        if (!IsBoolean)
-            return;
-
-        Setting.Value = value;
-        EditorValue = value.ToString();
-    }
-
-    partial void OnEditorValueChanged(string value)
-    {
-        if (IsBoolean)
-            return;
-
-        Setting.Value = ConvertValue(value, Setting.ValueType) ?? Setting.Value;
     }
 
     private static object? ConvertValue(string text, Type type)
@@ -101,9 +99,15 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
             : [];
     }
 
+    /// <summary>Конструктор для design mode / XAML previewer.</summary>
+    public ConfigTreeViewModel()
+    {
+        Profile = "default";
+        RootNodes = [];
+    }
+
     public string Profile { get; }
     public IReadOnlyList<ConfigTreeNodeViewModel> RootNodes { get; }
 
-    [ObservableProperty]
-    private ConfigTreeNodeViewModel? _selectedNode;
+    [Reactive] private ConfigTreeNodeViewModel? _selectedNode;
 }

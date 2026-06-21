@@ -1,0 +1,271 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="32" Background="#0D0F1A" Width="460">
+            <StackPanel Spacing="14">
+                <Border Classes="dashPanel" Padding="18">
+                    <StackPanel Spacing="10">
+                        <TextBlock Classes="dashSectionTitle" Text="Заголовок секции" />
+                        <TextBlock Classes="dashHint" Text="Подпись с пояснением назначения блока." />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border Classes="dashBadge accent">
+                                <TextBlock Text="Accent" />
+                            </Border>
+                            <Border Classes="dashBadge success">
+                                <TextBlock Text="Success" />
+                            </Border>
+                            <Border Classes="dashBadge info">
+                                <TextBlock Text="Info" />
+                            </Border>
+                            <Border Classes="dashBadge warn">
+                                <TextBlock Text="Warn" />
+                            </Border>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Classes="dashPrimary" Content="Primary" />
+                            <Button Classes="dashSecondary" Content="Secondary" />
+                            <Button Classes="dashGhost" Content="Ghost" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+    </Design.PreviewWith>
+
+    <!-- ════════════════════════════════════════════════════════
+         Dashboard design system — переиспользуемые классы
+         Префикс «dash», токены берутся из App.axaml (тема-зависимы)
+         ════════════════════════════════════════════════════════ -->
+
+    <!-- ───────── Поверхности ───────── -->
+
+    <!-- Главная карта-панель: фон, рамка, мягкая тень -->
+    <Style Selector="Border.dashPanel">
+        <Setter Property="CornerRadius" Value="18" />
+        <Setter Property="Background" Value="{DynamicResource MainCardBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MainCardBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BoxShadow" Value="0 14 40 -24 #66000000" />
+    </Style>
+
+    <!-- Внутренняя плитка-поверхность -->
+    <Style Selector="Border.dashTile">
+        <Setter Property="CornerRadius" Value="13" />
+        <Setter Property="Padding" Value="14" />
+        <Setter Property="Background" Value="{DynamicResource ShedStatCardBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ShedStatCardBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <!-- Кликабельная плитка -->
+    <Style Selector="Border.dashTile.interactive">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.15" />
+                <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Border.dashTile.interactive:pointerover">
+        <Setter Property="Background" Value="{DynamicResource ShedCardHoverBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ShedCardSelectedBorder}" />
+    </Style>
+
+    <!-- Плоская плитка (чуть утопленная) -->
+    <Style Selector="Border.dashTileFlat">
+        <Setter Property="CornerRadius" Value="13" />
+        <Setter Property="Padding" Value="14" />
+        <Setter Property="Background" Value="{DynamicResource ShedCalDayBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MainCardBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <!-- Горизонтальный разделитель -->
+    <Style Selector="Border.dashDivider">
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Background" Value="{DynamicResource DashDivider}" />
+    </Style>
+
+    <!-- ───────── Иконка-чип ───────── -->
+    <Style Selector="Border.dashIcon">
+        <Setter Property="CornerRadius" Value="11" />
+        <Setter Property="Width" Value="36" />
+        <Setter Property="Height" Value="36" />
+        <Setter Property="Background" Value="{DynamicResource ShedStatIconBackground}" />
+    </Style>
+
+    <Style Selector="Border.dashIcon.gradient">
+        <Setter Property="Background" Value="{DynamicResource DashAccentGradient}" />
+    </Style>
+
+    <!-- ───────── Бейджи ───────── -->
+    <Style Selector="Border.dashBadge">
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="9,4" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.dashBadge TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="Border.dashBadge.accent">
+        <Setter Property="Background" Value="{DynamicResource MainBadgeBackground}" />
+    </Style>
+    <Style Selector="Border.dashBadge.accent TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MainBadgeForeground}" />
+    </Style>
+
+    <Style Selector="Border.dashBadge.success">
+        <Setter Property="Background" Value="{DynamicResource MainBadgeSuccessBackground}" />
+    </Style>
+    <Style Selector="Border.dashBadge.success TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource MainBadgeSuccessForeground}" />
+    </Style>
+
+    <Style Selector="Border.dashBadge.info">
+        <Setter Property="Background" Value="{DynamicResource ShedStatusInProgressBg}" />
+    </Style>
+    <Style Selector="Border.dashBadge.info TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource ShedStatusInProgress}" />
+    </Style>
+
+    <Style Selector="Border.dashBadge.warn">
+        <Setter Property="Background" Value="{DynamicResource ShedStatusPendingBg}" />
+    </Style>
+    <Style Selector="Border.dashBadge.warn TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource ShedStatusPending}" />
+    </Style>
+
+    <Style Selector="Border.dashBadge.neutral">
+        <Setter Property="Background" Value="{DynamicResource ShedStatCardBackground}" />
+    </Style>
+    <Style Selector="Border.dashBadge.neutral TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource ShedStatLabelForeground}" />
+    </Style>
+
+    <!-- ───────── Типографика ───────── -->
+    <Style Selector="TextBlock.dashTitle">
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{DynamicResource MainHeaderForeground}" />
+    </Style>
+
+    <Style Selector="TextBlock.dashSubtitle">
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="Foreground" Value="{DynamicResource MainSubtextForeground}" />
+    </Style>
+
+    <Style Selector="TextBlock.dashSectionTitle">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource MainCardTitleForeground}" />
+    </Style>
+
+    <Style Selector="TextBlock.dashHint">
+        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="Foreground" Value="{DynamicResource MainCardDescriptionForeground}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style Selector="TextBlock.dashLabel">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{DynamicResource ShedStatLabelForeground}" />
+    </Style>
+
+    <Style Selector="TextBlock.dashValue">
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{DynamicResource ShedStatValueForeground}" />
+    </Style>
+
+    <Style Selector="TextBlock.dashTileTitle">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource MainCardTitleForeground}" />
+    </Style>
+
+    <Style Selector="TextBlock.dashTileSubtitle">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{DynamicResource MainCardDescriptionForeground}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <!-- ───────── Кнопки ───────── -->
+
+    <!-- Базовая геометрия для всех dash-кнопок -->
+    <Style Selector="Button.dashPrimary, Button.dashSecondary, Button.dashGhost">
+        <Setter Property="Height" Value="40" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="11" />
+        <Setter Property="Padding" Value="18,0" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <!-- Primary: акцентный градиент, тень -->
+    <Style Selector="Button.dashPrimary">
+        <Setter Property="Background" Value="{DynamicResource DashAccentGradientH}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.dashPrimary /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DashAccentGradientH}" />
+        <Setter Property="BoxShadow" Value="0 8 22 -8 #557C5CFC" />
+    </Style>
+    <Style Selector="Button.dashPrimary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DashAccentGradientH}" />
+    </Style>
+    <Style Selector="Button.dashPrimary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DashAccentGradientH}" />
+    </Style>
+    <Style Selector="Button.dashPrimary:pointerover">
+        <Setter Property="Opacity" Value="0.92" />
+    </Style>
+    <Style Selector="Button.dashPrimary:pressed">
+        <Setter Property="Opacity" Value="0.85" />
+    </Style>
+
+    <!-- Secondary: контур -->
+    <Style Selector="Button.dashSecondary">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource MainCardTitleForeground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MainCardBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Button.dashSecondary /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Button.dashSecondary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MainSidebarItemHover}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ShedCardSelectedBorder}" />
+    </Style>
+
+    <!-- Ghost: акцентный мягкий -->
+    <Style Selector="Button.dashGhost">
+        <Setter Property="Background" Value="{DynamicResource MainBadgeBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource MainBadgeForeground}" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.dashGhost /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MainBadgeBackground}" />
+    </Style>
+    <Style Selector="Button.dashGhost:pointerover">
+        <Setter Property="Opacity" Value="0.85" />
+    </Style>
+    <Style Selector="Button.dashGhost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource MainBadgeBackground}" />
+    </Style>
+
+</Styles>

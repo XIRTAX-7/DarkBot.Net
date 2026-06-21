@@ -1,0 +1,663 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="32"
+                Background="{DynamicResource DbAppBackground}"
+                Width="520">
+            <StackPanel Spacing="16">
+                <Border Classes="dbPanel">
+                    <StackPanel Spacing="12">
+                        <TextBlock Classes="dbTitle" Text="DarkBot.Net" />
+                        <TextBlock Classes="dbSubtitle" Text="Reusable Fluent UI styles for bot screens." />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border Classes="dbBadge accent">
+                                <TextBlock Text="Online" />
+                            </Border>
+                            <Border Classes="dbBadge warning">
+                                <TextBlock Text="Backpage" />
+                            </Border>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Classes="dbButton primary" Content="Start" />
+                            <Button Classes="dbButton secondary" Content="Config" />
+                            <Button Classes="dbButton ghost" Content="Login" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+    </Design.PreviewWith>
+
+    <!-- Base surfaces -->
+    <Style Selector="Border.dbPage">
+        <Setter Property="Background" Value="{DynamicResource DbAppBackground}" />
+    </Style>
+
+    <Style Selector="Border.dbPanel">
+        <Setter Property="CornerRadius" Value="22" />
+        <Setter Property="Padding" Value="18" />
+        <Setter Property="Background" Value="{DynamicResource DbSurface}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BoxShadow" Value="0 18 48 -28 #99000000" />
+    </Style>
+
+    <Style Selector="Border.dbPanel.soft">
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceSoft}" />
+        <Setter Property="BoxShadow" Value="0 10 32 -24 #77000000" />
+    </Style>
+
+    <Style Selector="Border.dbCard">
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="14" />
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="Border.dbToolbar">
+        <Setter Property="CornerRadius" Value="18" />
+        <Setter Property="Padding" Value="12" />
+        <Setter Property="Background" Value="{DynamicResource DbTopBarBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbTopBarBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BoxShadow" Value="0 12 34 -26 #99000000" />
+    </Style>
+
+    <Style Selector="Border.dbHero">
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Padding" Value="18" />
+        <Setter Property="Background" Value="{DynamicResource DbHeroGradient}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorderStrong}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BoxShadow" Value="0 18 42 -24 #806D5DF6" />
+    </Style>
+
+    <Style Selector="Border.dbMapFrame">
+        <Setter Property="CornerRadius" Value="22" />
+        <Setter Property="MinHeight" Value="620" />
+        <Setter Property="ClipToBounds" Value="True" />
+        <Setter Property="Background" Value="{DynamicResource DbMapBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BoxShadow" Value="0 20 54 -30 #AA000000" />
+    </Style>
+
+    <Style Selector="Border.dbMapHeader">
+        <Setter Property="Padding" Value="16,13" />
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceElevated}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+
+    <Style Selector="Border.dbMapTopBar">
+        <Setter Property="Padding" Value="16,10" />
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceElevated}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+
+    <Style Selector="Border.dbMapSurface">
+        <Setter Property="ClipToBounds" Value="True" />
+        <Setter Property="Background" Value="{DynamicResource DbMapBackground}" />
+    </Style>
+
+    <Style Selector="Border.dbMetricTile">
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Padding" Value="13" />
+        <Setter Property="Background" Value="{DynamicResource DbStatTileBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbStatTileBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="Border.dbDivider">
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Background" Value="{DynamicResource DbBorder}" />
+    </Style>
+
+    <!-- Map zone editor -->
+    <Style Selector="Border.dbZoneToolbar">
+        <Setter Property="CornerRadius" Value="18" />
+        <Setter Property="Padding" Value="14" />
+        <Setter Property="Background" Value="{DynamicResource DbTopBarBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbTopBarBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="Border.dbZoneMapFrame">
+        <Setter Property="CornerRadius" Value="18" />
+        <Setter Property="ClipToBounds" Value="True" />
+        <Setter Property="Background" Value="{DynamicResource DbMapBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="Border.dbZoneMapEditor">
+        <Setter Property="MinHeight" Value="470" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="{DynamicResource DbMapBackground}" />
+    </Style>
+
+    <Style Selector="Border.dbZoneCell">
+        <Setter Property="Margin" Value="1" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="Border.dbZoneCell.preferred">
+        <Setter Property="Background" Value="{DynamicResource DbSuccessSoft}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbSuccess}" />
+    </Style>
+
+    <Style Selector="Border.dbZoneCell.forbidden">
+        <Setter Property="Background" Value="{DynamicResource DbDangerSoft}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbDanger}" />
+    </Style>
+
+    <Style Selector="Border.dbZoneCell.safe">
+        <Setter Property="Background" Value="{DynamicResource DbAccentSoft}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbAccent}" />
+    </Style>
+
+    <Style Selector="Ellipse.dbZoneShipMarker">
+        <Setter Property="Width" Value="10" />
+        <Setter Property="Height" Value="10" />
+        <Setter Property="Fill" Value="{DynamicResource DbTextPrimary}" />
+        <Setter Property="Stroke" Value="{DynamicResource DbMapBackground}" />
+        <Setter Property="StrokeThickness" Value="2" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.dbZoneLegend">
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="12" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+    </Style>
+
+    <Style Selector="Border.dbZoneLegend.preferred">
+        <Setter Property="Background" Value="{DynamicResource DbSuccessSoft}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbSuccess}" />
+    </Style>
+
+    <Style Selector="Border.dbZoneLegend.forbidden">
+        <Setter Property="Background" Value="{DynamicResource DbDangerSoft}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbDanger}" />
+    </Style>
+
+    <Style Selector="Border.dbZoneLegend.safe">
+        <Setter Property="Background" Value="{DynamicResource DbAccentSoft}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbAccent}" />
+    </Style>
+
+    <Style Selector="Border.dbZoneColorDot">
+        <Setter Property="Width" Value="14" />
+        <Setter Property="Height" Value="14" />
+        <Setter Property="CornerRadius" Value="7" />
+        <Setter Property="Margin" Value="0,3,10,0" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+
+    <Style Selector="Border.dbZoneColorDot.preferred">
+        <Setter Property="Background" Value="{DynamicResource DbSuccess}" />
+    </Style>
+
+    <Style Selector="Border.dbZoneColorDot.forbidden">
+        <Setter Property="Background" Value="{DynamicResource DbDanger}" />
+    </Style>
+
+    <Style Selector="Border.dbZoneColorDot.safe">
+        <Setter Property="Background" Value="{DynamicResource DbAccent}" />
+    </Style>
+
+    <!-- Badges -->
+    <Style Selector="Border.dbBadge">
+        <Setter Property="CornerRadius" Value="999" />
+        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+    </Style>
+
+    <Style Selector="Border.dbBadge TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextSecondary}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.dbBadge.accent">
+        <Setter Property="Background" Value="{DynamicResource DbAccentSoft}" />
+    </Style>
+
+    <Style Selector="Border.dbBadge.accent TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DbAccent}" />
+    </Style>
+
+    <Style Selector="Border.dbBadge.success">
+        <Setter Property="Background" Value="{DynamicResource DbSuccessSoft}" />
+    </Style>
+
+    <Style Selector="Border.dbBadge.success TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DbSuccess}" />
+    </Style>
+
+    <Style Selector="Border.dbBadge.warning">
+        <Setter Property="Background" Value="{DynamicResource DbWarningSoft}" />
+    </Style>
+
+    <Style Selector="Border.dbBadge.warning TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DbWarning}" />
+    </Style>
+
+    <Style Selector="Border.dbBadge.danger">
+        <Setter Property="Background" Value="{DynamicResource DbDangerSoft}" />
+    </Style>
+
+    <Style Selector="Border.dbBadge.danger TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource DbDanger}" />
+    </Style>
+
+    <!-- Typography -->
+    <Style Selector="TextBlock.dbTitle">
+        <Setter Property="FontFamily" Value="Inter" />
+        <Setter Property="FontSize" Value="25" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextPrimary}" />
+        <Setter Property="LineHeight" Value="32" />
+    </Style>
+
+    <Style Selector="TextBlock.dbSubtitle">
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextSecondary}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="LineHeight" Value="18" />
+    </Style>
+
+    <Style Selector="TextBlock.dbSectionTitle">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextPrimary}" />
+    </Style>
+
+    <Style Selector="TextBlock.dbCaption">
+        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextMuted}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style Selector="TextBlock.dbMetricValue">
+        <Setter Property="FontFamily" Value="Inter" />
+        <Setter Property="FontSize" Value="21" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextPrimary}" />
+    </Style>
+
+    <Style Selector="TextBlock.dbMetricLabel">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextMuted}" />
+    </Style>
+
+    <Style Selector="TextBlock.dbMono">
+        <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, monospace" />
+    </Style>
+
+    <!-- Buttons -->
+    <Style Selector="Button.dbButton">
+        <Setter Property="MinHeight" Value="38" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="17,0" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.12" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button.dbButton.primary">
+        <Setter Property="Background" Value="{DynamicResource DbAccentGradientHorizontal}" />
+        <Setter Property="Foreground" Value="{DynamicResource DbAccentForeground}" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="Button.dbButton.primary /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DbAccentGradientHorizontal}" />
+        <Setter Property="BoxShadow" Value="0 10 24 -10 #806D5DF6" />
+    </Style>
+
+    <Style Selector="Button.dbButton.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DbAccentGradientHorizontal}" />
+    </Style>
+
+    <Style Selector="Button.dbButton.secondary">
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextPrimary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="Button.dbButton.secondary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceElevated}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorderStrong}" />
+    </Style>
+
+    <Style Selector="Button.dbButton.ghost">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextSecondary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="Button.dbButton.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+    </Style>
+
+    <Style Selector="Button.dbButton:pointerover">
+        <Setter Property="Opacity" Value="0.92" />
+    </Style>
+
+    <Style Selector="Button.dbButton:pressed">
+        <Setter Property="Opacity" Value="0.82" />
+    </Style>
+
+    <!-- Inputs and lists -->
+    <Style Selector="TextBox.dbInput">
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="Background" Value="{DynamicResource DbInputBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbInputBorder}" />
+        <Setter Property="Foreground" Value="{DynamicResource DbInputForeground}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style Selector="TextBox.dbInput:focus">
+        <Setter Property="BorderBrush" Value="{DynamicResource DbAccent}" />
+    </Style>
+
+    <Style Selector="TreeView.dbTree">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style Selector="TreeView.dbTree TreeViewItem">
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextSecondary}" />
+    </Style>
+
+    <Style Selector="TreeView.dbTree TreeViewItem:pointerover">
+        <Setter Property="Background" Value="{DynamicResource DbTreeItemHover}" />
+    </Style>
+
+    <Style Selector="TreeView.dbTree TreeViewItem:selected">
+        <Setter Property="Background" Value="{DynamicResource DbTreeItemSelected}" />
+        <Setter Property="Foreground" Value="{DynamicResource DbAccent}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- Segmented TabControl -->
+    <Style Selector="TabControl.dbSegmented">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style Selector="TabControl.dbSegmented > TabStrip">
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="18" />
+        <Setter Property="Padding" Value="4" />
+    </Style>
+
+    <Style Selector="TabControl.dbSegmented TabItem">
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Padding" Value="14,7" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextMuted}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TabControl.dbSegmented TabItem:selected">
+        <Setter Property="Foreground" Value="{DynamicResource DbAccent}" />
+        <Setter Property="Background" Value="{DynamicResource DbAccentSoft}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorderStrong}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="TabControl.dbSegmented > Border">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style Selector="TabControl.dbZoneTypeTabs">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style Selector="TabControl.dbZoneTypeTabs > TabStrip">
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Padding" Value="4" />
+    </Style>
+
+    <Style Selector="TabControl.dbZoneTypeTabs TabItem">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Padding" Value="14,8" />
+        <Setter Property="CornerRadius" Value="11" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextMuted}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TabControl.dbZoneTypeTabs TabItem:selected">
+        <Setter Property="Foreground" Value="{DynamicResource DbAccent}" />
+        <Setter Property="Background" Value="{DynamicResource DbAccentSoft}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorderStrong}" />
+    </Style>
+
+    <Style Selector="TabControl.dbZoneTypeTabs > Border">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <!-- Config sidebar and settings form -->
+    <Style Selector="Border.dbConfigSidebar">
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceSoft}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="0,0,1,0" />
+        <Setter Property="Padding" Value="0,8" />
+    </Style>
+
+    <Style Selector="Border.dbConfigContent">
+        <Setter Property="Background" Value="{DynamicResource DbSurface}" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style Selector="ListBox.dbConfigNav">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="8,4" />
+    </Style>
+
+    <Style Selector="ListBox.dbConfigNav ListBoxItem">
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextSecondary}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="ListBox.dbConfigNav ListBoxItem:pointerover">
+        <Setter Property="Background" Value="{DynamicResource DbTreeItemHover}" />
+    </Style>
+
+    <Style Selector="ListBox.dbConfigNav ListBoxItem:selected">
+        <Setter Property="Background" Value="{DynamicResource DbTreeItemSelected}" />
+        <Setter Property="Foreground" Value="{DynamicResource DbAccent}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="Grid.dbConfigRow">
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="MinHeight" Value="40" />
+        <Setter Property="Background" Value="{DynamicResource DbSurface}" />
+    </Style>
+
+    <Style Selector="Grid.dbConfigRow > TextBlock.dbConfigLabel">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="16,10" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextPrimary}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style Selector="Grid.dbConfigRow > StackPanel">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,6,16,6" />
+    </Style>
+
+    <Style Selector="Grid.dbConfigRow > ComboBox">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,6,16,6" />
+    </Style>
+
+    <Style Selector="Grid.dbConfigRow > NumericUpDown">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,6,16,6" />
+    </Style>
+
+    <Style Selector="Grid.dbConfigRow > CheckBox">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,6,16,6" />
+    </Style>
+
+    <Style Selector="Grid.dbConfigRow > Button">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,6,16,6" />
+    </Style>
+
+    <Style Selector="Grid.dbConfigRow.nested > TextBlock.dbConfigLabel">
+        <Setter Property="Margin" Value="28,10,16,10" />
+    </Style>
+
+    <Style Selector="TextBlock.dbConfigSuffix">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextMuted}" />
+    </Style>
+
+    <Style Selector="ComboBox.dbConfigCombo">
+        <Setter Property="MinWidth" Value="180" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Background" Value="{DynamicResource DbInputBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbInputBorder}" />
+        <Setter Property="Foreground" Value="{DynamicResource DbInputForeground}" />
+    </Style>
+
+    <Style Selector="ComboBox.dbConfigCombo.narrow">
+        <Setter Property="MinWidth" Value="110" />
+    </Style>
+
+    <Style Selector="NumericUpDown.dbConfigNumeric">
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Background" Value="{DynamicResource DbInputBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbInputBorder}" />
+        <Setter Property="Foreground" Value="{DynamicResource DbInputForeground}" />
+    </Style>
+
+    <Style Selector="StackPanel.dbConfigToggleGroup">
+        <Setter Property="Spacing" Value="0" />
+    </Style>
+
+    <Style Selector="ToggleButton.dbConfigToggle">
+        <Setter Property="MinWidth" Value="34" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="Padding" Value="10,0" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextMuted}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="StackPanel.dbConfigToggleGroup > ToggleButton.dbConfigToggle:first-child">
+        <Setter Property="CornerRadius" Value="6,0,0,6" />
+    </Style>
+
+    <Style Selector="StackPanel.dbConfigToggleGroup > ToggleButton.dbConfigToggle:last-child">
+        <Setter Property="CornerRadius" Value="0,6,6,0" />
+        <Setter Property="BorderThickness" Value="1,1,1,1" />
+    </Style>
+
+    <Style Selector="ToggleButton.dbConfigToggle:checked">
+        <Setter Property="Background" Value="{DynamicResource DbAccentSoft}" />
+        <Setter Property="Foreground" Value="{DynamicResource DbAccent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbAccent}" />
+    </Style>
+
+    <Style Selector="Button.dbConfigIconButton">
+        <Setter Property="MinWidth" Value="36" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextSecondary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="Expander.dbConfigSection">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+    <Style Selector="Expander.dbConfigSection /template/ ToggleButton#PART_toggle">
+        <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+        <Setter Property="Foreground" Value="{DynamicResource DbTextPrimary}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Padding" Value="16,10" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+        <Setter Property="BorderThickness" Value="0,1,0,1" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+
+    <Style Selector="Expander.dbConfigSection /template/ ContentPresenter">
+        <Setter Property="Padding" Value="0" />
+    </Style>
+</Styles>

@@ -1,6 +1,6 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Avalonia.Controls;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Core.Models.Auth;
 using DarkBot.Net.Core.Models.Game;
@@ -11,6 +11,8 @@ using DarkBot.Net.Presentation.Configuration;
 using DarkBot.Net.Presentation.Game;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace DarkBot.Net.Presentation.ViewModels;
 
@@ -21,34 +23,20 @@ public sealed partial class LoginViewModel : ViewModelBase
     private readonly GameSessionStore _sessionStore;
     private readonly GameApiOptions _gameOptions;
     private readonly ILogger<LoginViewModel> _logger;
+    private readonly IObservable<bool> _canLogin;
+    private readonly Subject<Unit> _loginSucceeded = new();
 
-    [ObservableProperty]
-    private int _selectedTabIndex;
+    [Reactive] private int _selectedTabIndex;
+    [Reactive] private string _username = string.Empty;
+    [Reactive] private string _password = string.Empty;
+    [Reactive] private string _captchaToken = string.Empty;
+    [Reactive] private string _server = string.Empty;
+    [Reactive] private string _sid = string.Empty;
+    [Reactive] private string _statusMessage = "Sign in with username/password or paste a browser SID.";
+    [Reactive] private bool _hasError;
+    [Reactive] private bool _isBusy;
 
-    [ObservableProperty]
-    private string _username = string.Empty;
-
-    [ObservableProperty]
-    private string _password = string.Empty;
-
-    [ObservableProperty]
-    private string _captchaToken = string.Empty;
-
-    [ObservableProperty]
-    private string _server = string.Empty;
-
-    [ObservableProperty]
-    private string _sid = string.Empty;
-
-    [ObservableProperty]
-    private string _statusMessage = "Sign in with username/password or paste a browser SID.";
-
-    [ObservableProperty]
-    private bool _hasError;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
-    private bool _isBusy;
+    public IObservable<Unit> LoginSucceeded => _loginSucceeded;
 
     public LoginViewModel(
         ILoginAppService loginApp,
@@ -63,8 +51,22 @@ public sealed partial class LoginViewModel : ViewModelBase
         _sessionStore = sessionStore;
         _gameOptions = gameOptions.Value;
         _logger = logger;
+        _canLogin = this.WhenAnyValue(x => x.IsBusy, busy => !busy);
 
         ApplyTestLoginDefaults(testLoginOptions.Value);
+    }
+
+    /// <summary>Конструктор для design mode / XAML previewer.</summary>
+    public LoginViewModel()
+    {
+        _loginApp = null!;
+        _gameLaunch = null!;
+        _sessionStore = null!;
+        _gameOptions = new GameApiOptions();
+        _logger = null!;
+        _canLogin = Observable.Return(true);
+        Username = "pilot";
+        StatusMessage = "Design mode";
     }
 
     private void ApplyTestLoginDefaults(TestLoginOptions testLogin)
@@ -78,12 +80,8 @@ public sealed partial class LoginViewModel : ViewModelBase
         _logger.LogDebug("Login form pre-filled from appsettings.Local.json");
     }
 
-    public Window? OwnerWindow { get; set; }
-
-    public event Action? LoginSucceeded;
-
-    [RelayCommand(CanExecute = nameof(CanLogin))]
-    private async Task Login()
+    [ReactiveCommand(CanExecute = nameof(_canLogin))]
+    private async Task LoginAsync()
     {
         HasError = false;
         IsBusy = true;
@@ -116,7 +114,7 @@ public sealed partial class LoginViewModel : ViewModelBase
             }
 
             _logger.LogInformation("Login dialog completed successfully ({Mode})", loginMode);
-            LoginSucceeded?.Invoke();
+            _loginSucceeded.OnNext(Unit.Default);
         }
         catch (WrongCredentialsException ex)
         {
@@ -171,6 +169,4 @@ public sealed partial class LoginViewModel : ViewModelBase
         StatusMessage = "Loading spacemap…";
         return await _loginApp.LoginWithSidAsync(Server.Trim(), Sid.Trim()).ConfigureAwait(true);
     }
-
-    private bool CanLogin() => !IsBusy;
 }

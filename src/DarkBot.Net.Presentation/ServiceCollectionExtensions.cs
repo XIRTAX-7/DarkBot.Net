@@ -4,7 +4,9 @@ using DarkBot.Net.Presentation.Configuration;
 using DarkBot.Net.Presentation.Game;
 using DarkBot.Net.Presentation.Logging;
 using DarkBot.Net.Presentation.Services;
+using DarkBot.Net.Presentation.Services.Shell;
 using DarkBot.Net.Presentation.ViewModels;
+using DarkBot.Net.Presentation.ViewModels.Shell;
 using DarkBot.Net.Core.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,10 +43,14 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<BotUiStateService>();
         services.AddSingleton<GameConnectionStatusService>();
-        services.AddSingleton<MainWindowViewModel>();
+
         services.AddSingleton<LoginViewModel>();
+        services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<ConfigTreeViewModel>();
         services.AddSingleton<StatsPanelViewModel>();
+        services.AddSingleton<ShellWindowViewModel>();
+
+        services.AddSingleton<IShellWindowService, ShellWindowService>();
 
         services.AddSingleton<VerifierSidecarHostedService>();
         services.AddHostedService(sp => sp.GetRequiredService<VerifierSidecarHostedService>());

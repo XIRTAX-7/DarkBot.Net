@@ -1,33 +1,32 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using DarkBot.Net.Presentation.Services;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace DarkBot.Net.Presentation.ViewModels;
 
 public sealed partial class StatsPanelViewModel : ViewModelBase
 {
-    [ObservableProperty]
-    private double _credits;
+    [Reactive] private double _credits;
+    [Reactive] private double _uridium;
+    [Reactive] private double _experience;
+    [Reactive] private double _honor;
+    [Reactive] private int _ping;
+    [Reactive] private long _tickCount;
+    [Reactive] private double _lastTickMs;
+    [Reactive] private string _runtime = "00:00:00";
 
-    [ObservableProperty]
-    private double _uridium;
-
-    [ObservableProperty]
-    private double _experience;
-
-    [ObservableProperty]
-    private double _honor;
-
-    [ObservableProperty]
-    private int _ping;
-
-    [ObservableProperty]
-    private long _tickCount;
-
-    [ObservableProperty]
-    private double _lastTickMs;
-
-    [ObservableProperty]
-    private string _runtime = "00:00:00";
+    /// <summary>Конструктор для design mode / XAML previewer.</summary>
+    public StatsPanelViewModel()
+    {
+        Credits = 1_250_000;
+        Uridium = 42_500;
+        Experience = 987_654_321;
+        Honor = 12_345;
+        Ping = 48;
+        TickCount = 3600;
+        LastTickMs = 2.4;
+        Runtime = "00:06:00";
+    }
 
     public void Apply(BotUiSnapshot snapshot)
     {

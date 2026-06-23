@@ -63,8 +63,8 @@ public partial class MainView : ReactiveUserControl<MainWindowViewModel>
         });
     }
 
-    private void OnMapClicked(object? sender, EventArgs e) =>
-        ViewModel?.ToggleBotFromMapCommand.Execute(Unit.Default).Subscribe();
+    private void OnMapClicked(object? sender, MapClickEventArgs e) =>
+        ViewModel?.MoveShipToMapLocation(e);
 
     private void OnConfigClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e) =>
         ShowConfigWindow();

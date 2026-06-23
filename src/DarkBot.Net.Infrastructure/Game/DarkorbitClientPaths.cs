@@ -15,6 +15,10 @@ public static class DarkorbitClientPaths
         if (!string.IsNullOrWhiteSpace(env) && IsClientRoot(env))
             return Path.GetFullPath(env);
 
+        var canonical = TryFindCanonicalClientRoot();
+        if (canonical is not null)
+            return canonical;
+
         string? fallback = null;
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         for (var i = 0; i < 8 && dir is not null; i++, dir = dir.Parent)
@@ -33,7 +37,27 @@ public static class DarkorbitClientPaths
             return fallback;
 
         throw new DirectoryNotFoundException(
-            "Darkorbit-client not found. Set DarkBot:DarkorbitClientPath or DARKORBIT_CLIENT_PATH.");
+            "Darkorbit-client not found. Expected DarkBot.Net/Darkorbit-client. " +
+            "Set DarkBot:DarkorbitClientPath or DARKORBIT_CLIENT_PATH.");
+    }
+
+    /// <summary>
+    /// Клиент DarkBot.Net живёт только в DarkBot.Net/Darkorbit-client, не в корне monorepo.
+    /// </summary>
+    private static string? TryFindCanonicalClientRoot()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        for (var i = 0; i < 10 && dir is not null; i++, dir = dir.Parent)
+        {
+            var candidate = Path.Combine(dir.FullName, "Darkorbit-client");
+            if (!IsClientRoot(candidate))
+                continue;
+
+            if (candidate.Contains("DarkBot.Net", StringComparison.OrdinalIgnoreCase))
+                return candidate;
+        }
+
+        return null;
     }
 
     public static bool HasNpmDependencies(string clientRoot) =>

@@ -1,5 +1,8 @@
 using DarkBot.Net.Application.Contracts;
+using DarkBot.Net.Core.Managers;
+using DarkBot.Net.Presentation.Controls;
 using DarkBot.Net.Presentation.Services;
+using Microsoft.Extensions.Logging;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
@@ -8,9 +11,11 @@ namespace DarkBot.Net.Presentation.ViewModels;
 public sealed partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IBotControlAppService _bot;
+    private readonly IMovementApi _movement;
     private readonly BotUiStateService _state;
     private readonly GameConnectionStatusService _gameStatus;
     private readonly IGameClientRestartAppService _clientRestart;
+    private readonly ILogger<MainWindowViewModel>? _logger;
 
     [Reactive] private string _title = "DarkBot.Net";
     [Reactive] private bool _botRunning;
@@ -27,14 +32,18 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel(
         IBotControlAppService bot,
+        IMovementApi movement,
         BotUiStateService state,
         GameConnectionStatusService gameStatus,
-        IGameClientRestartAppService clientRestart)
+        IGameClientRestartAppService clientRestart,
+        ILogger<MainWindowViewModel> logger)
     {
         _bot = bot;
+        _movement = movement;
         _state = state;
         _gameStatus = gameStatus;
         _clientRestart = clientRestart;
+        _logger = logger;
         _gameStatus.StatusChanged += RefreshGameStatus;
         Refresh();
     }
@@ -43,6 +52,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         _bot = null!;
+        _movement = null!;
         _state = null!;
         _gameStatus = null!;
         _clientRestart = null!;
@@ -86,8 +96,22 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         Refresh();
     }
 
-    [ReactiveCommand]
-    private void ToggleBotFromMap() => ToggleBot();
+    public void MoveShipToMapLocation(MapClickEventArgs click)
+    {
+        _logger?.LogInformation(
+            "Map click screen=({ScreenX:F1},{ScreenY:F1}) game=({GameX:F1},{GameY:F1}) " +
+            "frac=({FracX:F3},{FracY:F3}) hero=({HeroX:F0},{HeroY:F0}) heroFrac=({HeroFracX:F3},{HeroFracY:F3}) " +
+            "minimap≈({MiniX:F0}/{MiniY:F0}) map={MapW}x{MapH}",
+            click.ScreenX, click.ScreenY, click.GameX, click.GameY,
+            click.MapWidth > 0 ? click.GameX / click.MapWidth : 0,
+            click.MapHeight > 0 ? click.GameY / click.MapHeight : 0,
+            click.HeroX, click.HeroY,
+            click.MapWidth > 0 ? click.HeroX / click.MapWidth : 0,
+            click.MapHeight > 0 ? click.HeroY / click.MapHeight : 0,
+            click.GameX / 10.0, click.GameY / 10.0,
+            click.MapWidth, click.MapHeight);
+        _movement?.MoveTo(click.GameX, click.GameY);
+    }
 
     [ReactiveCommand]
     private async Task RestartClient()

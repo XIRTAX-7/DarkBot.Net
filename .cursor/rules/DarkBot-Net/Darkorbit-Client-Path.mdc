@@ -1,0 +1,46 @@
+---
+description: "Канонический путь Electron-клиента DarkOrbit для DarkBot.Net"
+globs:
+  - "DarkBot.Net/**"
+alwaysApply: true
+---
+
+# Darkorbit-client — игровой клиент DarkBot.Net
+
+**Единственный клиент для игры:**
+
+```
+DarkBot.Net/Darkorbit-client/
+```
+
+Полный путь на машине разработчика:
+
+```
+C:\Project\darkbot-reloaded\DarkBot.Net\Darkorbit-client
+```
+
+Содержит Electron-оболочку, Pepper Flash, Frida bridge (`darkDev/`), `game_bridge_agent.js`.
+
+## Запрещено подменять другими клиентами
+
+| Путь | Статус |
+|------|--------|
+| `DarkBot.Net/Darkorbit-client/` | ✅ **Использовать** |
+| `C:\Project\darkbot-reloaded\Darkorbit-client` (корень monorepo) | ❌ Legacy, **не для DarkBot.Net** |
+| KekkaPlayer / `archive/darkmem-native` | ❌ Устарело (Frida-only) |
+
+## Конфигурация и код
+
+- `DarkBot:DarkorbitClientPath` в `appsettings.json` — если пусто, резолвер **обязан** выбрать `DarkBot.Net/Darkorbit-client`, а не клиент из корня репозитория.
+- Лаунчер: `DarkorbitClientLauncher` → `node_modules/electron/dist/electron.exe` **внутри** `DarkBot.Net/Darkorbit-client`.
+- Порт Frida bridge: `44570` (`DarkBot:FridaApiPort`).
+
+## Первый запуск / после clone
+
+```bash
+cd DarkBot.Net/Darkorbit-client
+npm install
+pip install -r darkDev/requirements.txt
+```
+
+При отсутствии `node_modules/electron` лаунчер должен падать с явной ошибкой про `npm install` в **этом** каталоге, а не искать клиент выше по дереву.

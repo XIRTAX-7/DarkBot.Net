@@ -6,6 +6,7 @@ using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
+using DarkBot.Net.Core.Game;
 using DarkBot.Net.Presentation.Services;
 using SkiaSharp;
 
@@ -21,6 +22,10 @@ public sealed class MapCanvasControl : Control
     private HeroTrailPoint[] _heroTrailSnapshot = [];
     private HeroTrailPoint? _lastTrailPoint;
     private int _trailMapId = -1;
+
+    private MapMoveTarget? _moveTarget;
+    private static readonly long MoveTargetLifetimeTicks = Stopwatch.Frequency * 8;
+    private const double MoveTargetArrivalDistance = 350;
 
     public static readonly StyledProperty<BotUiSnapshot?> SnapshotProperty =
         AvaloniaProperty.Register<MapCanvasControl, BotUiSnapshot?>(nameof(Snapshot));
@@ -45,6 +50,7 @@ public sealed class MapCanvasControl : Control
         SnapshotProperty.Changed.AddClassHandler<MapCanvasControl>((control, args) =>
         {
             control.RecordHeroTrailPoint(args.NewValue as BotUiSnapshot);
+            control.UpdateMoveTarget(args.NewValue as BotUiSnapshot);
             control.InvalidateVisual();
         });
         ZonesProperty.Changed.AddClassHandler<MapCanvasControl>((control, _) => control.InvalidateVisual());
@@ -52,12 +58,54 @@ public sealed class MapCanvasControl : Control
         AffectsRender<MapCanvasControl>(ZonesProperty);
     }
 
-    public event EventHandler? MapClicked;
+    public event EventHandler<MapClickEventArgs>? MapClicked;
 
     public MapCanvasControl()
     {
         Focusable = true;
         ClipToBounds = true;
+    }
+
+    public static bool TryScreenToGame(
+        Point screenPoint,
+        Size controlSize,
+        BotUiSnapshot? snapshot,
+        out double gameX,
+        out double gameY)
+    {
+        gameX = 0;
+        gameY = 0;
+
+        if (snapshot is null || snapshot.MapId < 0)
+            return false;
+
+        if (!MapViewTransform.HasValidMapSize(snapshot.MapWidth, snapshot.MapHeight))
+            return false;
+
+        var transform = MapViewTransform.Create(
+            controlSize,
+            snapshot.MapWidth,
+            snapshot.MapHeight);
+
+        return transform.TryScreenToGame(screenPoint, out gameX, out gameY);
+    }
+
+    private void UpdateMoveTarget(BotUiSnapshot? snapshot)
+    {
+        if (_moveTarget is not { } target || snapshot is not { HeroOnMap: true, MapId: >= 0 })
+            return;
+
+        var now = Stopwatch.GetTimestamp();
+        if (now - target.CreatedTimestamp > MoveTargetLifetimeTicks)
+        {
+            _moveTarget = null;
+            return;
+        }
+
+        var dx = snapshot.HeroX - target.GameX;
+        var dy = snapshot.HeroY - target.GameY;
+        if (Math.Sqrt(dx * dx + dy * dy) < MoveTargetArrivalDistance)
+            _moveTarget = null;
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -70,8 +118,20 @@ public sealed class MapCanvasControl : Control
     protected override void OnPointerPressed(Avalonia.Input.PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-            MapClicked?.Invoke(this, EventArgs.Empty);
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            return;
+
+        var screenPoint = e.GetPosition(this);
+        if (!TryScreenToGame(screenPoint, Bounds.Size, Snapshot, out var gameX, out var gameY))
+            return;
+
+        _moveTarget = new MapMoveTarget(gameX, gameY, Stopwatch.GetTimestamp());
+        InvalidateVisual();
+        MapClicked?.Invoke(this, new MapClickEventArgs(
+            gameX, gameY,
+            screenPoint.X, screenPoint.Y,
+            Snapshot?.HeroX ?? 0, Snapshot?.HeroY ?? 0,
+            Snapshot?.MapWidth ?? 0, Snapshot?.MapHeight ?? 0));
     }
 
     public override void Render(DrawingContext context)
@@ -84,6 +144,7 @@ public sealed class MapCanvasControl : Control
             Snapshot,
             Zones,
             _heroTrailSnapshot,
+            _moveTarget,
             Stopwatch.GetTimestamp()));
     }
 
@@ -149,11 +210,11 @@ public sealed class MapCanvasControl : Control
         private const int DefaultMapHeight = 13500;
         private const int ZoneColumns = 30;
         private const int ZoneRows = 30;
-        private const float MapPadding = 18;
 
         private readonly BotUiSnapshot? _snapshot;
         private readonly IReadOnlyList<MapZoneCell> _zones;
         private readonly IReadOnlyList<HeroTrailPoint> _heroTrail;
+        private readonly MapMoveTarget? _moveTarget;
         private readonly long _renderTimestamp;
 
         public MapDrawOperation(
@@ -161,12 +222,14 @@ public sealed class MapCanvasControl : Control
             BotUiSnapshot? snapshot,
             IReadOnlyList<MapZoneCell>? zones,
             IReadOnlyList<HeroTrailPoint> heroTrail,
+            MapMoveTarget? moveTarget,
             long renderTimestamp)
         {
             Bounds = bounds;
             _snapshot = snapshot;
             _zones = zones ?? [];
             _heroTrail = heroTrail;
+            _moveTarget = moveTarget;
             _renderTimestamp = renderTimestamp;
         }
 
@@ -189,7 +252,8 @@ public sealed class MapCanvasControl : Control
 
             var mapWidth = Math.Max(_snapshot?.MapWidth ?? DefaultMapWidth, 1);
             var mapHeight = Math.Max(_snapshot?.MapHeight ?? DefaultMapHeight, 1);
-            var mapRect = CalculateMapRect(width, height, mapWidth, mapHeight);
+            var transform = MapViewTransform.Create(Bounds.Size, mapWidth, mapHeight);
+            var mapRect = transform.MapRect;
             var scale = mapRect.Width / mapWidth;
 
             using var surfacePaint = new SKPaint
@@ -216,7 +280,7 @@ public sealed class MapCanvasControl : Control
             var isLoading = mapId == -1;
 
             if (!isLoading)
-                DrawHeroTrail(canvas, mapRect, mapWidth, mapHeight, scale);
+                DrawHeroTrail(canvas, transform, scale);
 
             if (!isLoading && _snapshot?.Portals is { Count: > 0 } portals)
             {
@@ -240,7 +304,7 @@ public sealed class MapCanvasControl : Control
 
                 foreach (var portal in portals)
                 {
-                    var portalPoint = ToScreenPoint(portal.X, portal.Y, mapRect, mapWidth, mapHeight);
+                    var portalPoint = transform.GameToScreen(portal.X, portal.Y);
                     if (!mapRect.Contains(portalPoint.X, portalPoint.Y))
                         continue;
 
@@ -257,38 +321,52 @@ public sealed class MapCanvasControl : Control
 
             if (_snapshot?.HeroOnMap == true)
             {
-                var heroPoint = ToScreenPoint(
-                    (float)_snapshot.HeroX,
-                    (float)_snapshot.HeroY,
-                    mapRect,
-                    mapWidth,
-                    mapHeight);
+                var heroPoint = transform.GameToScreen(_snapshot.HeroX, _snapshot.HeroY);
+                DrawHero(canvas, heroPoint, scale);
 
-                if (mapRect.Contains(heroPoint.X, heroPoint.Y))
-                    DrawHero(canvas, heroPoint, scale);
+                if (_moveTarget is { } target)
+                    DrawMoveTarget(canvas, transform, heroPoint, target, scale);
             }
 
-            DrawMapLabels(canvas, mapRect, isLoading);
+            DrawMapLabels(canvas, mapRect, isLoading, _moveTarget);
         }
 
-        private static SKRect CalculateMapRect(float width, float height, int mapWidth, int mapHeight)
+        private static void DrawMoveTarget(
+            SKCanvas canvas,
+            MapViewTransform transform,
+            SKPoint heroPoint,
+            MapMoveTarget target,
+            float scale)
         {
-            var availableWidth = Math.Max(width - MapPadding * 2, 1);
-            var availableHeight = Math.Max(height - MapPadding * 2, 1);
-            var scale = Math.Min(availableWidth / mapWidth, availableHeight / mapHeight);
-            var drawWidth = mapWidth * scale;
-            var drawHeight = mapHeight * scale;
-            var left = (width - drawWidth) / 2f;
-            var top = (height - drawHeight) / 2f;
+            var targetPoint = transform.GameToScreen(target.GameX, target.GameY);
+            var strokeWidth = Math.Clamp(80 * scale, 1.8f, 3.5f);
 
-            return new SKRect(left, top, left + drawWidth, top + drawHeight);
-        }
+            using var linePaint = new SKPaint
+            {
+                Color = new SKColor(100, 185, 255, 200),
+                IsStroke = true,
+                StrokeWidth = strokeWidth,
+                PathEffect = SKPathEffect.CreateDash([12, 8], 0),
+                IsAntialias = true
+            };
+            canvas.DrawLine(heroPoint, targetPoint, linePaint);
 
-        private static SKPoint ToScreenPoint(float x, float y, SKRect mapRect, int mapWidth, int mapHeight)
-        {
-            return new SKPoint(
-                mapRect.Left + x / mapWidth * mapRect.Width,
-                mapRect.Top + y / mapHeight * mapRect.Height);
+            var targetRadius = Math.Clamp(220 * scale, 6f, 12f);
+            using var ringPaint = new SKPaint
+            {
+                Color = new SKColor(100, 185, 255),
+                IsStroke = true,
+                StrokeWidth = Math.Clamp(40 * scale, 1.5f, 2.8f),
+                IsAntialias = true
+            };
+            using var fillPaint = new SKPaint
+            {
+                Color = new SKColor(100, 185, 255, 90),
+                IsAntialias = true,
+                Style = SKPaintStyle.Fill
+            };
+            canvas.DrawCircle(targetPoint, targetRadius, fillPaint);
+            canvas.DrawCircle(targetPoint, targetRadius, ringPaint);
         }
 
         private static float ScaleLength(float gameUnits, float scale, float min, float max) =>
@@ -332,7 +410,7 @@ public sealed class MapCanvasControl : Control
             }
         }
 
-        private void DrawHeroTrail(SKCanvas canvas, SKRect mapRect, int mapWidth, int mapHeight, float scale)
+        private void DrawHeroTrail(SKCanvas canvas, MapViewTransform transform, float scale)
         {
             if (_heroTrail.Count < 2)
                 return;
@@ -350,12 +428,7 @@ public sealed class MapCanvasControl : Control
             var previousPoint = default(SKPoint);
             foreach (var trailPoint in _heroTrail)
             {
-                var screenPoint = ToScreenPoint(trailPoint.X, trailPoint.Y, mapRect, mapWidth, mapHeight);
-                if (!mapRect.Contains(screenPoint.X, screenPoint.Y))
-                {
-                    hasPreviousPoint = false;
-                    continue;
-                }
+                var screenPoint = transform.GameToScreen(trailPoint.X, trailPoint.Y);
 
                 if (!hasPreviousPoint)
                 {
@@ -413,7 +486,7 @@ public sealed class MapCanvasControl : Control
             canvas.DrawCircle(heroPoint, heroRadius * 1.35f, heroRing);
         }
 
-        private void DrawMapLabels(SKCanvas canvas, SKRect mapRect, bool isLoading)
+        private void DrawMapLabels(SKCanvas canvas, SKRect mapRect, bool isLoading, MapMoveTarget? moveTarget)
         {
             var mapName = _snapshot?.MapName ?? "Загрузка";
             if (isLoading)
@@ -447,6 +520,18 @@ public sealed class MapCanvasControl : Control
                 canvas.DrawText(heroLabel, mapRect.Left + 16, mapRect.Top + 26, SKTextAlign.Left, labelFont, labelPaint);
                 var positionLabel = $"X {_snapshot.HeroX:0}  Y {_snapshot.HeroY:0}";
                 canvas.DrawText(positionLabel, mapRect.Left + 16, mapRect.Top + 44, SKTextAlign.Left, labelFont, labelPaint);
+            }
+
+            if (moveTarget is { } target)
+            {
+                var targetLabel = $"Target X {target.GameX:0}  Y {target.GameY:0}";
+                canvas.DrawText(
+                    targetLabel,
+                    mapRect.Right - 16,
+                    mapRect.Bottom - 16,
+                    SKTextAlign.Right,
+                    labelFont,
+                    labelPaint);
             }
 
         }
@@ -486,4 +571,24 @@ public enum MapZoneKind
     Preferred,
     Forbidden,
     Safe
+}
+
+public sealed class MapClickEventArgs(
+    double gameX,
+    double gameY,
+    double screenX,
+    double screenY,
+    double heroX,
+    double heroY,
+    int mapWidth,
+    int mapHeight) : EventArgs
+{
+    public double GameX { get; } = gameX;
+    public double GameY { get; } = gameY;
+    public double ScreenX { get; } = screenX;
+    public double ScreenY { get; } = screenY;
+    public double HeroX { get; } = heroX;
+    public double HeroY { get; } = heroY;
+    public int MapWidth { get; } = mapWidth;
+    public int MapHeight { get; } = mapHeight;
 }

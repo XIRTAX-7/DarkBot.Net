@@ -43,9 +43,8 @@ Thumbs.db
 *.swp
 *.DotSettings.user
 
-# Darkorbit-client (Electron)
-Darkorbit-client/node_modules/
-Darkorbit-client/dist/
+# Legacy Electron-клиент (не коммитить)
+Darkorbit-client-old/
 
 # Secrets
 *.env

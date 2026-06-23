@@ -59,13 +59,15 @@ Core → (ничего)
 ## Игровой путь (Frida-only)
 
 ```text
-DarkBot.Net/Darkorbit-client (Electron)
+DarkBot.Net/Darkorbit-client   ← ЕДИНСТВЕННЫЙ игровой клиент (см. Darkorbit-Client-Path.mdc)
   → avm_bridge (:44570)
   → Infrastructure.Game (FridaGameApi)
   → Core.IGameFridaProbe
   → Application managers (HeroManager, MapManager, …)
   → BotLoopService @ 10 Hz
 ```
+
+**Не использовать** `C:\Project\darkbot-reloaded\Darkorbit-client` из корня monorepo — только `DarkBot.Net/Darkorbit-client/`.
 
 ## AppService-фасады
 

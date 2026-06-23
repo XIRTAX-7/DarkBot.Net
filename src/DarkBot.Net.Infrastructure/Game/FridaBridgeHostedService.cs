@@ -74,9 +74,20 @@ public sealed class FridaBridgeHostedService : BackgroundService
             }
             catch (Exception ex)
             {
+                if (stoppingToken.IsCancellationRequested)
+                    break;
+
                 _frida.NotifyBridgeDisconnected();
                 _logger.LogDebug(ex, "Frida bridge WS disconnected — retry in 3s");
-                await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken).ConfigureAwait(false);
+
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
             }
             finally
             {
@@ -162,13 +173,20 @@ public sealed class FridaBridgeHostedService : BackgroundService
                 break;
             case "event":
                 _frida.RecordBridgeActivity();
-                if (root.TryGetProperty("name", out var nameProp)
-                    && nameProp.GetString() == "ready"
-                    && root.TryGetProperty("data", out var eventData))
+                if (root.TryGetProperty("name", out var nameProp))
                 {
-                    var status = eventData.Deserialize<FridaBridgeStatus>(JsonOptions);
-                    if (status is not null)
-                        _frida.ApplyStatus(status, isSnapshot: true);
+                    var eventName = nameProp.GetString();
+                    if (eventName == "move_debug" && root.TryGetProperty("data", out var moveDebug))
+                    {
+                        _logger.LogInformation("Frida move_debug: {Payload}", moveDebug.GetRawText());
+                    }
+                    else if (eventName == "ready"
+                             && root.TryGetProperty("data", out var eventData))
+                    {
+                        var status = eventData.Deserialize<FridaBridgeStatus>(JsonOptions);
+                        if (status is not null)
+                            _frida.ApplyStatus(status, isSnapshot: true);
+                    }
                 }
                 break;
         }

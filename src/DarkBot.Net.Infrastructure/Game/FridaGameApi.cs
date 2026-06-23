@@ -14,6 +14,11 @@ namespace DarkBot.Net.Infrastructure.Game;
 /// </summary>
 public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IDisposable
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     private readonly HttpClient _http;
     private readonly ElectronControlClient _control;
     private readonly GameApiOptions _options;
@@ -204,7 +209,7 @@ public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IDispos
 
         try
         {
-            var status = _http.GetFromJsonAsync<FridaBridgeStatus>(StatusUrl()).GetAwaiter().GetResult();
+            var status = _http.GetFromJsonAsync<FridaBridgeStatus>(StatusUrl(), JsonOptions).GetAwaiter().GetResult();
             if (status is not null)
                 ApplyStatus(status, isSnapshot: true);
 
@@ -219,6 +224,15 @@ public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IDispos
 
     public void MoveShip(long screenManager, long x, long y, long collectableAddress = 0)
     {
+        var hero = CurrentStatus;
+        _logger.LogInformation(
+            "Frida MoveShip target=({X},{Y}) collectable=0x{Collectable:X} screenManager=0x{ScreenManager:X} " +
+            "hero=({HeroX:F0},{HeroY:F0}) map={MapW}x{MapH} bridgeLive={BridgeLive}",
+            x, y, collectableAddress, screenManager,
+            hero?.HeroX ?? 0, hero?.HeroY ?? 0,
+            hero?.MapWidth ?? 0, hero?.MapHeight ?? 0,
+            IsBridgeLive);
+
         if (collectableAddress != 0)
         {
             PostAction("/collect", new
@@ -318,10 +332,24 @@ public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IDispos
         try
         {
             var json = JsonSerializer.Serialize(body);
+            _logger.LogInformation("Frida POST {Path} body={Body}", path, json);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             using var response = _http.PostAsync($"{BaseUrl()}{path}", content).GetAwaiter().GetResult();
-            var result = response.Content.ReadFromJsonAsync<FridaActionResult>().GetAwaiter().GetResult();
-            if (result?.Ok != true)
+            var responseText = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            _logger.LogInformation("Frida POST {Path} status={StatusCode} response={Response}",
+                path, (int)response.StatusCode, responseText);
+
+            FridaActionResult? result = null;
+            try
+            {
+                result = JsonSerializer.Deserialize<FridaActionResult>(responseText, JsonOptions);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogDebug(ex, "Frida {Path} response is not FridaActionResult JSON", path);
+            }
+
+            if (!response.IsSuccessStatusCode || result?.Ok != true)
                 _logger.LogWarning("Frida {Path} failed: {Error}", path, result?.Error ?? response.ReasonPhrase);
 
             return result;

@@ -77,6 +77,9 @@ public sealed class FridaBridgeStatus
     [JsonPropertyName("entities")]
     public List<FridaBridgeEntity>? Entities { get; init; }
 
+    [JsonPropertyName("zones")]
+    public List<FridaBridgeZone>? Zones { get; init; }
+
     [JsonPropertyName("credits")]
     public long Credits { get; init; }
 
@@ -126,4 +129,37 @@ public sealed class FridaBridgeEntity
 
     [JsonPropertyName("kind")]
     public string? Kind { get; init; }
+
+    [JsonPropertyName("fill")]
+    public bool Fill { get; init; }
+
+    [JsonPropertyName("label")]
+    public string? Label { get; init; }
+
+    [JsonPropertyName("isEnemy")]
+    public bool IsEnemy { get; init; }
+
+    [JsonPropertyName("subKind")]
+    public string? SubKind { get; init; }
+
+    [JsonPropertyName("isGroupMember")]
+    public bool IsGroupMember { get; init; }
+}
+
+public sealed class FridaBridgeZone
+{
+    [JsonPropertyName("kind")]
+    public string? Kind { get; init; }
+
+    [JsonPropertyName("polygon")]
+    public List<FridaBridgeZonePoint>? Polygon { get; init; }
+}
+
+public sealed class FridaBridgeZonePoint
+{
+    [JsonPropertyName("x")]
+    public double X { get; init; }
+
+    [JsonPropertyName("y")]
+    public double Y { get; init; }
 }

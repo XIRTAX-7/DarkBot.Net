@@ -11,9 +11,10 @@ namespace DarkBot.Net.Presentation.Controls;
 
 public sealed class MapCanvasControl : SKElement
 {
-    private const int MaxTrailPoints = 28;
+    private const int MaxTrailPoints = 128;
     private const double MinTrailPointDistance = 25;
-    private static readonly long TrailLifetimeTicks = Stopwatch.Frequency * 3;
+    private const double TeleportResetDistance = 500;
+    private static readonly long TrailLifetimeTicks = Stopwatch.Frequency * 15;
     private static readonly long MoveTargetLifetimeTicks = Stopwatch.Frequency * 8;
     private const double MoveTargetArrivalDistance = 350;
 
@@ -30,23 +31,10 @@ public sealed class MapCanvasControl : SKElement
             typeof(MapCanvasControl),
             new PropertyMetadata(null, OnSnapshotChanged));
 
-    public static readonly DependencyProperty ZonesProperty =
-        DependencyProperty.Register(
-            nameof(Zones),
-            typeof(IReadOnlyList<MapZoneCell>),
-            typeof(MapCanvasControl),
-            new PropertyMetadata(null, OnVisualPropertyChanged));
-
     public BotUiSnapshot? Snapshot
     {
         get => (BotUiSnapshot?)GetValue(SnapshotProperty);
         set => SetValue(SnapshotProperty, value);
-    }
-
-    public IReadOnlyList<MapZoneCell>? Zones
-    {
-        get => (IReadOnlyList<MapZoneCell>?)GetValue(ZonesProperty);
-        set => SetValue(ZonesProperty, value);
     }
 
     public event EventHandler<MapClickEventArgs>? MapClicked;
@@ -55,12 +43,6 @@ public sealed class MapCanvasControl : SKElement
     {
         ClipToBounds = true;
         Focusable = true;
-    }
-
-    private static void OnVisualPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is MapCanvasControl control)
-            control.InvalidateVisual();
     }
 
     private static void OnSnapshotChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -114,14 +96,12 @@ public sealed class MapCanvasControl : SKElement
         PruneHeroTrail(Stopwatch.GetTimestamp());
         var canvas = e.Surface.Canvas;
         var info = e.Info;
-        canvas.Clear(MapCanvasPalette.Background);
 
         MapCanvasRenderer.Render(
             canvas,
             info.Width,
             info.Height,
             Snapshot,
-            Zones,
             _heroTrailSnapshot,
             _moveTarget,
             Stopwatch.GetTimestamp(),
@@ -163,8 +143,18 @@ public sealed class MapCanvasControl : SKElement
         }
 
         var point = new HeroTrailPoint((float)snapshot.HeroX, (float)snapshot.HeroY, now);
-        if (_lastTrailPoint is { } lastPoint && Distance(lastPoint, point) < MinTrailPointDistance)
-            return;
+        if (_lastTrailPoint is { } lastPoint)
+        {
+            if (Distance(lastPoint, point) >= TeleportResetDistance)
+            {
+                _heroTrail.Clear();
+                _lastTrailPoint = null;
+            }
+            else if (Distance(lastPoint, point) < MinTrailPointDistance)
+            {
+                return;
+            }
+        }
 
         _heroTrail.Enqueue(point);
         _lastTrailPoint = point;

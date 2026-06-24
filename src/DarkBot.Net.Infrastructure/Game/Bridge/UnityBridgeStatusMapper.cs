@@ -77,6 +77,99 @@ public sealed class UnityBridgeAgentStatus
 
     [JsonPropertyName("map")]
     public UnityMapSnapshot? Map { get; init; }
+
+    [JsonPropertyName("entities")]
+    public List<UnityBridgeEntity>? Entities { get; init; }
+
+    [JsonPropertyName("zones")]
+    public List<UnityBridgeZone>? Zones { get; init; }
+
+    [JsonPropertyName("heroHp")]
+    public int HeroHp { get; init; }
+
+    [JsonPropertyName("heroMaxHp")]
+    public int HeroMaxHp { get; init; }
+
+    [JsonPropertyName("heroShield")]
+    public int HeroShield { get; init; }
+
+    [JsonPropertyName("heroMaxShield")]
+    public int HeroMaxShield { get; init; }
+
+    [JsonPropertyName("heroNano")]
+    public int HeroNano { get; init; }
+
+    [JsonPropertyName("heroMaxNano")]
+    public int HeroMaxNano { get; init; }
+
+    [JsonPropertyName("petPos")]
+    public UnityHeroPosition? PetPos { get; init; }
+
+    [JsonPropertyName("petHp")]
+    public int PetHp { get; init; }
+
+    [JsonPropertyName("petMaxHp")]
+    public int PetMaxHp { get; init; }
+
+    [JsonPropertyName("petFuel")]
+    public int PetFuel { get; init; }
+
+    [JsonPropertyName("petMaxFuel")]
+    public int PetMaxFuel { get; init; }
+
+    [JsonPropertyName("cargo")]
+    public int Cargo { get; init; }
+
+    [JsonPropertyName("maxCargo")]
+    public int MaxCargo { get; init; }
+}
+
+public sealed class UnityBridgeEntity
+{
+    [JsonPropertyName("id")]
+    public int Id { get; init; }
+
+    [JsonPropertyName("x")]
+    public double X { get; init; }
+
+    [JsonPropertyName("y")]
+    public double Y { get; init; }
+
+    [JsonPropertyName("kind")]
+    public string? Kind { get; init; }
+
+    [JsonPropertyName("fill")]
+    public bool Fill { get; init; }
+
+    [JsonPropertyName("label")]
+    public string? Label { get; init; }
+
+    [JsonPropertyName("isEnemy")]
+    public bool IsEnemy { get; init; }
+
+    [JsonPropertyName("subKind")]
+    public string? SubKind { get; init; }
+
+    [JsonPropertyName("isGroupMember")]
+    public bool IsGroupMember { get; init; }
+}
+
+public sealed class UnityBridgeZone
+{
+    [JsonPropertyName("kind")]
+    public string? Kind { get; init; }
+
+    [JsonPropertyName("polygon")]
+    public List<UnityMapPoint>? Polygon { get; init; }
+}
+
+public sealed class UnityMapPoint
+{
+    [JsonPropertyName("x")]
+    public double X { get; init; }
+
+    [JsonPropertyName("y")]
+    public double Y { get; init; }
 }
 
 public sealed class UnityMapSnapshot
@@ -169,10 +262,66 @@ public static class UnityBridgeStatusMapper
             HeroId = hero is not null ? 1 : 0,
             HeroX = hero?.X ?? 0,
             HeroY = heroY,
-            HeroHp = heroOnMap ? 1 : 0,
-            HeroMaxHp = heroOnMap ? 1 : 0,
+            HeroHp = status.HeroHp > 0 ? status.HeroHp : heroOnMap ? 1 : 0,
+            HeroMaxHp = status.HeroMaxHp > 0 ? status.HeroMaxHp : heroOnMap ? 1 : 0,
+            EntityCount = status.Entities?.Count ?? 0,
+            Entities = MapEntities(status.Entities),
+            Zones = MapZones(status.Zones),
+            Cargo = status.Cargo,
+            MaxCargo = status.MaxCargo,
             LastPacketActivityMs = Environment.TickCount64
         };
+    }
+
+    private static List<FridaBridgeEntity>? MapEntities(List<UnityBridgeEntity>? entities)
+    {
+        if (entities is not { Count: > 0 })
+            return null;
+
+        var list = new List<FridaBridgeEntity>(entities.Count);
+        foreach (var entity in entities)
+        {
+            if (entity.Id <= 0)
+                continue;
+
+            list.Add(new FridaBridgeEntity
+            {
+                Id = entity.Id,
+                X = entity.X,
+                Y = entity.Y,
+                Kind = entity.Kind,
+                Fill = entity.Fill,
+                Label = entity.Label,
+                IsEnemy = entity.IsEnemy,
+                IsGroupMember = entity.IsGroupMember,
+                SubKind = entity.SubKind
+            });
+        }
+
+        return list.Count > 0 ? list : null;
+    }
+
+    private static List<FridaBridgeZone>? MapZones(List<UnityBridgeZone>? zones)
+    {
+        if (zones is not { Count: > 0 })
+            return null;
+
+        var list = new List<FridaBridgeZone>(zones.Count);
+        foreach (var zone in zones)
+        {
+            if (zone.Polygon is not { Count: > 0 })
+                continue;
+
+            list.Add(new FridaBridgeZone
+            {
+                Kind = zone.Kind,
+                Polygon = zone.Polygon
+                    .Select(p => new FridaBridgeZonePoint { X = p.X, Y = p.Y })
+                    .ToList()
+            });
+        }
+
+        return list.Count > 0 ? list : null;
     }
 
     public static UnityBridgeAgentStatus? ParseStatusJson(string? json)

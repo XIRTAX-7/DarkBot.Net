@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using DarkBot.Net.Presentation.Controls;
+using DarkBot.Net.Presentation.Services;
 using DarkBot.Net.Presentation.ViewModels;
 using DarkBot.Net.Presentation.Views.Shell;
 using Microsoft.Extensions.DependencyInjection;

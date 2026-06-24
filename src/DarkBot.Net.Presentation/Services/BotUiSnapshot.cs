@@ -20,4 +20,5 @@ public sealed record BotUiSnapshot(
     double Uridium,
     double Experience,
     double Honor,
-    int Ping);
+    int Ping,
+    MapRenderSnapshot Map);

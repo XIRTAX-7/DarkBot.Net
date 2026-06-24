@@ -17,6 +17,7 @@ public sealed class EntityManager
     private readonly List<ShipStub> _npcs = [];
     private readonly List<ShipStub> _boxes = [];
     private readonly List<ShipStub> _portals = [];
+    private readonly List<FridaEntitySnapshot> _allSnapshots = [];
 
     public EntityManager(
         BotAddressRegistry addresses,
@@ -43,6 +44,8 @@ public sealed class EntityManager
 
     public IReadOnlyList<ShipStub> Ships => _ships;
 
+    public IReadOnlyList<FridaEntitySnapshot> AllSnapshots => _allSnapshots;
+
     public void Tick()
     {
         if (_addresses.IsInvalid || _map.MapAddress == 0 || !_frida.IsReady)
@@ -61,12 +64,15 @@ public sealed class EntityManager
         _npcs.Clear();
         _boxes.Clear();
         _portals.Clear();
+        _allSnapshots.Clear();
         _entitiesApi.ClearShips();
 
         foreach (var entity in entities)
         {
             if (entity.Id <= 0 || !MapLoadValidator.IsSaneCoordinate(entity.X, entity.Y))
                 continue;
+
+            _allSnapshots.Add(entity);
 
             var location = new MutableLocationInfo();
             location.Update(entity.X, entity.Y);
@@ -94,6 +100,17 @@ public sealed class EntityManager
                     _ships.Add(stub);
                     _entitiesApi.AddShip(stub);
                     break;
+                case "mine":
+                case "pet":
+                case "relay":
+                case "space_ball":
+                case "spaceball":
+                case "static":
+                case "battle_station":
+                case "station_turret":
+                case "base_spot":
+                    _ships.Add(stub);
+                    break;
                 default:
                     _ships.Add(stub);
                     break;
@@ -107,6 +124,7 @@ public sealed class EntityManager
         _npcs.Clear();
         _boxes.Clear();
         _portals.Clear();
+        _allSnapshots.Clear();
         _entitiesApi.ClearShips();
     }
 

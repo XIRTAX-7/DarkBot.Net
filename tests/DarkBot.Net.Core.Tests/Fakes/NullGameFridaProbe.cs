@@ -16,6 +16,8 @@ internal sealed class NullGameFridaProbe : IGameFridaProbe
 
     public IReadOnlyList<FridaEntitySnapshot> Entities => Empty;
 
+    public IReadOnlyList<FridaBridgeZoneSnapshot> Zones => [];
+
     public void Refresh() { }
 
     public bool TryGetMapSnapshot(out int mapId, out int width, out int height)
@@ -51,6 +53,8 @@ internal sealed class FakeGameFridaProbe : IGameFridaProbe
     public int EntityCount { get; set; }
 
     public IReadOnlyList<FridaEntitySnapshot> Entities { get; set; } = Empty;
+
+    public IReadOnlyList<FridaBridgeZoneSnapshot> Zones { get; set; } = [];
 
     public int MapId { get; set; }
 

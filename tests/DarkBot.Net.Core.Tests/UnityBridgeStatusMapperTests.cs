@@ -113,6 +113,33 @@ public sealed class UnityBridgeStatusMapperTests
     }
 
     [Fact]
+    public void ToFridaStatus_MapsEntitiesFromAgent()
+    {
+        var agentStatus = new UnityBridgeAgentStatus
+        {
+            SchemaVersion = 1,
+            MovementHooksReady = true,
+            HeroPos = new UnityHeroPosition { X = 100, Y = -200, ServerY = 200 },
+            Map = new UnityMapSnapshot { MapId = 16, Width = 21000, Height = 13500 },
+            Entities =
+            [
+                new UnityBridgeEntity { Id = 42, X = 500, Y = 600, Kind = "npc", Label = "Streuner" },
+                new UnityBridgeEntity { Id = 7, X = 1000, Y = 1100, Kind = "box", Fill = true }
+            ],
+            HeroHp = 12000,
+            HeroMaxHp = 15000
+        };
+
+        var frida = UnityBridgeStatusMapper.ToFridaStatus(agentStatus);
+
+        Assert.Equal(2, frida.EntityCount);
+        Assert.NotNull(frida.Entities);
+        Assert.Equal("npc", frida.Entities![0].Kind);
+        Assert.Equal(12000, frida.HeroHp);
+        Assert.Equal(15000, frida.HeroMaxHp);
+    }
+
+    [Fact]
     public void ApplyAgentEvent_UpdatesHeroFromHeroPosEvent()
     {
         using var doc = JsonDocument.Parse("""{"type":"hero_pos","x":42,"y":84}""");

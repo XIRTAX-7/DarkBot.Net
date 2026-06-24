@@ -6,12 +6,14 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
 {
     private const int MaxMapId = 1000;
     private static readonly FridaEntitySnapshot[] EmptyEntities = [];
+    private static readonly FridaBridgeZoneSnapshot[] EmptyZones = [];
 
     private readonly IGameBridgeStatusSource _bridge;
     private long _mapPointer;
     private long _heroPointer;
     private int _entityCount;
     private IReadOnlyList<FridaEntitySnapshot> _entities = EmptyEntities;
+    private IReadOnlyList<FridaBridgeZoneSnapshot> _zones = EmptyZones;
 
     public UnityBridgeStateProbe(IGameBridgeStatusSource bridge) => _bridge = bridge;
 
@@ -24,6 +26,8 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
     public int EntityCount => _entityCount;
 
     public IReadOnlyList<FridaEntitySnapshot> Entities => _entities;
+
+    public IReadOnlyList<FridaBridgeZoneSnapshot> Zones => _zones;
 
     public void Refresh()
     {
@@ -38,6 +42,7 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
             _heroPointer = 0;
             _entityCount = 0;
             _entities = EmptyEntities;
+            _zones = EmptyZones;
             return;
         }
 
@@ -60,7 +65,12 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
                     entity.Id,
                     entity.X,
                     entity.Y,
-                    string.IsNullOrWhiteSpace(entity.Kind) ? "unknown" : entity.Kind));
+                    string.IsNullOrWhiteSpace(entity.Kind) ? "unknown" : entity.Kind,
+                    entity.Fill,
+                    entity.Label,
+                    entity.IsEnemy,
+                    entity.IsGroupMember,
+                    entity.SubKind));
             }
 
             _entities = list;
@@ -69,6 +79,26 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
         else
         {
             _entities = EmptyEntities;
+        }
+
+        if (status.Zones is { Count: > 0 })
+        {
+            var zoneList = new List<FridaBridgeZoneSnapshot>(status.Zones.Count);
+            foreach (var zone in status.Zones)
+            {
+                if (zone.Polygon is not { Count: > 0 } polygon)
+                    continue;
+
+                zoneList.Add(new FridaBridgeZoneSnapshot(
+                    string.IsNullOrWhiteSpace(zone.Kind) ? "mist" : zone.Kind,
+                    polygon.Select(p => new MapPointSnapshotCore(p.X, p.Y)).ToArray()));
+            }
+
+            _zones = zoneList;
+        }
+        else
+        {
+            _zones = EmptyZones;
         }
     }
 

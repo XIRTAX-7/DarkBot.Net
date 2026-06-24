@@ -26,7 +26,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [Reactive] private BotUiSnapshot _snapshot = new(
         false, false, 0, 0, 0, 0, 0, -1, "Загрузка", 21000, 13500,
         Array.Empty<MapPortalSnapshot>(),
-        false, 0, 0, 0, 0, 0, 0, 0);
+        false, 0, 0, 0, 0, 0, 0, 0,
+        MapRenderSnapshot.Loading);
 
     public MainWindowViewModel(
         IBotControlAppService bot,

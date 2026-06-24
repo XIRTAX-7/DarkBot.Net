@@ -15,6 +15,8 @@ public interface IGameFridaProbe
 
     IReadOnlyList<FridaEntitySnapshot> Entities { get; }
 
+    IReadOnlyList<FridaBridgeZoneSnapshot> Zones { get; }
+
     bool TryGetMapSnapshot(out int mapId, out int width, out int height);
 
     bool TryGetHeroSnapshot(out int heroId, out double x, out double y, out int hp, out int maxHp);

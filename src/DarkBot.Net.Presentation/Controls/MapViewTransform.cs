@@ -1,4 +1,4 @@
-using Avalonia;
+using System.Windows;
 using DarkBot.Net.Core.Game;
 using SkiaSharp;
 
@@ -35,7 +35,7 @@ internal readonly struct MapViewTransform
         };
     }
 
-    public bool TryScreenToGame(Point screenPoint, out double gameX, out double gameY)
+    public bool TryScreenToMap(Point screenPoint, out double gameX, out double gameY)
     {
         gameX = 0;
         gameY = 0;

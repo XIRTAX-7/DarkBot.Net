@@ -1,57 +1,45 @@
-using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Disposables.Fluent;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using Avalonia.Threading;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Threading;
 using DarkBot.Net.Presentation.Controls;
 using DarkBot.Net.Presentation.ViewModels;
 using DarkBot.Net.Presentation.Views.Shell;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using ReactiveUI.Avalonia;
+using Serilog;
 
 namespace DarkBot.Net.Presentation.Views.Main;
 
 public partial class MainView : ReactiveUserControl<MainWindowViewModel>
 {
     private StatsPanelViewModel? _statsViewModel;
-    private StatsPanelControl? _statsPanel;
-    private MapCanvasControl? _mapCanvas;
-    private Button? _configButton;
-    private Button? _loginButton;
     private DispatcherTimer? _refreshTimer;
     private ConfigWindow? _configWindow;
 
     public MainView()
     {
-        AvaloniaXamlLoader.Load(this);
+        Log.Information("UI view: MainView created");
+        InitializeComponent();
 
         this.WhenActivated(disposables =>
         {
             if (Program.AppHost is null || ViewModel is null)
                 return;
 
-            _statsPanel = this.FindControl<StatsPanelControl>("StatsPanel");
-            _mapCanvas = this.FindControl<MapCanvasControl>("MapCanvas");
-            _configButton = this.FindControl<Button>("ConfigButton");
-            _loginButton = this.FindControl<Button>("LoginButton");
-
-            if (_statsPanel is null || _mapCanvas is null || _configButton is null || _loginButton is null)
-                return;
-
             _statsViewModel = Program.AppHost.Services.GetRequiredService<StatsPanelViewModel>();
-            _statsPanel.ViewModel = _statsViewModel;
+            StatsPanel.ViewModel = _statsViewModel;
 
-            _mapCanvas.MapClicked += OnMapClicked;
-            disposables.Add(Disposable.Create(() => _mapCanvas.MapClicked -= OnMapClicked));
+            MapCanvas.MapClicked += OnMapClicked;
+            disposables.Add(Disposable.Create(() => MapCanvas.MapClicked -= OnMapClicked));
 
-            _configButton.Click += OnConfigClick;
-            _loginButton.Click += OnLoginClick;
+            ConfigButton.Click += OnConfigClick;
+            LoginButton.Click += OnLoginClick;
             disposables.Add(Disposable.Create(() =>
             {
-                _configButton.Click -= OnConfigClick;
-                _loginButton.Click -= OnLoginClick;
+                ConfigButton.Click -= OnConfigClick;
+                LoginButton.Click -= OnLoginClick;
             }));
 
             _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
@@ -66,20 +54,20 @@ public partial class MainView : ReactiveUserControl<MainWindowViewModel>
     private void OnMapClicked(object? sender, MapClickEventArgs e) =>
         ViewModel?.MoveShipToMapLocation(e);
 
-    private void OnConfigClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e) =>
+    private void OnConfigClick(object? sender, RoutedEventArgs e) =>
         ShowConfigWindow();
 
-    private void OnLoginClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e) =>
+    private void OnLoginClick(object? sender, RoutedEventArgs e) =>
         ShowLoginScreen();
 
     private void RefreshUi()
     {
-        if (ViewModel is null || _statsViewModel is null || _mapCanvas is null || _statsPanel is null)
+        if (ViewModel is null || _statsViewModel is null)
             return;
 
         ViewModel.Refresh();
         _statsViewModel.Apply(ViewModel.Snapshot);
-        _mapCanvas.Snapshot = ViewModel.Snapshot;
+        MapCanvas.Snapshot = ViewModel.Snapshot;
     }
 
     private void ShowConfigWindow()
@@ -95,7 +83,7 @@ public partial class MainView : ReactiveUserControl<MainWindowViewModel>
 
     private void ShowLoginScreen()
     {
-        if (TopLevel.GetTopLevel(this) is ShellWindowView { ViewModel: { } shell })
+        if (Window.GetWindow(this) is ShellWindowView shell)
             shell.ShowLogin();
     }
 }

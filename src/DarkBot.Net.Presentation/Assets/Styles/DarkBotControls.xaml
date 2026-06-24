@@ -1,0 +1,233 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+
+  <!-- Surfaces -->
+  <Style x:Key="DbPage" TargetType="Border">
+    <Setter Property="Background" Value="{DynamicResource DbAppBackground}" />
+  </Style>
+
+  <Style x:Key="DbPanel" TargetType="Border">
+    <Setter Property="CornerRadius" Value="22" />
+    <Setter Property="Padding" Value="18" />
+    <Setter Property="Background" Value="{DynamicResource DbSurface}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style x:Key="DbPanelSoft" TargetType="Border" BasedOn="{StaticResource DbPanel}">
+    <Setter Property="Background" Value="{DynamicResource DbSurfaceSoft}" />
+  </Style>
+
+  <Style x:Key="DbCard" TargetType="Border">
+    <Setter Property="CornerRadius" Value="16" />
+    <Setter Property="Padding" Value="14" />
+    <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style x:Key="DbToolbar" TargetType="Border">
+    <Setter Property="CornerRadius" Value="18" />
+    <Setter Property="Padding" Value="12" />
+    <Setter Property="Background" Value="{DynamicResource DbTopBarBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbTopBarBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style x:Key="DbHero" TargetType="Border">
+    <Setter Property="CornerRadius" Value="20" />
+    <Setter Property="Padding" Value="18" />
+    <Setter Property="Background" Value="{DynamicResource DbHeroGradient}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbBorderStrong}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style x:Key="DbMapFrame" TargetType="Border">
+    <Setter Property="CornerRadius" Value="22" />
+    <Setter Property="MinHeight" Value="620" />
+    <Setter Property="ClipToBounds" Value="True" />
+    <Setter Property="Background" Value="{DynamicResource DbMapBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style x:Key="DbMapTopBar" TargetType="Border">
+    <Setter Property="Padding" Value="16,10" />
+    <Setter Property="Background" Value="{DynamicResource DbSurfaceElevated}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+  </Style>
+
+  <Style x:Key="DbMapSurface" TargetType="Border">
+    <Setter Property="ClipToBounds" Value="True" />
+    <Setter Property="Background" Value="{DynamicResource DbMapBackground}" />
+  </Style>
+
+  <Style x:Key="DbMetricTile" TargetType="Border">
+    <Setter Property="CornerRadius" Value="14" />
+    <Setter Property="Padding" Value="13" />
+    <Setter Property="Background" Value="{DynamicResource DbStatTileBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbStatTileBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style x:Key="DbDivider" TargetType="Border">
+    <Setter Property="Height" Value="1" />
+    <Setter Property="Background" Value="{DynamicResource DbBorder}" />
+  </Style>
+
+  <!-- Badges -->
+  <Style x:Key="DbBadge" TargetType="Border">
+    <Setter Property="CornerRadius" Value="999" />
+    <Setter Property="Padding" Value="10,5" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Background" Value="{DynamicResource DbSurfaceAlt}" />
+  </Style>
+
+  <Style x:Key="DbBadgeAccent" TargetType="Border" BasedOn="{StaticResource DbBadge}">
+    <Setter Property="Background" Value="{DynamicResource DbAccentSoft}" />
+  </Style>
+
+  <!-- Typography -->
+  <Style x:Key="DbTitle" TargetType="TextBlock">
+    <Setter Property="FontSize" Value="25" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Foreground" Value="{DynamicResource DbTextPrimary}" />
+    <Setter Property="LineHeight" Value="32" />
+  </Style>
+
+  <Style x:Key="DbSubtitle" TargetType="TextBlock">
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="Foreground" Value="{DynamicResource DbTextSecondary}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="LineHeight" Value="18" />
+  </Style>
+
+  <Style x:Key="DbSectionTitle" TargetType="TextBlock">
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource DbTextPrimary}" />
+  </Style>
+
+  <Style x:Key="DbCaption" TargetType="TextBlock">
+    <Setter Property="FontSize" Value="11.5" />
+    <Setter Property="Foreground" Value="{DynamicResource DbTextMuted}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+
+  <Style x:Key="DbMetricValue" TargetType="TextBlock">
+    <Setter Property="FontSize" Value="21" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Foreground" Value="{DynamicResource DbTextPrimary}" />
+  </Style>
+
+  <Style x:Key="DbMetricLabel" TargetType="TextBlock">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Foreground" Value="{DynamicResource DbTextMuted}" />
+  </Style>
+
+  <Style x:Key="DbMono" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, monospace" />
+  </Style>
+
+  <!-- WPF-UI buttons with DarkBot variants -->
+  <Style x:Key="DbButtonPrimary" TargetType="ui:Button">
+    <Setter Property="Appearance" Value="Primary" />
+    <Setter Property="MinHeight" Value="38" />
+    <Setter Property="Padding" Value="17,0" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <Style x:Key="DbButtonSecondary" TargetType="ui:Button">
+    <Setter Property="Appearance" Value="Secondary" />
+    <Setter Property="MinHeight" Value="38" />
+    <Setter Property="Padding" Value="17,0" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <Style x:Key="DbButtonGhost" TargetType="ui:Button">
+    <Setter Property="Appearance" Value="Transparent" />
+    <Setter Property="MinHeight" Value="38" />
+    <Setter Property="Padding" Value="17,0" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <Style x:Key="DbIconButton" TargetType="ui:Button">
+    <Setter Property="Appearance" Value="Transparent" />
+    <Setter Property="MinWidth" Value="38" />
+    <Setter Property="MinHeight" Value="38" />
+    <Setter Property="Padding" Value="10,0" />
+  </Style>
+
+  <Style x:Key="DbInput" TargetType="ui:TextBox">
+    <Setter Property="MinHeight" Value="40" />
+    <Setter Property="Padding" Value="12,8" />
+  </Style>
+
+  <Style x:Key="DbConfigSidebar" TargetType="Border">
+    <Setter Property="Background" Value="{DynamicResource DbSurfaceSoft}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+    <Setter Property="BorderThickness" Value="0,0,1,0" />
+    <Setter Property="Padding" Value="0,8" />
+  </Style>
+
+  <Style x:Key="DbConfigContent" TargetType="Border">
+    <Setter Property="Background" Value="{DynamicResource DbSurface}" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+
+  <Style x:Key="DbConfigLabel" TargetType="TextBlock">
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Margin" Value="16,10" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="Foreground" Value="{DynamicResource DbTextPrimary}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+
+  <Style x:Key="DbZoneToolbar" TargetType="Border">
+    <Setter Property="CornerRadius" Value="18" />
+    <Setter Property="Padding" Value="14" />
+    <Setter Property="Background" Value="{DynamicResource DbTopBarBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbTopBarBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style x:Key="DbZoneMapFrame" TargetType="Border">
+    <Setter Property="CornerRadius" Value="18" />
+    <Setter Property="ClipToBounds" Value="True" />
+    <Setter Property="Background" Value="{DynamicResource DbMapBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style x:Key="DbZoneMapEditor" TargetType="Border">
+    <Setter Property="MinHeight" Value="470" />
+    <Setter Property="Background" Value="{DynamicResource DbMapBackground}" />
+  </Style>
+
+  <Style x:Key="DbZoneCellPreferred" TargetType="Border">
+    <Setter Property="Margin" Value="1" />
+    <Setter Property="CornerRadius" Value="2" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Background" Value="{DynamicResource DbSuccessSoft}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbSuccess}" />
+  </Style>
+
+  <Style x:Key="DbZoneCellForbidden" TargetType="Border">
+    <Setter Property="Margin" Value="1" />
+    <Setter Property="CornerRadius" Value="2" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Background" Value="{DynamicResource DbDangerSoft}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbDanger}" />
+  </Style>
+
+  <Style x:Key="DbZoneCellSafe" TargetType="Border">
+    <Setter Property="Margin" Value="1" />
+    <Setter Property="CornerRadius" Value="2" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Background" Value="{DynamicResource DbAccentSoft}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DbAccent}" />
+  </Style>
+
+</ResourceDictionary>

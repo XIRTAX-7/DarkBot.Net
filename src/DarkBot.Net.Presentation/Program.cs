@@ -1,9 +1,15 @@
-using Avalonia;
+using DarkBot.Net.Presentation.Controls;
 using DarkBot.Net.Presentation.Logging;
+using DarkBot.Net.Presentation.ViewModels;
+using DarkBot.Net.Presentation.Views.Login;
+using DarkBot.Net.Presentation.Views.Main;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using ReactiveUI.Avalonia;
+using ReactiveUI;
+using ReactiveUI.Builder;
 using Serilog;
+using Splat;
+using System.Windows;
 
 namespace DarkBot.Net.Presentation;
 
@@ -30,7 +36,9 @@ internal static class Program
                 "DarkBot.Net UI starting (base directory: {BaseDirectory}, BrowserApi: {BrowserApi}, logs: {LogDirectory})",
                 AppContext.BaseDirectory,
                 Configuration.GetValue<string>("DarkBot:BrowserApi") ?? "default",
-                Path.Combine(AppContext.BaseDirectory, "logs"));
+                System.IO.Path.Combine(AppContext.BaseDirectory, "logs"));
+
+            ConfigureReactiveUi();
 
             AppHost = ServiceCollectionExtensions.BuildDarkBotHost(args, Configuration);
             try
@@ -44,8 +52,9 @@ internal static class Program
                 throw;
             }
 
-            BuildAvaloniaApp()
-                .StartWithClassicDesktopLifetime(args);
+            var app = new App();
+            app.InitializeComponent();
+            app.Run();
         }
         catch (Exception ex)
         {
@@ -82,14 +91,15 @@ internal static class Program
         }
     }
 
-    public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
-            .UsePlatformDetect()
-#if DEBUG
-            .WithDeveloperTools()
-#endif
-            .WithInterFont()
-            .UseReactiveUI(_ => { })
-            .RegisterReactiveUIViewsFromEntryAssembly()
-            .LogToTrace();
+    private static void ConfigureReactiveUi()
+    {
+        RxAppBuilder.CreateReactiveUIBuilder()
+            .WithWpf()
+            .BuildApp();
+
+        Locator.CurrentMutable.RegisterViewForViewModel<LoginView, LoginViewModel>();
+        Locator.CurrentMutable.RegisterViewForViewModel<MainView, MainWindowViewModel>();
+        Locator.CurrentMutable.RegisterViewForViewModel<ConfigTreeControl, ConfigTreeViewModel>();
+        Locator.CurrentMutable.RegisterViewForViewModel<StatsPanelControl, StatsPanelViewModel>();
+    }
 }

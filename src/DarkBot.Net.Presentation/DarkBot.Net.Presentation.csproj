@@ -1,25 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <RootNamespace>DarkBot.Net.Presentation</RootNamespace>
     <PlatformTarget>x64</PlatformTarget>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <UseWPF>true</UseWPF>
     <LangVersion>preview</LangVersion>
-    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <StartupObject>DarkBot.Net.Presentation.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="12.0.4" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
-    <PackageReference Include="Avalonia.Skia" Version="12.0.4" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
-    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
-      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
-      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="ReactiveUI.Avalonia" Version="12.0.3" />
+    <PackageReference Include="WPF-UI" Version="4.3.0" />
+    <PackageReference Include="ReactiveUI.WPF" Version="23.2.28" />
     <PackageReference Include="ReactiveUI.SourceGenerators" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -32,44 +27,16 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="SkiaSharp" Version="3.119.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="App.axaml.cs">
-      <DependentUpon>App.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Controls\ConfigTreeControl.axaml.cs">
-      <DependentUpon>ConfigTreeControl.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Controls\StatsPanelControl.axaml.cs">
-      <DependentUpon>StatsPanelControl.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\ConfigWindow.axaml.cs">
-      <DependentUpon>ConfigWindow.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\Login\LoginView.axaml.cs">
-      <DependentUpon>LoginView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\Main\MainView.axaml.cs">
-      <DependentUpon>MainView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Views\Shell\ShellWindowView.axaml.cs">
-      <DependentUpon>ShellWindowView.axaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="3.119.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DarkBot.Net.Application\DarkBot.Net.Application.csproj" />
     <ProjectReference Include="..\DarkBot.Net.Infrastructure\DarkBot.Net.Infrastructure.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <AvaloniaResource Include="Assets\backgrounds\nebula.png" />
+    <Resource Include="Assets\backgrounds\nebula.png" />
   </ItemGroup>
 
   <ItemGroup>

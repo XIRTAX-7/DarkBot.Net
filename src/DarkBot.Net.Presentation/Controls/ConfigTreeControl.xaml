@@ -1,0 +1,150 @@
+<rxui:ReactiveUserControl x:Class="DarkBot.Net.Presentation.Controls.ConfigTreeControl"
+             x:TypeArguments="vm:ConfigTreeViewModel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:rxui="clr-namespace:ReactiveUI;assembly=ReactiveUI.Wpf"
+             xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d"
+             d:DesignWidth="1180"
+             d:DesignHeight="760">
+
+  <TabControl>
+    <TabItem Header="Общие настройки">
+      <Grid Margin="0,14,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="220" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Style="{DynamicResource DbConfigSidebar}">
+          <ListBox SelectedIndex="0" BorderThickness="0" Background="Transparent">
+            <ListBoxItem Content="Главная" />
+            <ListBoxItem Content="Сбор" />
+            <ListBoxItem Content="Убийство NPC" />
+            <ListBoxItem Content="PET" />
+            <ListBoxItem Content="Группа" />
+            <ListBoxItem Content="Прочее" />
+            <ListBoxItem Content="Настройки бота" />
+            <ListBoxItem Content="Plugins" />
+          </ListBox>
+        </Border>
+
+        <Border Grid.Column="1" Style="{DynamicResource DbConfigContent}">
+          <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+              <Grid Margin="0" MinHeight="40" Background="{DynamicResource DbSurface}">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" MinWidth="280" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{DynamicResource DbConfigLabel}" Text="Модуль" />
+                <ComboBox Grid.Column="1" MinWidth="180" Margin="0,6,16,6" SelectedIndex="0">
+                  <ComboBoxItem Content="Kill &amp; Collect" />
+                </ComboBox>
+              </Grid>
+
+              <Grid Margin="0" MinHeight="40" Background="{DynamicResource DbSurface}">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" MinWidth="280" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{DynamicResource DbConfigLabel}" Text="Рабочая карта" />
+                <ComboBox Grid.Column="1" MinWidth="180" Margin="0,6,16,6" SelectedIndex="0">
+                  <ComboBoxItem Content="2-5" />
+                </ComboBox>
+              </Grid>
+
+              <Expander Header="Безопасность" IsExpanded="True" Margin="0,8,0,0">
+                <StackPanel>
+                  <Grid MinHeight="40" Background="{DynamicResource DbSurface}">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" MinWidth="260" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{DynamicResource DbConfigLabel}" Text="Сохранять прочность в интервале" Margin="28,10,16,10" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,6,16,6" VerticalAlignment="Center">
+                      <ui:NumberBox Value="75" Minimum="0" Maximum="100" Width="72" Margin="0,0,6,0" />
+                      <TextBlock Text="%" VerticalAlignment="Center" Foreground="{DynamicResource DbTextMuted}" Margin="0,0,6,0" />
+                      <TextBlock Text="-" VerticalAlignment="Center" Foreground="{DynamicResource DbTextMuted}" Margin="0,0,6,0" />
+                      <ui:NumberBox Value="95" Minimum="0" Maximum="100" Width="72" Margin="0,0,6,0" />
+                      <TextBlock Text="%" VerticalAlignment="Center" Foreground="{DynamicResource DbTextMuted}" />
+                    </StackPanel>
+                  </Grid>
+                </StackPanel>
+              </Expander>
+            </StackPanel>
+          </ScrollViewer>
+        </Border>
+      </Grid>
+    </TabItem>
+
+    <TabItem Header="Зоны карты">
+      <Grid Margin="0,14,0,0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{DynamicResource DbZoneToolbar}" Margin="0,0,0,14">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+              <TextBlock Style="{DynamicResource DbSectionTitle}" Text="Зоны карты" Margin="0,0,0,3" />
+              <TextBlock Style="{DynamicResource DbCaption}"
+                         Text="Редактор разметки 30 x 30 для предпочтительных, запретных и безопасных зон." />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+              <ui:Button Style="{DynamicResource DbButtonSecondary}" Content="Очистить" Margin="0,0,8,0" />
+              <ui:Button Style="{DynamicResource DbButtonPrimary}" Content="Применить" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="300" />
+          </Grid.ColumnDefinitions>
+
+          <Border Style="{DynamicResource DbPanel}" Margin="0,0,14,0">
+            <Border Style="{DynamicResource DbZoneMapFrame}">
+              <Border Style="{DynamicResource DbZoneMapEditor}">
+                <Grid>
+                  <Border Grid.Row="4" Grid.Column="6" Style="{DynamicResource DbZoneCellPreferred}" />
+                  <Border Grid.Row="10" Grid.Column="14" Style="{DynamicResource DbZoneCellForbidden}" />
+                  <Border Grid.Row="20" Grid.Column="5" Style="{DynamicResource DbZoneCellSafe}" />
+                  <Ellipse Grid.Row="14" Grid.Column="15" Width="10" Height="10"
+                           Fill="{DynamicResource DbTextPrimary}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+              </Border>
+            </Border>
+          </Border>
+
+          <Border Grid.Column="1" Style="{DynamicResource DbPanelSoft}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <StackPanel>
+                <TextBlock Style="{DynamicResource DbSectionTitle}" Text="Параметры зон" Margin="0,0,0,14" />
+                <Border Style="{DynamicResource DbCard}">
+                  <StackPanel>
+                    <TextBlock Style="{DynamicResource DbMetricLabel}" Text="Режим выделения" Margin="0,0,0,10" />
+                    <ComboBox SelectedIndex="0">
+                      <ComboBoxItem Content="Кисть: добавить квадраты" />
+                      <ComboBoxItem Content="Ластик: удалить квадраты" />
+                    </ComboBox>
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+            </ScrollViewer>
+          </Border>
+        </Grid>
+      </Grid>
+    </TabItem>
+  </TabControl>
+</rxui:ReactiveUserControl>

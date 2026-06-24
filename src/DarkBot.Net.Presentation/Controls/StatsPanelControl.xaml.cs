@@ -1,6 +1,6 @@
-using Avalonia.Markup.Xaml;
+using System.Windows;
 using DarkBot.Net.Presentation.ViewModels;
-using ReactiveUI.Avalonia;
+using ReactiveUI;
 
 namespace DarkBot.Net.Presentation.Controls;
 
@@ -8,6 +8,6 @@ public partial class StatsPanelControl : ReactiveUserControl<StatsPanelViewModel
 {
     public StatsPanelControl()
     {
-        AvaloniaXamlLoader.Load(this);
+        InitializeComponent();
     }
 }

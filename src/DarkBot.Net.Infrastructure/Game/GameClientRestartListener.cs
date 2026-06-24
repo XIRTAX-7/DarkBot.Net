@@ -13,7 +13,8 @@ namespace DarkBot.Net.Infrastructure.Game;
 /// </summary>
 public sealed class GameClientRestartListener : IHostedService, IDisposable
 {
-    private readonly DarkorbitClientLauncher _clientLauncher;
+    private readonly DarkorbitClientLauncher _legacyLauncher;
+    private readonly UnityGameLauncher _unityLauncher;
     private readonly IGameConnection _game;
     private readonly IBotController _bot;
     private readonly GameClientRestartService _restart;
@@ -26,7 +27,8 @@ public sealed class GameClientRestartListener : IHostedService, IDisposable
     private string? _pendingRecoveryReason;
 
     public GameClientRestartListener(
-        DarkorbitClientLauncher clientLauncher,
+        DarkorbitClientLauncher legacyLauncher,
+        UnityGameLauncher unityLauncher,
         IGameConnection game,
         IBotController bot,
         GameClientRestartService restart,
@@ -35,7 +37,8 @@ public sealed class GameClientRestartListener : IHostedService, IDisposable
         IOptions<GameApiOptions> options,
         ILogger<GameClientRestartListener> logger)
     {
-        _clientLauncher = clientLauncher;
+        _legacyLauncher = legacyLauncher;
+        _unityLauncher = unityLauncher;
         _game = game;
         _bot = bot;
         _restart = restart;
@@ -50,7 +53,8 @@ public sealed class GameClientRestartListener : IHostedService, IDisposable
         if (_options.BrowserApi == GameApiMode.BackpageOnly)
             return Task.CompletedTask;
 
-        _clientLauncher.ClientProcessExited += OnClientProcessExited;
+        _legacyLauncher.ClientProcessExited += OnClientProcessExited;
+        _unityLauncher.ClientProcessExited += OnClientProcessExited;
         _game.PhaseChanged += OnPhaseChanged;
         _game.BridgeDisconnected += OnBridgeDisconnected;
 
@@ -73,7 +77,8 @@ public sealed class GameClientRestartListener : IHostedService, IDisposable
 
     private void Unsubscribe()
     {
-        _clientLauncher.ClientProcessExited -= OnClientProcessExited;
+        _legacyLauncher.ClientProcessExited -= OnClientProcessExited;
+        _unityLauncher.ClientProcessExited -= OnClientProcessExited;
         _game.PhaseChanged -= OnPhaseChanged;
         _game.BridgeDisconnected -= OnBridgeDisconnected;
     }
@@ -84,7 +89,7 @@ public sealed class GameClientRestartListener : IHostedService, IDisposable
             return;
 
         CancelRecoveryTimer();
-        _logger.LogInformation("Darkorbit-client process exited — scheduling restart");
+        _logger.LogInformation("Game client process exited — scheduling restart");
         ScheduleRestart("process exited");
     }
 

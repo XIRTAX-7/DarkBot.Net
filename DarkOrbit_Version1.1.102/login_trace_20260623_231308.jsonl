@@ -1,0 +1,9 @@
+{"type": "login_trace", "seq": 1, "phase": "trace_loaded", "ts": 1782231189575, "pid": 46792, "traceVersion": "login-trace-2026-06-23-1"}
+{"type": "login_trace", "seq": 2, "phase": "trace_ready", "ts": 1782231189580, "pid": 46792, "traceVersion": "login-trace-2026-06-23-1", "gameAssemblyBase": "0x51580000", "hookCount": 12}
+{"type": "login_trace", "seq": 3, "phase": "update_web_data", "ts": 1782231229326, "pid": 46792, "self": "0x20f59f80", "webDataPreview": null, "webDataLength": 0}
+{"type": "login_trace", "seq": 4, "phase": "update_web_data", "ts": 1782231229326, "pid": 46792, "self": "0x20f59f80", "webDataPreview": null, "webDataLength": 0}
+{"type": "login_trace", "seq": 5, "phase": "update_web_data", "ts": 1782231232104, "pid": 46792, "self": "0x20f59f80", "webDataPreview": null, "webDataLength": 0}
+{"type": "login_trace", "seq": 6, "phase": "get_post", "ts": 1782231232118, "pid": 46792, "self": "0x20f59f80", "url": null}
+{"type": "login_trace", "seq": 7, "phase": "update_web_data", "ts": 1782231232819, "pid": 46792, "self": "0x20f59f80", "webDataPreview": null, "webDataLength": 0}
+{"type": "login_trace", "seq": 8, "phase": "start_game", "ts": 1782231249653, "pid": 46792, "self": "0x20f59f80"}
+{"type": "login_trace", "seq": 9, "phase": "trace_stopped", "ts": 1782231369185, "pid": 46792}

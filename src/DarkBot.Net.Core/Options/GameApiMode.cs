@@ -1,19 +1,22 @@
 namespace DarkBot.Net.Core.Options;
 
-/// <summary>Game connection mode. v1 supports Darkorbit-client + Frida only.</summary>
+/// <summary>Game connection mode.</summary>
 public enum GameApiMode
 {
-    /// <summary>Darkorbit-client (Electron) + darkDev Frida HTTP bridge.</summary>
+    /// <summary>Unity IL2CPP client (DarkOrbit.exe) + FridaCLR in-process bridge.</summary>
+    UnityClient,
+
+    /// <summary>Legacy Darkorbit-client (Electron) + darkDev Frida HTTP bridge.</summary>
     FridaClient,
 
     /// <summary>Backpage session only — no game client.</summary>
     BackpageOnly,
 
     /// <summary>Removed — do not use.</summary>
-    [Obsolete("KekkaPlayer/Java path is disabled. Use FridaClient.")]
+    [Obsolete("KekkaPlayer/Java path is disabled. Use UnityClient.")]
     KekkaPlayer = 98,
 
     /// <summary>Removed — merged into FridaClient.</summary>
-    [Obsolete("Use FridaClient.")]
+    [Obsolete("Use UnityClient.")]
     DarkMemAttach = 99,
 }

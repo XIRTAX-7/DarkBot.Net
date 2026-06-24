@@ -20,10 +20,15 @@ public static class ServiceCollectionExtensions
     {
         services.Configure<DarkBotUiOptions>(Program.Configuration.GetSection(DarkBotUiOptions.SectionName));
         services.Configure<TestLoginOptions>(Program.Configuration.GetSection(TestLoginOptions.SectionName));
-        services.Configure<GameApiOptions>(options =>
+        services.Configure<GameApiOptions>(Program.Configuration.GetSection(GameApiOptions.SectionName));
+        services.PostConfigure<GameApiOptions>(options =>
         {
-            var ui = Program.Configuration.GetSection(DarkBotUiOptions.SectionName).Get<DarkBotUiOptions>()
-                     ?? new DarkBotUiOptions();
+            var ui = Program.Configuration.GetSection(DarkBotUiOptions.SectionName).Get<DarkBotUiOptions>();
+            if (ui is null)
+            {
+                return;
+            }
+
             options.LibPath = ui.LibPath;
             options.ClassesPath = ui.ClassesPath;
             options.DarkBotJarPath = ui.DarkBotJarPath;

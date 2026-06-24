@@ -13,6 +13,7 @@ public sealed class FridaBridgeHostedServiceTests
     {
         var options = Options.Create(new GameApiOptions
         {
+            BrowserApi = GameApiMode.FridaClient,
             FridaApiPort = NetworkTestHelpers.GetFreeTcpPort()
         });
 
@@ -32,7 +33,11 @@ public sealed class FridaBridgeHostedServiceTests
         await using var server = new TestWebSocketServer();
         await server.StartAsync();
 
-        var options = Options.Create(new GameApiOptions { FridaApiPort = server.Port });
+        var options = Options.Create(new GameApiOptions
+        {
+            BrowserApi = GameApiMode.FridaClient,
+            FridaApiPort = server.Port
+        });
         var service = CreateService(options);
 
         await service.StartAsync(CancellationToken.None);

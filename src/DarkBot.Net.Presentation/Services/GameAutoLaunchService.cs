@@ -93,7 +93,7 @@ public sealed class GameAutoLaunchService : IHostedService
 
         if (_sessionStore.Current is not null)
         {
-            _logger.LogInformation("Auto-launching Darkorbit-client from saved session");
+            _logger.LogInformation("Auto-launching game client from saved session");
             launch = _sessionStore.Current;
         }
         else if (string.IsNullOrWhiteSpace(_backpage.Sid) || _backpage.InstanceUri is null)

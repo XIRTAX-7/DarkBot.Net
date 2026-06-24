@@ -40,6 +40,12 @@ public sealed class FridaBridgeHostedService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (_options.BrowserApi != GameApiMode.FridaClient)
+        {
+            _logger.LogDebug("Frida bridge WS disabled — BrowserApi={Mode}", _options.BrowserApi);
+            return;
+        }
+
         while (!stoppingToken.IsCancellationRequested)
         {
             ClientWebSocket? socket = null;

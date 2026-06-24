@@ -54,6 +54,7 @@ public sealed partial class LoginViewModel : ViewModelBase
         _canLogin = this.WhenAnyValue(x => x.IsBusy, busy => !busy);
 
         ApplyTestLoginDefaults(testLoginOptions.Value);
+        ScheduleAutoLoginFromTestCredentials(testLoginOptions.Value);
     }
 
     /// <summary>Конструктор для design mode / XAML previewer.</summary>
@@ -78,6 +79,21 @@ public sealed partial class LoginViewModel : ViewModelBase
         Password = testLogin.Password;
         SelectedTabIndex = 0;
         _logger.LogDebug("Login form pre-filled from appsettings.Local.json");
+    }
+
+    /// <summary>Автовход при локальных TestLogin-учётных данных (appsettings.Local.json).</summary>
+    private void ScheduleAutoLoginFromTestCredentials(TestLoginOptions testLogin)
+    {
+        if (string.IsNullOrWhiteSpace(testLogin.Username) || string.IsNullOrWhiteSpace(testLogin.Password))
+            return;
+
+        _logger.LogInformation("TestLogin configured — scheduling automatic credential login");
+
+        Observable.Timer(TimeSpan.FromMilliseconds(400), RxSchedulers.MainThreadScheduler)
+            .SelectMany(_ => LoginCommand.Execute())
+            .Subscribe(
+                _ => { },
+                ex => _logger.LogWarning(ex, "Automatic TestLogin failed"));
     }
 
     [ReactiveCommand(CanExecute = nameof(_canLogin))]

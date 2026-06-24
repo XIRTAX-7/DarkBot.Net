@@ -1,8 +1,10 @@
 using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Interfaces.Game;
+using DarkBot.Net.Core.Options;
 using DarkBot.Net.Infrastructure.Game;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace DarkBot.Net.Infrastructure.Extensions;
 
@@ -13,8 +15,33 @@ public static class GameServiceExtensions
         services.AddSingleton<GameSessionStore>();
         services.AddSingleton<ElectronControlClient>();
         services.AddSingleton<FridaGameApi>();
-        services.AddSingleton<IGameConnection>(sp => sp.GetRequiredService<FridaGameApi>());
-        services.AddSingleton<IGameInstallerProbe>(sp => sp.GetRequiredService<FridaGameApi>());
+        services.AddSingleton<UnityFridaSession>();
+        services.AddSingleton<UnityFridaGameApi>();
+        services.AddSingleton<UnityProcessFinder>();
+        services.AddSingleton<UnityVuplexCookieSeeder>();
+        services.AddSingleton<UnityWebGlLoginResolver>();
+        services.AddSingleton<UnitySessionBootstrapStore>();
+        services.AddSingleton<UnitySessionRefresher>();
+        services.AddSingleton<UnityGameLauncher>();
+
+        services.AddSingleton<IGameConnection>(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<GameApiOptions>>().Value;
+            return options.BrowserApi == GameApiMode.UnityClient
+                ? sp.GetRequiredService<UnityFridaGameApi>()
+                : sp.GetRequiredService<FridaGameApi>();
+        });
+
+        services.AddSingleton<IGameBridgeStatusSource>(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<GameApiOptions>>().Value;
+            return options.BrowserApi == GameApiMode.UnityClient
+                ? sp.GetRequiredService<UnityFridaGameApi>()
+                : sp.GetRequiredService<FridaGameApi>();
+        });
+
+        services.AddSingleton<IGameInstallerProbe>(sp => (IGameInstallerProbe)sp.GetRequiredService<IGameConnection>());
+
         services.AddSingleton<FridaGameStateProbe>();
         services.AddSingleton<IGameFridaProbe>(sp => sp.GetRequiredService<FridaGameStateProbe>());
         services.AddSingleton<DarkorbitClientLauncher>();

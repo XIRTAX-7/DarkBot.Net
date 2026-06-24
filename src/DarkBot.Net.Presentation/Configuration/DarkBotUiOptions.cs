@@ -18,7 +18,7 @@ public sealed class DarkBotUiOptions
     public string BackpageSidecarMinVersion { get; set; } = "1.3.0";
     public string LogPath { get; set; } = "./logs/darkbot-.log";
 
-    public GameApiMode BrowserApi { get; set; } = GameApiMode.FridaClient;
+    public GameApiMode BrowserApi { get; set; } = GameApiMode.UnityClient;
     public int FridaApiPort { get; set; } = 44570;
     public string DarkorbitClientPath { get; set; } = string.Empty;
     public int GameWidth { get; set; } = 1280;

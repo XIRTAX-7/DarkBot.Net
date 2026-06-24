@@ -26,7 +26,11 @@ internal static class Program
 
         try
         {
-            Log.Information("DarkBot.Net UI starting (base directory: {BaseDirectory})", AppContext.BaseDirectory);
+            Log.Information(
+                "DarkBot.Net UI starting (base directory: {BaseDirectory}, BrowserApi: {BrowserApi}, logs: {LogDirectory})",
+                AppContext.BaseDirectory,
+                Configuration.GetValue<string>("DarkBot:BrowserApi") ?? "default",
+                Path.Combine(AppContext.BaseDirectory, "logs"));
 
             AppHost = ServiceCollectionExtensions.BuildDarkBotHost(args, Configuration);
             try

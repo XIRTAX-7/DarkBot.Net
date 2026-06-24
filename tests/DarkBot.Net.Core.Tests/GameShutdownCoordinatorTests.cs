@@ -73,17 +73,31 @@ public sealed class GameShutdownCoordinatorTests
     {
         var options = Options.Create(new GameApiOptions());
         var control = new ElectronControlClient(options, NullLogger<ElectronControlClient>.Instance);
-        var frida = new FridaGameApi(
+        var legacyFrida = new FridaGameApi(
             control,
             options,
             NullLogger<FridaGameApi>.Instance);
-        var launcher = new DarkorbitClientLauncher(options, NullLogger<DarkorbitClientLauncher>.Instance);
+        var unitySession = new UnityFridaSession(options, NullLogger<UnityFridaSession>.Instance);
+        var unityFrida = new UnityFridaGameApi(
+            unitySession,
+            options,
+            NullLogger<UnityFridaGameApi>.Instance,
+            new ServiceCollection().BuildServiceProvider());
+        var legacyLauncher = new DarkorbitClientLauncher(options, NullLogger<DarkorbitClientLauncher>.Instance);
+        var unityLauncher = new UnityGameLauncher(
+            options,
+            new UnityProcessFinder(options, NullLogger<UnityProcessFinder>.Instance),
+            new UnitySessionBootstrapStore(),
+            NullLogger<UnityGameLauncher>.Instance);
 
         return new GameShutdownCoordinator(
-            launcher,
+            legacyLauncher,
+            unityLauncher,
             bot,
-            frida,
+            legacyFrida,
+            unityFrida,
             control,
+            options,
             new GameClientLifecycle(),
             NullLogger<GameShutdownCoordinator>.Instance);
     }

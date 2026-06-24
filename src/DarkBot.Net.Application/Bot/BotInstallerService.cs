@@ -36,7 +36,7 @@ public sealed class BotInstallerService : IHostedService, IDisposable
 
     public void Tick()
     {
-        if (_game.Mode == GameApiMode.FridaClient)
+        if (_game.Mode is GameApiMode.FridaClient or GameApiMode.UnityClient)
             _installerProbe?.RefreshStatus();
 
         if (_addresses.IsInvalid)
@@ -122,7 +122,7 @@ public sealed class BotInstallerService : IHostedService, IDisposable
 
     private void ValidateInstalledAddresses()
     {
-        if (_game.Mode == GameApiMode.FridaClient && !_game.IsValid)
+        if ((_game.Mode is GameApiMode.FridaClient or GameApiMode.UnityClient) && !_game.IsValid)
         {
             _logger.LogDebug("Frida no longer ready — invalidating addresses");
             _installedScreenManager = 0;

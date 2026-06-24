@@ -7,13 +7,13 @@ public sealed class FridaGameStateProbe : IGameFridaProbe
     private const int MaxMapId = 1000;
     private static readonly FridaEntitySnapshot[] EmptyEntities = [];
 
-    private readonly FridaGameApi _frida;
+    private readonly IGameBridgeStatusSource _bridge;
     private long _mapPointer;
     private long _heroPointer;
     private int _entityCount;
     private IReadOnlyList<FridaEntitySnapshot> _entities = EmptyEntities;
 
-    public FridaGameStateProbe(FridaGameApi frida) => _frida = frida;
+    public FridaGameStateProbe(IGameBridgeStatusSource bridge) => _bridge = bridge;
 
     public bool IsReady { get; private set; }
 
@@ -27,10 +27,10 @@ public sealed class FridaGameStateProbe : IGameFridaProbe
 
     public void Refresh()
     {
-        if (!_frida.RefreshStatus())
+        if (!_bridge.RefreshStatus())
             return;
 
-        var status = _frida.CurrentStatus;
+        var status = _bridge.CurrentStatus;
         if (status?.Ready != true)
         {
             IsReady = false;
@@ -79,7 +79,7 @@ public sealed class FridaGameStateProbe : IGameFridaProbe
         if (!IsReady || _mapPointer == 0)
             return false;
 
-        var status = _frida.CurrentStatus;
+        var status = _bridge.CurrentStatus;
         if (status?.Ready != true)
             return false;
 
@@ -101,7 +101,7 @@ public sealed class FridaGameStateProbe : IGameFridaProbe
         if (!IsReady)
             return false;
 
-        var status = _frida.CurrentStatus;
+        var status = _bridge.CurrentStatus;
         if (status?.Ready != true || status.HeroId <= 0)
             return false;
 
@@ -120,7 +120,7 @@ public sealed class FridaGameStateProbe : IGameFridaProbe
         if (!IsReady)
             return false;
 
-        var status = _frida.CurrentStatus;
+        var status = _bridge.CurrentStatus;
         if (status?.Ready != true)
             return false;
 

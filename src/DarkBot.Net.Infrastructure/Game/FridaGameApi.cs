@@ -12,7 +12,7 @@ namespace DarkBot.Net.Infrastructure.Game;
 /// Darkorbit-client path: game state via Frida bridge WS push, actions via HTTP POST (:44570).
 /// Frida-only — no DarkMem / external memory reads.
 /// </summary>
-public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IDisposable
+public sealed class FridaGameApi : IGameConnection, IGameInstallerProbe, IGameBridgeStatusSource, IDisposable
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

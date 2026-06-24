@@ -20,7 +20,7 @@ public class HostStartupTests
             .Build();
 
         host.Start();
-        _ = host.Services.GetRequiredService<DarkBot.Net.Infrastructure.Game.FridaGameApi>();
+        _ = host.Services.GetRequiredService<DarkBot.Net.Infrastructure.Game.Bridge.UnityFridaGameApi>();
         _ = host.Services.GetRequiredService<DarkBot.Net.Application.Managers.EntityManager>();
         host.StopAsync().GetAwaiter().GetResult();
         host.Dispose();

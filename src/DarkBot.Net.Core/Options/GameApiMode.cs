@@ -9,9 +9,6 @@ public enum GameApiMode
     /// <summary>Legacy Darkorbit-client (Electron) + darkDev Frida HTTP bridge.</summary>
     FridaClient,
 
-    /// <summary>Backpage session only — no game client.</summary>
-    BackpageOnly,
-
     /// <summary>Removed — do not use.</summary>
     [Obsolete("KekkaPlayer/Java path is disabled. Use UnityClient.")]
     KekkaPlayer = 98,

@@ -2,7 +2,10 @@ using DarkBot.Net.Application.Bot;
 using DarkBot.Net.Application.Extensions;
 using DarkBot.Net.Core.Options;
 using DarkBot.Net.Infrastructure;
-using DarkBot.Net.Infrastructure.Game;
+using DarkBot.Net.Infrastructure.Game.Bridge;
+using DarkBot.Net.Infrastructure.Game.Client;
+using DarkBot.Net.Infrastructure.Game.Lifecycle;
+using DarkBot.Net.Infrastructure.Game.Session;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -71,19 +74,13 @@ public sealed class GameShutdownCoordinatorTests
 
     private static GameShutdownCoordinator CreateCoordinator(IBotController bot)
     {
-        var options = Options.Create(new GameApiOptions());
-        var control = new ElectronControlClient(options, NullLogger<ElectronControlClient>.Instance);
-        var legacyFrida = new FridaGameApi(
-            control,
-            options,
-            NullLogger<FridaGameApi>.Instance);
+        var options = Options.Create(new GameApiOptions { BrowserApi = GameApiMode.UnityClient });
         var unitySession = new UnityFridaSession(options, NullLogger<UnityFridaSession>.Instance);
         var unityFrida = new UnityFridaGameApi(
             unitySession,
             options,
             NullLogger<UnityFridaGameApi>.Instance,
             new ServiceCollection().BuildServiceProvider());
-        var legacyLauncher = new DarkorbitClientLauncher(options, NullLogger<DarkorbitClientLauncher>.Instance);
         var unityLauncher = new UnityGameLauncher(
             options,
             new UnityProcessFinder(options, NullLogger<UnityProcessFinder>.Instance),
@@ -91,12 +88,9 @@ public sealed class GameShutdownCoordinatorTests
             NullLogger<UnityGameLauncher>.Instance);
 
         return new GameShutdownCoordinator(
-            legacyLauncher,
             unityLauncher,
             bot,
-            legacyFrida,
             unityFrida,
-            control,
             options,
             new GameClientLifecycle(),
             NullLogger<GameShutdownCoordinator>.Instance);

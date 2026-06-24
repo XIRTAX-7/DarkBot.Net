@@ -1,10 +1,9 @@
 using DarkBot.Net.Application.Contracts;
-using DarkBot.Net.Core.Managers;
+using DarkBot.Net.Core.Interfaces.Auth;
 using DarkBot.Net.Core.Models.Auth;
 using DarkBot.Net.Core.Models.Game;
 using DarkBot.Net.Core.Options;
-using DarkBot.Net.Infrastructure.Game;
-using DarkBot.Net.Presentation.Configuration;
+using DarkBot.Net.Infrastructure.Game.Session;
 using DarkBot.Net.Presentation.Services;
 using DarkBot.Net.Presentation.Tests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -22,15 +21,13 @@ public sealed class GameAutoLaunchServiceTests
 
         var slowLaunch = new SlowGameLaunchAppService();
         var lifetime = new TestHostApplicationLifetime();
-        var options = Options.Create(new GameApiOptions { BrowserApi = GameApiMode.FridaClient });
+        var options = Options.Create(new GameApiOptions { BrowserApi = GameApiMode.UnityClient });
 
         var service = new GameAutoLaunchService(
-            new FakeBackpageApi(),
+            new FakeCredentialStore(),
             sessionStore,
             slowLaunch,
-            new StubLoginAppService(),
             lifetime,
-            options,
             NullLogger<GameAutoLaunchService>.Instance);
 
         await service.StartAsync(CancellationToken.None);
@@ -47,19 +44,16 @@ public sealed class GameAutoLaunchServiceTests
     }
 
     [Fact]
-    public async Task StartAsync_BackpageOnlyMode_DoesNotLaunch()
+    public async Task StartAsync_WithoutCredentials_DoesNotLaunch()
     {
         var slowLaunch = new SlowGameLaunchAppService();
         var lifetime = new TestHostApplicationLifetime();
-        var options = Options.Create(new GameApiOptions { BrowserApi = GameApiMode.BackpageOnly });
 
         var service = new GameAutoLaunchService(
-            new FakeBackpageApi(),
+            new FakeCredentialStore(),
             new GameSessionStore(),
             slowLaunch,
-            new StubLoginAppService(),
             lifetime,
-            options,
             NullLogger<GameAutoLaunchService>.Instance);
 
         await service.StartAsync(CancellationToken.None);
@@ -70,43 +64,21 @@ public sealed class GameAutoLaunchServiceTests
     }
 
     private static GameLaunchParameters SampleLaunch() =>
-        new()
+        GameLaunchParameters.FromCredentials("pilot", "secret");
+
+    private sealed class FakeCredentialStore : ICredentialStore
+    {
+        public bool HasSaved => false;
+
+        public void Clear() { }
+
+        public void Save(SavedCredentials credentials) { }
+
+        public bool TryLoad(out SavedCredentials credentials)
         {
-            InstanceUrl = "https://test.darkorbit.com/",
-            Sid = "sid",
-            PreloaderUrl = "https://test.darkorbit.com/preloader",
-            FlashParams = new Dictionary<string, string>()
-        };
-
-    private sealed class FakeBackpageApi : IBackpageApi
-    {
-        public bool IsInstanceValid() => true;
-        public string SidStatus => "valid";
-        public string? Sid => "sid";
-        public int UserId => 1;
-        public Uri? InstanceUri => new("https://test.darkorbit.com/");
-        public DateTimeOffset LastRequestTime => DateTimeOffset.UtcNow;
-        public void UpdateLastRequestTime() { }
-        public string? FindReloadToken(string body) => null;
-        public void SetSession(string sid, int userId, Uri instanceUri) { }
-    }
-
-    private sealed class StubLoginAppService : ILoginAppService
-    {
-        public void ApplySession(LoginData loginData) { }
-
-        public Task<LoginData> LoginWithCredentialsAsync(
-            string username,
-            string password,
-            string? captchaToken,
-            CancellationToken cancellationToken = default) =>
-            throw new InvalidOperationException("Not used in auto-launch session test.");
-
-        public Task<LoginData> LoginWithSidAsync(
-            string server,
-            string sid,
-            CancellationToken cancellationToken = default) =>
-            throw new InvalidOperationException("Should not be called when session exists.");
+            credentials = null!;
+            return false;
+        }
     }
 
     private sealed class SlowGameLaunchAppService : IGameLaunchAppService

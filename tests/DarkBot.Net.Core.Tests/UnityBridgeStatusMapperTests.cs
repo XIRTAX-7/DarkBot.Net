@@ -1,5 +1,5 @@
 using System.Text.Json;
-using DarkBot.Net.Infrastructure.Game;
+using DarkBot.Net.Infrastructure.Game.Bridge;
 
 namespace DarkBot.Net.Application.Tests;
 

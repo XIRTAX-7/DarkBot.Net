@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using DarkBot.Net.Infrastructure.Game;
+using DarkBot.Net.Infrastructure.Game.Lifecycle;
 using DarkBot.Net.Presentation.ViewModels.Shell;
 using ReactiveUI.Avalonia;
 

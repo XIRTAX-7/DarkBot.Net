@@ -1,4 +1,3 @@
-using DarkBot.Net.Application.Bot;
 using DarkBot.Net.Core.Interfaces.Game;
 using DarkBot.Net.Core.Models.Game;
 using DarkBot.Net.Core.Options;
@@ -11,26 +10,16 @@ namespace DarkBot.Net.Application.Services.Game;
 public sealed class GameLaunchAppService(
     IGameLauncherService launcher,
     IGameConnection game,
-    IOptions<GameApiOptions> options,
     IHostApplicationLifetime lifetime,
     ILogger<GameLaunchAppService> logger) : Contracts.IGameLaunchAppService
 {
-    private readonly GameApiOptions _options = options.Value;
     private int _running;
 
-    public void ScheduleLaunch(GameLaunchParameters launch)
-    {
-        if (_options.BrowserApi == GameApiMode.BackpageOnly)
-            return;
-
+    public void ScheduleLaunch(GameLaunchParameters launch) =>
         _ = LaunchAndConnectAsync(launch, lifetime.ApplicationStopping);
-    }
 
     public async Task LaunchAndConnectAsync(GameLaunchParameters launch, CancellationToken cancellationToken = default)
     {
-        if (_options.BrowserApi == GameApiMode.BackpageOnly)
-            return;
-
         if (game.IsValid && game.Phase == GameConnectionPhase.Connected)
         {
             logger.LogDebug("Game already connected — skipping launch");

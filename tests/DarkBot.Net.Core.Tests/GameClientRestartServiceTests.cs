@@ -1,10 +1,13 @@
 using DarkBot.Net.Application.Memory;
 using DarkBot.Net.Application.Tests.Helpers;
+using DarkBot.Net.Core.Interfaces.Auth;
 using DarkBot.Net.Core.Interfaces.Game;
-using DarkBot.Net.Core.Managers;
+using DarkBot.Net.Core.Models.Auth;
 using DarkBot.Net.Core.Models.Game;
 using DarkBot.Net.Core.Options;
-using DarkBot.Net.Infrastructure.Game;
+using DarkBot.Net.Infrastructure.Game.Bridge;
+using DarkBot.Net.Infrastructure.Game.Lifecycle;
+using DarkBot.Net.Infrastructure.Game.Session;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -61,20 +64,10 @@ public sealed class GameClientRestartServiceTests
         var sessionStore = new GameSessionStore();
         if (hasSession)
         {
-            sessionStore.Save(new GameLaunchParameters
-            {
-                InstanceUrl = "https://int1.darkorbit.com/",
-                Sid = "sid",
-                PreloaderUrl = "https://int1.darkorbit.com/preloader",
-                FlashParams = new Dictionary<string, string>()
-            });
+            sessionStore.Save(GameLaunchParameters.FromCredentials("pilot", "secret"));
         }
 
-        var resolver = new GameLaunchSessionResolver(
-            sessionStore,
-            new StubBackpage(),
-            new StubLoginAppService(),
-            options);
+        var resolver = new GameLaunchSessionResolver(sessionStore, new StubCredentialStore());
 
         return new GameClientRestartService(
             launcher,
@@ -114,34 +107,18 @@ public sealed class GameClientRestartServiceTests
         public void AttachProcess(long pid) { }
     }
 
-    private sealed class StubBackpage : IBackpageApi
+    private sealed class StubCredentialStore : ICredentialStore
     {
-        public bool IsInstanceValid() => false;
-        public string SidStatus => "unknown";
-        public string? Sid => null;
-        public int UserId => 0;
-        public Uri? InstanceUri => null;
-        public DateTimeOffset LastRequestTime => DateTimeOffset.UtcNow;
-        public void UpdateLastRequestTime() { }
-        public string? FindReloadToken(string body) => null;
-        public void SetSession(string sid, int userId, Uri instanceUri) { }
-    }
+        public bool HasSaved => false;
 
-    private sealed class StubLoginAppService : Contracts.ILoginAppService
-    {
-        public Task<Core.Models.Auth.LoginData> LoginWithCredentialsAsync(
-            string username,
-            string password,
-            string? captchaToken,
-            CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException();
+        public void Clear() { }
 
-        public Task<Core.Models.Auth.LoginData> LoginWithSidAsync(
-            string server,
-            string sid,
-            CancellationToken cancellationToken = default) =>
-            throw new NotSupportedException();
+        public void Save(SavedCredentials credentials) { }
 
-        public void ApplySession(Core.Models.Auth.LoginData loginData) { }
+        public bool TryLoad(out SavedCredentials credentials)
+        {
+            credentials = null!;
+            return false;
+        }
     }
 }

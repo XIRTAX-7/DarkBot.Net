@@ -20,6 +20,4 @@ public sealed record BotUiSnapshot(
     double Uridium,
     double Experience,
     double Honor,
-    int Ping,
-    string BackpageStatus,
-    bool BackpageValid);
+    int Ping);

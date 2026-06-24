@@ -1,13 +1,9 @@
 using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Core.Interfaces.Auth;
-using DarkBot.Net.Core.Managers;
 using DarkBot.Net.Core.Models.Game;
-using DarkBot.Net.Core.Options;
-using DarkBot.Net.Infrastructure.Game;
-using DarkBot.Net.Presentation.Game;
+using DarkBot.Net.Infrastructure.Game.Session;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace DarkBot.Net.Presentation.Services;
 
@@ -15,36 +11,30 @@ public sealed class GameAutoLaunchService : IHostedService
 {
     private static readonly TimeSpan StopWaitTimeout = TimeSpan.FromSeconds(3);
 
-    private readonly IBackpageApi _backpage;
+    private readonly ICredentialStore _credentialStore;
     private readonly GameSessionStore _sessionStore;
     private readonly IGameLaunchAppService _gameLaunch;
-    private readonly ILoginAppService _loginApp;
     private readonly IHostApplicationLifetime _lifetime;
-    private readonly GameApiOptions _options;
     private readonly ILogger<GameAutoLaunchService> _logger;
     private Task? _autoLaunchTask;
 
     public GameAutoLaunchService(
-        IBackpageApi backpage,
+        ICredentialStore credentialStore,
         GameSessionStore sessionStore,
         IGameLaunchAppService gameLaunch,
-        ILoginAppService loginApp,
         IHostApplicationLifetime lifetime,
-        IOptions<GameApiOptions> options,
         ILogger<GameAutoLaunchService> logger)
     {
-        _backpage = backpage;
+        _credentialStore = credentialStore;
         _sessionStore = sessionStore;
         _gameLaunch = gameLaunch;
-        _loginApp = loginApp;
         _lifetime = lifetime;
-        _options = options.Value;
         _logger = logger;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        if (!_backpage.IsInstanceValid() || _options.BrowserApi == GameApiMode.BackpageOnly)
+        if (!_sessionStore.HasSession && !_credentialStore.HasSaved)
             return Task.CompletedTask;
 
         _autoLaunchTask = RunAutoLaunchAsync(_lifetime.ApplicationStopping);
@@ -96,19 +86,15 @@ public sealed class GameAutoLaunchService : IHostedService
             _logger.LogInformation("Auto-launching game client from saved session");
             launch = _sessionStore.Current;
         }
-        else if (string.IsNullOrWhiteSpace(_backpage.Sid) || _backpage.InstanceUri is null)
+        else if (_credentialStore.TryLoad(out var credentials))
         {
-            return;
+            _logger.LogInformation("Auto-launching game client from saved credentials");
+            launch = GameLaunchParameters.FromCredentials(credentials.Username, credentials.Password);
+            _sessionStore.Save(launch);
         }
         else
         {
-            _logger.LogInformation("Auto-launching game by refreshing preloader for existing SID session");
-            var host = _backpage.InstanceUri.Host;
-            var server = host.Replace(".darkorbit.com", "", StringComparison.OrdinalIgnoreCase);
-            var loginData = await _loginApp.LoginWithSidAsync(server, _backpage.Sid, cancellationToken)
-                .ConfigureAwait(false);
-            launch = GameLaunchMapper.ToLaunchParameters(loginData);
-            _sessionStore.Save(launch);
+            return;
         }
 
         await _gameLaunch.LaunchAndConnectAsync(launch, cancellationToken).ConfigureAwait(false);

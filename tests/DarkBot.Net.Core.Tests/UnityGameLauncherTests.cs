@@ -1,5 +1,7 @@
 using DarkBot.Net.Core.Options;
-using DarkBot.Net.Infrastructure.Game;
+using DarkBot.Net.Infrastructure.Game.Bridge;
+using DarkBot.Net.Infrastructure.Game.Client;
+using DarkBot.Net.Infrastructure.Game.Session;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 

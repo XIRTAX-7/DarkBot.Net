@@ -4,9 +4,7 @@ using DarkBot.Net.Application.Tests.Fakes;
 using DarkBot.Net.Application.Tests.Helpers;
 using DarkBot.Net.Core.Interfaces.Game;
 using DarkBot.Net.Core.Models.Game;
-using DarkBot.Net.Core.Options;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 
 namespace DarkBot.Net.Application.Tests;
 
@@ -23,7 +21,6 @@ public sealed class GameLaunchAppServiceTests
         var service = new GameLaunchAppService(
             launcher,
             game,
-            Options.Create(new GameApiOptions { BrowserApi = GameApiMode.FridaClient }),
             lifetime,
             NullLogger<GameLaunchAppService>.Instance);
 
@@ -46,7 +43,6 @@ public sealed class GameLaunchAppServiceTests
         var service = new GameLaunchAppService(
             launcher,
             game,
-            Options.Create(new GameApiOptions { BrowserApi = GameApiMode.FridaClient }),
             lifetime,
             NullLogger<GameLaunchAppService>.Instance);
 
@@ -61,13 +57,7 @@ public sealed class GameLaunchAppServiceTests
     }
 
     private static GameLaunchParameters SampleLaunch() =>
-        new()
-        {
-            InstanceUrl = "https://test.darkorbit.com/",
-            Sid = "sid",
-            PreloaderUrl = "https://test.darkorbit.com/preloader",
-            FlashParams = new Dictionary<string, string>()
-        };
+        GameLaunchParameters.FromCredentials("pilot", "secret");
 
     private sealed class BlockingGameLauncher : IGameLauncherService
     {

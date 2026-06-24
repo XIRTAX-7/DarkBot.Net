@@ -23,12 +23,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [Reactive] private string _runButtonText = "Start";
     [Reactive] private string _statusLine = "Ready";
     [Reactive] private string _gameStatusLine = "Game not launched";
-    [Reactive] private string _backpageStatus = "unknown";
-    [Reactive] private bool _backpageValid;
     [Reactive] private BotUiSnapshot _snapshot = new(
         false, false, 0, 0, 0, 0, 0, -1, "Загрузка", 21000, 13500,
         Array.Empty<MapPortalSnapshot>(),
-        false, 0, 0, 0, 0, 0, 0, 0, "unknown", false);
+        false, 0, 0, 0, 0, 0, 0, 0);
 
     public MainWindowViewModel(
         IBotControlAppService bot,
@@ -58,15 +56,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _clientRestart = null!;
         Title = "DarkBot.Net";
         StatusLine = "Ready — design mode";
-        BackpageStatus = "valid";
     }
 
     public void Refresh()
     {
         Snapshot = _state.Capture();
         BotRunning = Snapshot.BotRunning;
-        BackpageStatus = Snapshot.BackpageStatus;
-        BackpageValid = Snapshot.BackpageValid;
         CanRestartClient = _clientRestart?.CanRestart ?? false;
         RefreshGameStatus();
         Title = BotRunning ? "DarkBot.Net — running" : "DarkBot.Net — paused";

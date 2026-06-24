@@ -14,8 +14,6 @@ public sealed class DarkBotUiOptions
     public int VerifierPort { get; set; } = 8091;
     public string ProfilesPath { get; set; } = "./configs";
     public bool VerifierDevBypass { get; set; } = true;
-    public string BackpageSidecarPath { get; set; } = "./sidecars/backpage/dark_backpage.exe";
-    public string BackpageSidecarMinVersion { get; set; } = "1.3.0";
     public string LogPath { get; set; } = "./logs/darkbot-.log";
 
     public GameApiMode BrowserApi { get; set; } = GameApiMode.UnityClient;

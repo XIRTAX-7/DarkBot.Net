@@ -1,7 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using DarkBot.Net.Infrastructure.Game;
+using DarkBot.Net.Infrastructure.Game.Lifecycle;
 using DarkBot.Net.Presentation.ViewModels.Shell;
 using DarkBot.Net.Presentation.Views.Shell;
 using Microsoft.Extensions.DependencyInjection;

@@ -12,14 +12,15 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <PackageReference Include="Meziantou.Framework.Win32.CredentialManager" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DarkBot.Net.Core\DarkBot.Net.Core.csproj" />
     <ProjectReference Include="..\DarkBot.Net.Application\DarkBot.Net.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <InternalsVisibleTo Include="DarkBot.Net.Login.Tests" />
     <InternalsVisibleTo Include="DarkBot.Net.Core.Tests" />
   </ItemGroup>
 </Project>

@@ -20,7 +20,7 @@ public class BotLoopServiceTests
         var addresses = new BotAddressRegistry();
         var game = new FakeGameConnection
         {
-            Mode = GameApiMode.FridaClient,
+            Mode = GameApiMode.UnityClient,
             IsLaunched = false,
             ThrowOnLastInternetReadTime = true
         };

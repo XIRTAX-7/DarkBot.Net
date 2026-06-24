@@ -1,7 +1,6 @@
 using DarkBot.Net.Application.Extensions;
 using DarkBot.Net.Infrastructure;
 using DarkBot.Net.Presentation.Configuration;
-using DarkBot.Net.Presentation.Game;
 using DarkBot.Net.Presentation.Logging;
 using DarkBot.Net.Presentation.Services;
 using DarkBot.Net.Presentation.Services.Shell;
@@ -44,7 +43,6 @@ public static class ServiceCollectionExtensions
             options.ClientConnectTimeoutSec = 180;
             options.FridaReadyTimeoutSec = 180;
         });
-        services.Configure<LoginOptions>(Program.Configuration.GetSection(LoginOptions.SectionName));
 
         services.AddSingleton<BotUiStateService>();
         services.AddSingleton<GameConnectionStatusService>();

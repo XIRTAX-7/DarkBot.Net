@@ -22,9 +22,6 @@ public sealed class GameConnectionStatusService
     {
         get
         {
-            if (_game.Mode == GameApiMode.BackpageOnly)
-                return "Backpage-only mode";
-
             if (_addresses.HasScreenManager)
                 return "Game connected";
 

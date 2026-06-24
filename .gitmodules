@@ -1,0 +1,4 @@
+[submodule "darkorbit-unity-bridge"]
+	path = darkorbit-unity-bridge
+	url = https://github.com/XIRTAX-7/darkorbit-unity-bridge.git
+	branch = main

@@ -1,5 +1,0 @@
-{"type": "login_trace", "seq": 1, "phase": "trace_loaded", "ts": 1782289731071, "sinceStartMs": 0, "sincePrevMs": 0, "pid": 33912, "pointerSize": 4, "traceVersion": "login-trace-2026-06-24-1"}
-{"type": "login_trace", "seq": 2, "phase": "trace_ready", "ts": 1782289731077, "sinceStartMs": 6, "sincePrevMs": 6, "pid": 33912, "pointerSize": 4, "traceVersion": "login-trace-2026-06-24-1", "gameAssemblyBase": "0x51bd0000", "hookCount": 26}
-{"type": "login_trace", "seq": 3, "phase": "ui_button_pointer_click", "ts": 1782289735451, "sinceStartMs": 4380, "sincePrevMs": 4374, "pid": 33912, "pointerSize": 4, "button": "0x3107af00"}
-{"type": "login_trace", "seq": 4, "phase": "ui_button_press", "ts": 1782289735451, "sinceStartMs": 4380, "sincePrevMs": 0, "pid": 33912, "pointerSize": 4, "button": "0x3107af00"}
-{"type": "login_trace", "seq": 5, "phase": "trace_stopped", "ts": 1782289739802, "sinceStartMs": 8731, "sincePrevMs": 4351, "pid": 33912, "pointerSize": 4}

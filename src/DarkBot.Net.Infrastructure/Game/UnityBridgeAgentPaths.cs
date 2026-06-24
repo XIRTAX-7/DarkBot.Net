@@ -3,10 +3,12 @@ using Microsoft.Extensions.Options;
 
 namespace DarkBot.Net.Infrastructure.Game;
 
-/// <summary>Резолвит путь к unity_bridge_agent.js в репозитории или по конфигу.</summary>
+/// <summary>Резолвит путь к Unity Frida bridge agent в репозитории или по конфигу.</summary>
 public static class UnityBridgeAgentPaths
 {
-    public const string DefaultRelativePath = "DarkOrbit_Version1.1.102/unity_bridge_agent.js";
+    public const string DefaultRelativePath = "darkorbit-unity-bridge/agent/dist/agent.js";
+    public const string LegacyTsRelativePath = "DarkOrbit_Version_TS/agent/dist/agent.js";
+    public const string LegacyRelativePath = "DarkOrbit_Version1.1.102/unity_bridge_agent.js";
 
     public static string Resolve(string? configuredPath)
     {
@@ -31,19 +33,22 @@ public static class UnityBridgeAgentPaths
 
     public static IEnumerable<string> EnumerateDefaultCandidates()
     {
-        var baseDir = AppContext.BaseDirectory;
-        yield return Path.Combine(baseDir, DefaultRelativePath);
-        yield return Path.Combine(baseDir, "..", "..", "..", DefaultRelativePath);
-        yield return Path.Combine(baseDir, "..", "..", "..", "..", DefaultRelativePath);
-        yield return Path.Combine(baseDir, "..", "..", "..", "..", "..", DefaultRelativePath);
+        foreach (var relativePath in new[] { DefaultRelativePath, LegacyTsRelativePath, LegacyRelativePath })
+        {
+            var baseDir = AppContext.BaseDirectory;
+            yield return Path.Combine(baseDir, relativePath);
+            yield return Path.Combine(baseDir, "..", "..", "..", relativePath);
+            yield return Path.Combine(baseDir, "..", "..", "..", "..", relativePath);
+            yield return Path.Combine(baseDir, "..", "..", "..", "..", "..", relativePath);
 
-        var cwd = Directory.GetCurrentDirectory();
-        yield return Path.Combine(cwd, "DarkBot.Net", DefaultRelativePath);
-        yield return Path.Combine(cwd, DefaultRelativePath);
+            var cwd = Directory.GetCurrentDirectory();
+            yield return Path.Combine(cwd, "DarkBot.Net", relativePath);
+            yield return Path.Combine(cwd, relativePath);
 
-        var repoRoot = FindRepoRoot(baseDir) ?? FindRepoRoot(cwd);
-        if (repoRoot is not null)
-            yield return Path.Combine(repoRoot, "DarkBot.Net", DefaultRelativePath);
+            var repoRoot = FindRepoRoot(baseDir) ?? FindRepoRoot(cwd);
+            if (repoRoot is not null)
+                yield return Path.Combine(repoRoot, "DarkBot.Net", relativePath);
+        }
     }
 
     private static string? FindRepoRoot(string startPath)
@@ -51,7 +56,9 @@ public static class UnityBridgeAgentPaths
         var current = new DirectoryInfo(Path.GetFullPath(startPath));
         while (current is not null)
         {
-            if (Directory.Exists(Path.Combine(current.FullName, "DarkBot.Net", "DarkOrbit_Version1.1.102")))
+            if (Directory.Exists(Path.Combine(current.FullName, "DarkBot.Net", "darkorbit-unity-bridge"))
+                || Directory.Exists(Path.Combine(current.FullName, "DarkBot.Net", "DarkOrbit_Version_TS"))
+                || Directory.Exists(Path.Combine(current.FullName, "DarkBot.Net", "DarkOrbit_Version1.1.102")))
                 return current.FullName;
 
             current = current.Parent;

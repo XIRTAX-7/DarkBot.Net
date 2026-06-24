@@ -32,6 +32,8 @@ public sealed class UnityBridgeAgentPathsTests
     public void EnumerateDefaultCandidates_IncludesRepoRelativePath()
     {
         var candidates = UnityBridgeAgentPaths.EnumerateDefaultCandidates().ToList();
+        Assert.Contains(candidates, path => path.Contains("darkorbit-unity-bridge", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(candidates, path => path.Contains("DarkOrbit_Version_TS", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(candidates, path => path.Contains("DarkOrbit_Version1.1.102", StringComparison.OrdinalIgnoreCase));
     }
 }

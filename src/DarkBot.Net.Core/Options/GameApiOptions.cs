@@ -55,7 +55,7 @@ public sealed class GameApiOptions
     /// <summary>Имя процесса Unity-клиента (без .exe).</summary>
     public string UnityProcessName { get; set; } = "DarkOrbit";
 
-    /// <summary>Путь к unity_bridge_agent.js. Пусто — авто-поиск в DarkOrbit_Version1.1.102.</summary>
+    /// <summary>Путь к Unity Frida bridge agent. Пусто — авто-поиск TS bundle с legacy fallback.</summary>
     public string UnityBridgeAgentPath { get; set; } = string.Empty;
 
     /// <summary>Каталог установки Unity IL2CPP x86-клиента (GameAssembly.dll).</summary>

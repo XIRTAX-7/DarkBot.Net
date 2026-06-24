@@ -23,6 +23,12 @@ logs/
 **/logs/
 *.log
 *.log.err
+DarkOrbit_Version_TS/agent/node_modules/
+DarkOrbit_Version_TS/traces/
+darkorbit-unity-bridge/agent/node_modules/
+darkorbit-unity-bridge/traces/
+DarkOrbit_Version1.1.102/login_trace_*
+DarkOrbit_Version1.1.102/*.webdata.json
 
 # Native libraries (downloaded at runtime via NativeLibrarySetup)
 /lib/*

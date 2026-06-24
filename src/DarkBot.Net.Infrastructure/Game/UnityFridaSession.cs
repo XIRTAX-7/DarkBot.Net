@@ -18,7 +18,6 @@ public sealed class UnityFridaSession : IDisposable
     private Device? _device;
     private Session? _session;
     private Script? _script;
-    private Script? _enterMapScript;
     private FridaRpcClient? _rpc;
     private int _attachedPid;
 
@@ -46,9 +45,6 @@ public sealed class UnityFridaSession : IDisposable
 
         var agentPath = UnityBridgeAgentPaths.Resolve(_options.UnityBridgeAgentPath);
         var source = await File.ReadAllTextAsync(agentPath, cancellationToken).ConfigureAwait(false);
-        var enterMapAgentPath = Path.Combine(
-            Path.GetDirectoryName(agentPath) ?? AppContext.BaseDirectory,
-            "unity_enter_map.js");
 
         _deviceManager = new DeviceManager();
         _device = _deviceManager.EnumerateDevices()
@@ -62,23 +58,6 @@ public sealed class UnityFridaSession : IDisposable
         _rpc = new FridaRpcClient(_script, _logger);
         _script.Message += OnAgentMessage;
         _script.Load();
-
-        if (File.Exists(enterMapAgentPath))
-        {
-            var enterMapSource = await File.ReadAllTextAsync(enterMapAgentPath, cancellationToken)
-                .ConfigureAwait(false);
-            _enterMapScript = _session.CreateScript(enterMapSource);
-            _enterMapScript.Message += OnAgentMessage;
-            _enterMapScript.Load();
-            _logger.LogInformation(
-                "Unity enter-map agent loaded from {AgentPath} into pid={Pid}",
-                enterMapAgentPath,
-                pid);
-        }
-        else
-        {
-            _logger.LogWarning("Unity enter-map agent not found at {AgentPath}", enterMapAgentPath);
-        }
 
         _attachedPid = pid;
         _logger.LogInformation(
@@ -527,24 +506,17 @@ public sealed class UnityFridaSession : IDisposable
         if (_script is not null)
             _script.Message -= OnAgentMessage;
 
-        if (_enterMapScript is not null)
-            _enterMapScript.Message -= OnAgentMessage;
-
         _rpc?.Dispose();
         _rpc = null;
 
         try
         {
-            _enterMapScript?.Unload();
             _script?.Unload();
         }
         catch (Exception ex)
         {
             _logger.LogDebug(ex, "Unity Frida script unload failed");
         }
-
-        _enterMapScript?.Dispose();
-        _enterMapScript = null;
 
         _script?.Dispose();
         _script = null;

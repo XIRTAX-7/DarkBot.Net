@@ -463,6 +463,23 @@ internal static class MapCanvasRenderer
             return;
         }
 
+        using var mapTitleFont = new SKFont { Size = 22 };
+        using var mapTitlePaint = new SKPaint { Color = new SKColor(185, 198, 214, 210), IsAntialias = true };
+        canvas.DrawText(mapName, mapRect.MidX, mapRect.MidY - 8, SKTextAlign.Center, mapTitleFont, mapTitlePaint);
+
+        if (snapshot is { MapId: >= 0, MapWidth: > 0, MapHeight: > 0 })
+        {
+            using var mapMetaFont = new SKFont { Size = 11 };
+            using var mapMetaPaint = new SKPaint { Color = new SKColor(120, 136, 158), IsAntialias = true };
+            canvas.DrawText(
+                $"#{snapshot.MapId}  {snapshot.MapWidth}×{snapshot.MapHeight}",
+                mapRect.MidX,
+                mapRect.MidY + 16,
+                SKTextAlign.Center,
+                mapMetaFont,
+                mapMetaPaint);
+        }
+
         using var labelFont = new SKFont { Size = 12 };
         using var labelPaint = new SKPaint { Color = new SKColor(145, 159, 180), IsAntialias = true };
 

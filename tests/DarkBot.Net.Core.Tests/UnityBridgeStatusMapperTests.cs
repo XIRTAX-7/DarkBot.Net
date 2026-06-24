@@ -53,6 +53,44 @@ public sealed class UnityBridgeStatusMapperTests
     }
 
     [Fact]
+    public void ToFridaStatus_MapsMapSnapshotFromAgent()
+    {
+        var agentStatus = new UnityBridgeAgentStatus
+        {
+            SchemaVersion = 1,
+            Ready = true,
+            MovementHooksReady = true,
+            HeroPos = new UnityHeroPosition { X = 500, Y = -300, ServerY = 300 },
+            Map = new UnityMapSnapshot
+            {
+                MapId = 16,
+                MapName = "1-1",
+                Width = 21000,
+                Height = 13500
+            }
+        };
+
+        var frida = UnityBridgeStatusMapper.ToFridaStatus(agentStatus);
+
+        Assert.Equal(16, frida.MapId);
+        Assert.Equal(21000, frida.MapWidth);
+        Assert.Equal(13500, frida.MapHeight);
+        Assert.Equal("0x1", frida.MapAddress);
+    }
+
+    [Fact]
+    public void ApplyAgentEvent_UpdatesMapFromMapChangedEvent()
+    {
+        using var doc = JsonDocument.Parse("""{"type":"map_changed","mapId":9,"width":21000,"height":13500}""");
+        UnityBridgeStatusMapper.ApplyAgentEvent(null, doc.RootElement, out var updated);
+
+        Assert.NotNull(updated);
+        Assert.Equal(9, updated!.MapId);
+        Assert.Equal(21000, updated.MapWidth);
+        Assert.Equal(13500, updated.MapHeight);
+    }
+
+    [Fact]
     public void ToFridaStatus_MapsHeroAndMapDimensions()
     {
         var agentStatus = new UnityBridgeAgentStatus

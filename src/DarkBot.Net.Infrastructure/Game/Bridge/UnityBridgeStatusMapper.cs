@@ -74,6 +74,24 @@ public sealed class UnityBridgeAgentStatus
 
     [JsonPropertyName("mapCenter")]
     public UnityMapCenter? MapCenter { get; init; }
+
+    [JsonPropertyName("map")]
+    public UnityMapSnapshot? Map { get; init; }
+}
+
+public sealed class UnityMapSnapshot
+{
+    [JsonPropertyName("mapId")]
+    public int MapId { get; init; }
+
+    [JsonPropertyName("mapName")]
+    public string? MapName { get; init; }
+
+    [JsonPropertyName("width")]
+    public int Width { get; init; }
+
+    [JsonPropertyName("height")]
+    public int Height { get; init; }
 }
 
 public sealed class UnityHeroPosition
@@ -118,8 +136,14 @@ public static class UnityBridgeStatusMapper
 
         var hero = status.HeroPos;
         var mapCenter = status.MapCenter;
-        var width = mapCenter?.X > 0 ? mapCenter.X * 2 : DefaultMapWidth;
-        var height = mapCenter?.Y > 0 ? mapCenter.Y * 2 : DefaultMapHeight;
+        var map = status.Map;
+        var width = map?.Width > 0
+            ? map.Width
+            : mapCenter?.X > 0 ? mapCenter.X * 2 : DefaultMapWidth;
+        var height = map?.Height > 0
+            ? map.Height
+            : mapCenter?.Y > 0 ? mapCenter.Y * 2 : DefaultMapHeight;
+        var mapId = map?.MapId ?? 0;
         var heroOnMap = status.MovementHooksReady && hero is not null;
         var heroY = hero switch
         {
@@ -138,6 +162,8 @@ public static class UnityBridgeStatusMapper
             ScreenManager = heroOnMap ? "0x1" : null,
             ConnectionManager = heroOnMap ? "0x1" : null,
             HeroStatic = hero is not null ? "0x1" : "0x0",
+            MapAddress = mapId > 0 ? "0x1" : null,
+            MapId = mapId,
             MapWidth = width,
             MapHeight = height,
             HeroId = hero is not null ? 1 : 0,
@@ -190,6 +216,27 @@ public static class UnityBridgeStatusMapper
                     heroY: yProp.GetInt32(),
                     hasPointers: true);
                 break;
+            case "map_changed":
+                if (!payload.TryGetProperty("mapId", out var mapIdProp))
+                {
+                    return;
+                }
+
+                var mapWidth = payload.TryGetProperty("width", out var widthProp)
+                    ? widthProp.GetInt32()
+                    : 0;
+                var mapHeight = payload.TryGetProperty("height", out var heightProp)
+                    ? heightProp.GetInt32()
+                    : 0;
+
+                updated = Merge(
+                    current,
+                    ready: true,
+                    mapId: mapIdProp.GetInt32(),
+                    mapWidth: mapWidth,
+                    mapHeight: mapHeight,
+                    hasPointers: true);
+                break;
             case "ping":
                 if (current is not null)
                     updated = Merge(current, touchActivity: true);
@@ -212,9 +259,20 @@ public static class UnityBridgeStatusMapper
         int heroId = 0,
         double heroX = 0,
         double heroY = 0,
+        int mapId = 0,
+        int mapWidth = 0,
+        int mapHeight = 0,
         bool hasPointers = false,
         bool touchActivity = false)
     {
+        var resolvedMapId = mapId > 0 ? mapId : current?.MapId ?? 0;
+        var resolvedMapWidth = mapWidth > 0
+            ? mapWidth
+            : current?.MapWidth > 0 ? current.MapWidth : DefaultMapWidth;
+        var resolvedMapHeight = mapHeight > 0
+            ? mapHeight
+            : current?.MapHeight > 0 ? current.MapHeight : DefaultMapHeight;
+
         return new FridaBridgeStatus
         {
             SchemaVersion = current?.SchemaVersion ?? 1,
@@ -224,15 +282,16 @@ public static class UnityBridgeStatusMapper
             ScreenManager = hasPointers ? "0x1" : current?.ScreenManager,
             ConnectionManager = hasPointers ? "0x1" : current?.ConnectionManager,
             HeroStatic = hasPointers ? "0x1" : current?.HeroStatic,
-            MapWidth = current?.MapWidth > 0 ? current.MapWidth : DefaultMapWidth,
-            MapHeight = current?.MapHeight > 0 ? current.MapHeight : DefaultMapHeight,
+            MapAddress = resolvedMapId > 0 ? "0x1" : current?.MapAddress,
+            MapWidth = resolvedMapWidth,
+            MapHeight = resolvedMapHeight,
             HeroId = heroId > 0 ? heroId : current?.HeroId ?? 0,
             HeroX = heroX != 0 ? heroX : current?.HeroX ?? 0,
             HeroY = heroY != 0 ? heroY : current?.HeroY ?? 0,
-            LastPacketActivityMs = touchActivity || ready || heroId > 0
+            LastPacketActivityMs = touchActivity || ready || heroId > 0 || mapId > 0
                 ? Environment.TickCount64
                 : current?.LastPacketActivityMs ?? 0,
-            MapId = current?.MapId ?? 0,
+            MapId = resolvedMapId,
             EntityCount = current?.EntityCount ?? 0,
             Entities = current?.Entities
         };

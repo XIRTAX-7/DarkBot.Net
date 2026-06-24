@@ -114,7 +114,7 @@ public sealed class HeroManager : IHeroApi
     public ILocation? Destination => null;
 
     public int Id => HeroId;
-    public bool IsValid => HeroId > 0 && _health.MaxHp > 0;
+    public bool IsValid => HeroId > 0 && (_health.MaxHp > 0 || HasMapPosition);
     public bool IsSelectable => false;
     public bool TrySelect(bool tryAttack) => false;
     public ILocationInfo LocationInfo => _locationInfo;

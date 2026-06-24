@@ -54,13 +54,6 @@ public sealed class GameLauncherService : IGameLauncherService
         try
         {
             _sessionStore.Save(launch);
-
-            if (_unityLauncher.IsRunning)
-            {
-                _logger.LogInformation("Unity game already running — skipping spawn");
-                return;
-            }
-
             _unityFridaApi.MarkLaunching();
             _unityLauncher.Launch(launch);
             _logger.LogInformation(

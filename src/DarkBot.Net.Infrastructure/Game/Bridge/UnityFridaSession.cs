@@ -60,12 +60,17 @@ public sealed class UnityFridaSession : IDisposable
         _script.Load();
 
         _attachedPid = pid;
-        _logger.LogInformation(
-            "Unity Frida agent loaded from {AgentPath} into pid={Pid}",
-            agentPath,
-            pid);
 
         await WaitForAgentReadyAsync(cancellationToken).ConfigureAwait(false);
+
+        var agentStatus = UnityBridgeStatusMapper.ParseStatusJson(
+            await GetStatusJsonAsync(cancellationToken).ConfigureAwait(false));
+        _logger.LogInformation(
+            "Unity Frida agent loaded from {AgentPath} into pid={Pid} (agentVersion={AgentVersion}, schemaVersion={SchemaVersion})",
+            agentPath,
+            pid,
+            agentStatus?.AgentVersion ?? "unknown",
+            agentStatus?.SchemaVersion);
     }
 
     public async Task<string?> GetStatusJsonAsync(CancellationToken cancellationToken = default)
@@ -82,6 +87,9 @@ public sealed class UnityFridaSession : IDisposable
 
     public async Task BootstrapSessionAsync(UnityWebGlSession session, CancellationToken cancellationToken = default)
     {
+        // Smoke-тест ждёт 1.5 с после load() перед bootstrapSession — даём хукам стабилизироваться.
+        await Task.Delay(1500, cancellationToken).ConfigureAwait(false);
+
         var rpc = RequireRpc();
         var result = await rpc.CallStringAsync(
             "bootstrapSession",
@@ -106,7 +114,9 @@ public sealed class UnityFridaSession : IDisposable
         bool requireSessionInject,
         CancellationToken cancellationToken = default)
     {
-        var updateDeadline = DateTime.UtcNow.AddSeconds(_options.UnityClientUpdateTimeoutSec);
+        // Smoke успешен при clientUpdateComplete=false — не блокируем auth/map на Addressables.
+        var updateWaitSec = Math.Min(30, _options.UnityClientUpdateTimeoutSec);
+        var updateDeadline = DateTime.UtcNow.AddSeconds(updateWaitSec);
         while (DateTime.UtcNow < updateDeadline)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -115,7 +125,7 @@ public sealed class UnityFridaSession : IDisposable
             var status = UnityBridgeStatusMapper.ParseStatusJson(
                 await GetStatusJsonAsync(cancellationToken).ConfigureAwait(false));
 
-            if (status?.ClientUpdateComplete == true)
+            if (IsBootstrapPastClientUpdate(status))
                 break;
 
             await Task.Delay(_options.FridaReadyPollIntervalMs, cancellationToken).ConfigureAwait(false);
@@ -124,18 +134,21 @@ public sealed class UnityFridaSession : IDisposable
         EnsureAttached();
         var statusAfterUpdate = UnityBridgeStatusMapper.ParseStatusJson(
             await GetStatusJsonAsync(cancellationToken).ConfigureAwait(false));
-        if (statusAfterUpdate?.ClientUpdateComplete != true)
-        {
-            throw new TimeoutException(
-                $"Unity client update did not complete within {_options.UnityClientUpdateTimeoutSec}s.");
-        }
-
-        _logger.LogInformation("Unity client update complete (Addressables)");
+        if (statusAfterUpdate?.ClientUpdateComplete == true)
+            _logger.LogInformation("Unity client update complete (Addressables)");
+        else if (IsBootstrapPastClientUpdate(statusAfterUpdate))
+            _logger.LogInformation(
+                "Unity client update skipped — pipeline already past login " +
+                "(sessionInjected={SessionInjected}, mapStart={MapStart}, getPost={GetPost})",
+                statusAfterUpdate?.SessionInjected,
+                statusAfterUpdate?.MapStartComplete,
+                statusAfterUpdate?.GetPostSeen);
 
         if (!requireSessionInject)
             return;
 
         var injectDeadline = DateTime.UtcNow.AddSeconds(_options.UnitySessionInjectTimeoutSec);
+        var sessionReady = false;
         while (DateTime.UtcNow < injectDeadline)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -146,29 +159,75 @@ public sealed class UnityFridaSession : IDisposable
 
             if (status?.SessionInjected == true)
             {
+                sessionReady = true;
                 _logger.LogInformation("Unity session injected via hook");
-                return;
+                break;
             }
 
             if (status?.MapStartComplete == true)
             {
+                sessionReady = true;
                 _logger.LogInformation(
-                    "Unity session pipeline complete via map start (launchShowStartAt={LaunchShowStartAt})",
+                    "Unity session pipeline: already on map (launchShowStartAt={LaunchShowStartAt})",
                     status.LaunchShowStartAt);
-                return;
+                break;
             }
 
             await Task.Delay(_options.FridaReadyPollIntervalMs, cancellationToken).ConfigureAwait(false);
         }
 
-        var lastStatus = UnityBridgeStatusMapper.ParseStatusJson(
+        if (!sessionReady)
+        {
+            var lastStatus = UnityBridgeStatusMapper.ParseStatusJson(
+                await GetStatusJsonAsync(cancellationToken).ConfigureAwait(false));
+            throw new TimeoutException(
+                $"Unity session inject did not complete within {_options.UnitySessionInjectTimeoutSec}s " +
+                $"(webLoginOpened={lastStatus?.WebLoginOpened}, getPostSeen={lastStatus?.GetPostSeen}, " +
+                $"mapStartComplete={lastStatus?.MapStartComplete}, launchShowStartAt={lastStatus?.LaunchShowStartAt}, " +
+                $"clientUpdateComplete={lastStatus?.ClientUpdateComplete}).");
+        }
+
+        var mapDeadline = DateTime.UtcNow.AddSeconds(_options.UnitySessionInjectTimeoutSec);
+        while (DateTime.UtcNow < mapDeadline)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            EnsureAttached();
+
+            var status = UnityBridgeStatusMapper.ParseStatusJson(
+                await GetStatusJsonAsync(cancellationToken).ConfigureAwait(false));
+
+            if (status?.Ready == true || status?.MovementHooksReady == true)
+            {
+                _logger.LogInformation("Unity map ready (movement hooks active)");
+                return;
+            }
+
+            if (status?.MapStartComplete == true)
+            {
+                _logger.LogInformation("Unity map loading started (waiting for movement hooks)");
+            }
+
+            await Task.Delay(_options.FridaReadyPollIntervalMs, cancellationToken).ConfigureAwait(false);
+        }
+
+        var mapLastStatus = UnityBridgeStatusMapper.ParseStatusJson(
             await GetStatusJsonAsync(cancellationToken).ConfigureAwait(false));
+        if (mapLastStatus?.Ready == true || mapLastStatus?.MovementHooksReady == true)
+            return;
+
         throw new TimeoutException(
-            $"Unity session inject did not complete within {_options.UnitySessionInjectTimeoutSec}s " +
-            $"(webLoginOpened={lastStatus?.WebLoginOpened}, getPostSeen={lastStatus?.GetPostSeen}, " +
-            $"mapStartComplete={lastStatus?.MapStartComplete}, launchShowStartAt={lastStatus?.LaunchShowStartAt}, " +
-            $"clientUpdateComplete={lastStatus?.ClientUpdateComplete}).");
+            $"Unity map enter did not complete within {_options.UnitySessionInjectTimeoutSec}s " +
+            $"(sessionInjected={mapLastStatus?.SessionInjected}, mapStartComplete={mapLastStatus?.MapStartComplete}, " +
+            $"movementHooksReady={mapLastStatus?.MovementHooksReady}, ready={mapLastStatus?.Ready}).");
     }
+
+    private static bool IsBootstrapPastClientUpdate(UnityBridgeAgentStatus? status) =>
+        status?.ClientUpdateComplete == true
+        || status?.SessionInjected == true
+        || status?.MapStartComplete == true
+        || status?.GetPostSeen == true
+        || status?.HangarDataReadyAt > 0
+        || status?.LaunchShowStarted == true;
 
     private void EnsureAttached()
     {

@@ -6,7 +6,10 @@ namespace DarkBot.Net.Infrastructure.Game.Bridge;
 /// <summary>Резолвит путь к Unity Frida bridge agent в репозитории или по конфигу.</summary>
 public static class UnityBridgeAgentPaths
 {
-    public const string DefaultRelativePath = "darkorbit-unity-bridge/agent/dist/agent.js";
+    /// <summary>Относительный путь к agent.js, который копируется в output при сборке Presentation.</summary>
+    public const string BundledOutputRelativePath = "darkorbit-unity-bridge/agent/dist/agent.js";
+
+    public const string DefaultRelativePath = BundledOutputRelativePath;
     public const string LegacyTsRelativePath = "DarkOrbit_Version_TS/agent/dist/agent.js";
     public const string LegacyRelativePath = "DarkOrbit_Version1.1.102/unity_bridge_agent.js";
 

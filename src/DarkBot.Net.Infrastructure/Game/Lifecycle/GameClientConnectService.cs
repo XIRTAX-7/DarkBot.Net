@@ -8,7 +8,11 @@ using Microsoft.Extensions.Options;
 
 namespace DarkBot.Net.Infrastructure.Game.Lifecycle;
 
-/// <summary>Подключение к Unity-клиенту через FridaCLR.</summary>
+/// <summary>
+/// Подключение к Unity-клиенту через FridaCLR.
+/// Один attach на весь жизненный цикл бота: auth → ангар → карта → gameplay.
+/// Detach только при выходе игры, рестарте клиента или остановке бота.
+/// </summary>
 public sealed class GameClientConnectService
 {
     private readonly UnityFridaGameApi _unityFrida;
@@ -16,6 +20,7 @@ public sealed class GameClientConnectService
     private readonly UnitySessionBootstrapStore _bootstrapStore;
     private readonly UnityProcessFinder _processFinder;
     private readonly UnityGameLauncher _unityLauncher;
+    private readonly GameSessionStore _sessionStore;
     private readonly GameApiOptions _options;
     private readonly ILogger<GameClientConnectService> _logger;
 
@@ -25,6 +30,7 @@ public sealed class GameClientConnectService
         UnitySessionBootstrapStore bootstrapStore,
         UnityProcessFinder processFinder,
         UnityGameLauncher unityLauncher,
+        GameSessionStore sessionStore,
         IOptions<GameApiOptions> options,
         ILogger<GameClientConnectService> logger)
     {
@@ -33,6 +39,7 @@ public sealed class GameClientConnectService
         _bootstrapStore = bootstrapStore;
         _processFinder = processFinder;
         _unityLauncher = unityLauncher;
+        _sessionStore = sessionStore;
         _options = options.Value;
         _logger = logger;
     }
@@ -47,6 +54,12 @@ public sealed class GameClientConnectService
         {
             return GameClientConnectResult.Fail(
                 $"Process {_options.UnityProcessName} not found in {_options.UnityGameInstallPath}. Launch failed or timed out.");
+        }
+
+        if (_unitySession.IsAttached && _unitySession.AttachedPid == pid && _unityFrida.IsValid)
+        {
+            _logger.LogInformation("Unity Frida session already active for pid={Pid}", pid);
+            return GameClientConnectResult.Ok(pid);
         }
 
         var attachDelaySec = _options.UnityAuthViaHook
@@ -64,7 +77,7 @@ public sealed class GameClientConnectService
 
         try
         {
-            await _unityFrida.AttachProcessAsync(pid, cancellationToken).ConfigureAwait(false);
+            await AttachOnceAsync(pid, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -72,31 +85,82 @@ public sealed class GameClientConnectService
             return GameClientConnectResult.Fail(ex.Message);
         }
 
-        _logger.LogInformation("Unity game client pid={Pid} (FridaCLR attach)", pid);
-
-        if (_options.UnityAuthViaHook && _bootstrapStore.TryTake(out var session))
+        if (_options.UnityAuthViaHook)
         {
-            try
+            if (!TryResolveBootstrapSession(out var session))
             {
-                await _unitySession.BootstrapSessionAsync(session, cancellationToken).ConfigureAwait(false);
-                await _unitySession.WaitForBootstrapPipelineAsync(
-                    requireSessionInject: true,
-                    cancellationToken).ConfigureAwait(false);
+                _logger.LogWarning(
+                    "Unity WebView autologin skipped — no credentials staged (launch bot with profile login first)");
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Unity WebView autologin bootstrap failed");
-                return GameClientConnectResult.Fail(ex.Message);
+                try
+                {
+                    await RunAuthAndEnterMapPipelineAsync(session, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unity auth / enter-map pipeline failed");
+                    return GameClientConnectResult.Fail(ex.Message);
+                }
             }
         }
 
-        var ready = await _unityFrida.WaitForReadyAsync(cancellationToken).ConfigureAwait(false);
+        var ready = await WaitForGameplayReadyAsync(cancellationToken).ConfigureAwait(false);
         if (!ready)
         {
             return GameClientConnectResult.Fail(
                 "Unity bridge agent not ready. Stay on the map and retry.");
         }
 
+        _unityFrida.MarkGameplayReady();
         return GameClientConnectResult.Ok(pid);
+    }
+
+    private async Task AttachOnceAsync(int pid, CancellationToken cancellationToken)
+    {
+        await _unityFrida.AttachProcessAsync(pid, cancellationToken).ConfigureAwait(false);
+        _logger.LogInformation(
+            "Unity game client pid={Pid} — single Frida session (auth + map share one agent)",
+            pid);
+    }
+
+    private bool TryResolveBootstrapSession(out UnityWebGlSession session)
+    {
+        if (_bootstrapStore.TryTake(out session))
+            return true;
+
+        var launch = _sessionStore.Current;
+        if (launch is null
+            || string.IsNullOrWhiteSpace(launch.Username)
+            || string.IsNullOrWhiteSpace(launch.Password))
+        {
+            session = new UnityWebGlSession();
+            return false;
+        }
+
+        session = new UnityWebGlSession(launch.Username, launch.Password);
+        _logger.LogInformation(
+            "Unity WebView autologin credentials restored from active launch session ({Username})",
+            launch.Username);
+        return true;
+    }
+
+    private async Task RunAuthAndEnterMapPipelineAsync(
+        UnityWebGlSession session,
+        CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Unity bridge: auth phase (bootstrap + WebView autologin)");
+        await _unitySession.BootstrapSessionAsync(session, cancellationToken).ConfigureAwait(false);
+        await _unitySession.WaitForBootstrapPipelineAsync(
+            requireSessionInject: true,
+            cancellationToken).ConfigureAwait(false);
+        _logger.LogInformation("Unity bridge: auth phase complete — enter-map handled in same session");
+    }
+
+    private Task<bool> WaitForGameplayReadyAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Unity bridge: gameplay phase — waiting for movement hooks");
+        return _unityFrida.WaitForReadyAsync(cancellationToken);
     }
 }

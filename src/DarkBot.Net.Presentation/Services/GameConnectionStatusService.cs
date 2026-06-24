@@ -1,19 +1,28 @@
 using DarkBot.Net.Core.Interfaces.Game;
+using DarkBot.Net.Core.Models.Game;
 using DarkBot.Net.Core.Options;
 using DarkBot.Net.Application.Memory;
+using DarkBot.Net.Infrastructure.Game.Bridge;
 
 namespace DarkBot.Net.Presentation.Services;
 
 public sealed class GameConnectionStatusService
 {
     private readonly IGameConnection _game;
+    private readonly IGameBridgeStatusSource? _bridge;
     private readonly BotAddressRegistry _addresses;
 
-    public GameConnectionStatusService(IGameConnection game, BotAddressRegistry addresses)
+    public GameConnectionStatusService(
+        IGameConnection game,
+        BotAddressRegistry addresses,
+        IGameBridgeStatusSource? bridge = null)
     {
         _game = game;
         _addresses = addresses;
+        _bridge = bridge;
         _game.PhaseChanged += _ => StatusChanged?.Invoke();
+        if (_bridge is not null)
+            _bridge.StatusChanged += () => StatusChanged?.Invoke();
     }
 
     public event Action? StatusChanged;
@@ -23,18 +32,34 @@ public sealed class GameConnectionStatusService
         get
         {
             if (_addresses.HasScreenManager)
-                return "Game connected";
+                return "On map — bot active";
 
-            return _game.Phase switch
+            if (_bridge is not null)
             {
-                GameConnectionPhase.NotStarted => "Game not launched",
-                GameConnectionPhase.Launching => "Launching game…",
-                GameConnectionPhase.WaitingForGameLoad => "Waiting for game load…",
-                GameConnectionPhase.Failed => FormatFailureStatus(),
-                _ => "Waiting for game connection…"
-            };
+                return _bridge.RuntimePhase switch
+                {
+                    UnityBridgeRuntimePhase.Bootstrapping => "Connecting to game…",
+                    UnityBridgeRuntimePhase.Authenticating => "Authorizing…",
+                    UnityBridgeRuntimePhase.InHangar => "Hangar — entering map…",
+                    UnityBridgeRuntimePhase.EnteringMap => "Loading map…",
+                    UnityBridgeRuntimePhase.OnMap => "On map — bot active",
+                    _ => FormatConnectionPhase()
+                };
+            }
+
+            return FormatConnectionPhase();
         }
     }
+
+    private string FormatConnectionPhase() =>
+        _game.Phase switch
+        {
+            GameConnectionPhase.NotStarted => "Game not launched",
+            GameConnectionPhase.Launching => "Launching game…",
+            GameConnectionPhase.WaitingForGameLoad => "Waiting for game load…",
+            GameConnectionPhase.Failed => FormatFailureStatus(),
+            _ => "Waiting for game connection…"
+        };
 
     private string FormatFailureStatus()
     {

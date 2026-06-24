@@ -3,6 +3,7 @@
     "TestLogin": {
       "Username": "your_username",
       "Password": "your_password"
-    }
+    },
+    "UnityBridgeAgentPath": ""
   }
 }

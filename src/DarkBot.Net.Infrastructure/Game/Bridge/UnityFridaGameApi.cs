@@ -1,5 +1,6 @@
 using System.Text.Json;
 using DarkBot.Net.Core.Interfaces.Game;
+using DarkBot.Net.Core.Models.Game;
 using DarkBot.Net.Core.Options;
 using DarkBot.Net.Infrastructure.Game.Session;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +28,8 @@ public sealed class UnityFridaGameApi :
     private GameConnectionPhase _phase = GameConnectionPhase.NotStarted;
     private long _pid;
     private FridaBridgeStatus? _cachedStatus;
+    private UnityBridgeAgentStatus? _agentStatus;
+    private UnityBridgeRuntimePhase _runtimePhase = UnityBridgeRuntimePhase.Unattached;
     private DateTime _lastBridgeActivityUtc = DateTime.MinValue;
     private string? _lastFailureReason;
     private int _refreshInProgress;
@@ -81,6 +84,24 @@ public sealed class UnityFridaGameApi :
         }
     }
 
+    public UnityBridgeAgentStatus? AgentStatus
+    {
+        get
+        {
+            lock (_statusLock)
+                return _agentStatus;
+        }
+    }
+
+    public UnityBridgeRuntimePhase RuntimePhase
+    {
+        get
+        {
+            lock (_statusLock)
+                return _runtimePhase;
+        }
+    }
+
     public event Action<GameConnectionPhase>? PhaseChanged;
 
     public event Action? StatusChanged;
@@ -94,10 +115,16 @@ public sealed class UnityFridaGameApi :
         SetPhase(GameConnectionPhase.WaitingForGameLoad);
 
         await _session.AttachAndLoadAgentAsync(pid, cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("Unity Frida attached to pid={Pid}", pid);
+        _logger.LogInformation("Unity Frida attached to pid={Pid} — session stays until game or bot shutdown", pid);
 
-        if (RefreshStatus())
-            SetPhase(GameConnectionPhase.Connected);
+        RefreshStatus();
+    }
+
+    /// <summary>Игровая фаза: movement RPC готов, бот может ходить по карте.</summary>
+    public void MarkGameplayReady()
+    {
+        _lastFailureReason = null;
+        SetPhase(GameConnectionPhase.Connected);
     }
 
     public void AttachProcess(long pid) =>
@@ -130,7 +157,7 @@ public sealed class UnityFridaGameApi :
             if (agentStatus is null)
                 return false;
 
-            ApplyStatus(UnityBridgeStatusMapper.ToFridaStatus(agentStatus), isSnapshot: true);
+            ApplyAgentSnapshot(agentStatus);
             return true;
         }
         catch (Exception ex)
@@ -149,7 +176,25 @@ public sealed class UnityFridaGameApi :
             _cachedStatus = status;
 
         if (status.Ready && _phase == GameConnectionPhase.WaitingForGameLoad)
-            SetPhase(GameConnectionPhase.Connected);
+            MarkGameplayReady();
+
+        StatusChanged?.Invoke();
+    }
+
+    private void ApplyAgentSnapshot(UnityBridgeAgentStatus agentStatus)
+    {
+        RecordBridgeActivity();
+        var runtimePhase = UnityBridgeRuntimePhaseMapper.FromAgentStatus(agentStatus, _session.IsAttached);
+
+        lock (_statusLock)
+        {
+            _agentStatus = agentStatus;
+            _runtimePhase = runtimePhase;
+            _cachedStatus = UnityBridgeStatusMapper.ToFridaStatus(agentStatus);
+        }
+
+        if (agentStatus.Ready && _phase == GameConnectionPhase.WaitingForGameLoad)
+            MarkGameplayReady();
 
         StatusChanged?.Invoke();
     }
@@ -239,7 +284,11 @@ public sealed class UnityFridaGameApi :
         _lastBridgeActivityUtc = DateTime.MinValue;
 
         lock (_statusLock)
+        {
             _cachedStatus = null;
+            _agentStatus = null;
+            _runtimePhase = UnityBridgeRuntimePhase.Unattached;
+        }
 
         _session.Detach();
         SetPhase(GameConnectionPhase.NotStarted);
@@ -294,7 +343,7 @@ public sealed class UnityFridaGameApi :
             _cachedStatus = updated;
 
         if (updated.Ready && _phase == GameConnectionPhase.WaitingForGameLoad)
-            SetPhase(GameConnectionPhase.Connected);
+            MarkGameplayReady();
 
         StatusChanged?.Invoke();
     }

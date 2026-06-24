@@ -466,10 +466,15 @@ internal static class MapCanvasRenderer
         using var labelFont = new SKFont { Size = 12 };
         using var labelPaint = new SKPaint { Color = new SKColor(145, 159, 180), IsAntialias = true };
 
-        if (snapshot is { HeroValid: true })
+        if (snapshot is { HeroOnMap: true })
+        {
+            canvas.DrawText($"X {snapshot.HeroX:0}  Y {snapshot.HeroY:0}", mapRect.Left + 16, mapRect.Top + 26, SKTextAlign.Left, labelFont, labelPaint);
+            if (snapshot.HeroValid)
+                canvas.DrawText($"HP {snapshot.HeroHp}/{snapshot.HeroMaxHp}", mapRect.Left + 16, mapRect.Top + 44, SKTextAlign.Left, labelFont, labelPaint);
+        }
+        else if (snapshot is { HeroValid: true })
         {
             canvas.DrawText($"HP {snapshot.HeroHp}/{snapshot.HeroMaxHp}", mapRect.Left + 16, mapRect.Top + 26, SKTextAlign.Left, labelFont, labelPaint);
-            canvas.DrawText($"X {snapshot.HeroX:0}  Y {snapshot.HeroY:0}", mapRect.Left + 16, mapRect.Top + 44, SKTextAlign.Left, labelFont, labelPaint);
         }
 
         if (moveTarget is { } target)

@@ -28,8 +28,13 @@ public sealed class GameLaunchAppService(
 
         if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
         {
-            logger.LogDebug("Game launch already in progress — skipping duplicate");
-            return;
+            if (game.Phase != GameConnectionPhase.Failed)
+            {
+                logger.LogDebug("Game launch already in progress — skipping duplicate");
+                return;
+            }
+
+            logger.LogInformation("Previous game connect failed — retrying launch/connect");
         }
 
         try

@@ -59,6 +59,7 @@ public sealed class UnityBridgeStatusMapperTests
         {
             SchemaVersion = 1,
             Ready = true,
+            MovementHooksReady = true,
             HeroPos = new UnityHeroPosition { X = 500, Y = -300, ServerY = 300 },
             MapCenter = new UnityMapCenter { X = 10500, Y = 6550 }
         };

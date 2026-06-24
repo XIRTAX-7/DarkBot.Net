@@ -5,7 +5,7 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\DarkBot.Net.Infrastructure\DarkBot.Net.Infrastructure.csproj" />

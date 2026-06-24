@@ -29,6 +29,14 @@ public sealed class UnityBridgeAgentPathsTests
     }
 
     [Fact]
+    public void EnumerateDefaultCandidates_PrefersBundledOutputNextToAppBase()
+    {
+        var candidates = UnityBridgeAgentPaths.EnumerateDefaultCandidates().ToList();
+        var bundled = Path.Combine(AppContext.BaseDirectory, UnityBridgeAgentPaths.BundledOutputRelativePath);
+        Assert.Equal(Path.GetFullPath(bundled), Path.GetFullPath(candidates[0]));
+    }
+
+    [Fact]
     public void EnumerateDefaultCandidates_IncludesRepoRelativePath()
     {
         var candidates = UnityBridgeAgentPaths.EnumerateDefaultCandidates().ToList();

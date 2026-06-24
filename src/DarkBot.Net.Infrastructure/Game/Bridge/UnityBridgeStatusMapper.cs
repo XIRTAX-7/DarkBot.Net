@@ -39,6 +39,12 @@ public sealed class UnityBridgeAgentStatus
     [JsonPropertyName("mapStartComplete")]
     public bool MapStartComplete { get; init; }
 
+    [JsonPropertyName("mapStartRequested")]
+    public bool MapStartRequested { get; init; }
+
+    [JsonPropertyName("launchShowStarted")]
+    public bool LaunchShowStarted { get; init; }
+
     [JsonPropertyName("launchShowStartAt")]
     public long LaunchShowStartAt { get; init; }
 
@@ -114,26 +120,31 @@ public static class UnityBridgeStatusMapper
         var mapCenter = status.MapCenter;
         var width = mapCenter?.X > 0 ? mapCenter.X * 2 : DefaultMapWidth;
         var height = mapCenter?.Y > 0 ? mapCenter.Y * 2 : DefaultMapHeight;
+        var heroOnMap = status.MovementHooksReady && hero is not null;
+        var heroY = hero switch
+        {
+            { ServerY: not 0 } positioned => positioned.ServerY,
+            { Y: not 0 } positioned => positioned.Y,
+            { X: > 1 } positioned => positioned.Y,
+            _ => 0
+        };
 
         return new FridaBridgeStatus
         {
             SchemaVersion = status.SchemaVersion,
-            Ready = status.Ready && hero is not null,
-            MainApplicationAddress = "0x1",
-            MainAddress = "0x1",
-            ScreenManager = "0x1",
-            ConnectionManager = "0x1",
+            Ready = status.MovementHooksReady || (status.Ready && hero is not null),
+            MainApplicationAddress = heroOnMap ? "0x1" : null,
+            MainAddress = heroOnMap ? "0x1" : null,
+            ScreenManager = heroOnMap ? "0x1" : null,
+            ConnectionManager = heroOnMap ? "0x1" : null,
             HeroStatic = hero is not null ? "0x1" : "0x0",
             MapWidth = width,
             MapHeight = height,
             HeroId = hero is not null ? 1 : 0,
             HeroX = hero?.X ?? 0,
-            HeroY = hero switch
-            {
-                { ServerY: not 0 } positioned => positioned.ServerY,
-                { } positioned => positioned.Y,
-                _ => 0
-            },
+            HeroY = heroY,
+            HeroHp = heroOnMap ? 1 : 0,
+            HeroMaxHp = heroOnMap ? 1 : 0,
             LastPacketActivityMs = Environment.TickCount64
         };
     }

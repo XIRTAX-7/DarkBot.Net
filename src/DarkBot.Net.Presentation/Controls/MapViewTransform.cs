@@ -5,11 +5,11 @@ using SkiaSharp;
 namespace DarkBot.Net.Presentation.Controls;
 
 /// <summary>
-/// Единое преобразование экран ↔ игровые координаты карты с учётом letterbox-масштаба.
+/// Преобразование экран ↔ игровые координаты. Как в Java MapGraphicsImpl:
+/// карта растягивается на весь виджет (scaleX/scaleY независимо).
 /// </summary>
 internal readonly struct MapViewTransform
 {
-    private const float MapPadding = 18f;
     private const int MinMapDimension = 100;
 
     public SKRect MapRect { get; init; }
@@ -26,10 +26,12 @@ internal readonly struct MapViewTransform
     {
         var width = Math.Max(mapWidth, 1);
         var height = Math.Max(mapHeight, 1);
+        var controlWidth = Math.Max((float)controlSize.Width, 1f);
+        var controlHeight = Math.Max((float)controlSize.Height, 1f);
 
         return new MapViewTransform
         {
-            MapRect = CalculateMapRect((float)controlSize.Width, (float)controlSize.Height, width, height),
+            MapRect = new SKRect(0, 0, controlWidth, controlHeight),
             MapWidth = width,
             MapHeight = height
         };
@@ -40,11 +42,11 @@ internal readonly struct MapViewTransform
         gameX = 0;
         gameY = 0;
 
-        if (!MapRect.Contains((float)screenPoint.X, (float)screenPoint.Y))
+        if (MapRect.Width <= 0 || MapRect.Height <= 0)
             return false;
 
-        var rawX = (screenPoint.X - MapRect.Left) * ScaleX;
-        var rawY = (screenPoint.Y - MapRect.Top) * ScaleY;
+        var rawX = screenPoint.X * ScaleX;
+        var rawY = screenPoint.Y * ScaleY;
         (gameX, gameY) = MapCoordinateBounds.Clamp(rawX, rawY, MapWidth, MapHeight);
         return true;
     }
@@ -53,22 +55,12 @@ internal readonly struct MapViewTransform
     {
         var (clampedX, clampedY) = MapCoordinateBounds.Clamp(gameX, gameY, MapWidth, MapHeight);
         return new SKPoint(
-            MapRect.Left + (float)(clampedX / MapWidth * MapRect.Width),
-            MapRect.Top + (float)(clampedY / MapHeight * MapRect.Height));
+            (float)(clampedX / MapWidth * MapRect.Width),
+            (float)(clampedY / MapHeight * MapRect.Height));
     }
 
-    private static SKRect CalculateMapRect(float width, float height, int mapWidth, int mapHeight)
-    {
-        var availableWidth = Math.Max(width - MapPadding * 2, 1);
-        var availableHeight = Math.Max(height - MapPadding * 2, 1);
-        var scale = Math.Min(availableWidth / mapWidth, availableHeight / mapHeight);
-        var drawWidth = mapWidth * scale;
-        var drawHeight = mapHeight * scale;
-        var left = (width - drawWidth) / 2f;
-        var top = (height - drawHeight) / 2f;
-
-        return new SKRect(left, top, left + drawWidth, top + drawHeight);
-    }
+    public float ToScreenSizeW(double gameW) => (float)(gameW / ScaleX);
+    public float ToScreenSizeH(double gameH) => (float)(gameH / ScaleY);
 }
 
 internal readonly record struct MapMoveTarget(double GameX, double GameY, long CreatedTimestamp);

@@ -38,7 +38,7 @@
       <SolidColorBrush x:Key="DbWarningSoft" Color="#F59E0B" Opacity="0.14" />
       <SolidColorBrush x:Key="DbDanger" Color="#FB7185" />
       <SolidColorBrush x:Key="DbDangerSoft" Color="#F43F5E" Opacity="0.14" />
-      <SolidColorBrush x:Key="DbMapBackground" Color="#070A12" />
+      <SolidColorBrush x:Key="DbMapBackground" Color="#263238" />
       <SolidColorBrush x:Key="DbMapGrid" Color="#1A2440" />
       <SolidColorBrush x:Key="DbTopBarBackground" Color="#111827" Opacity="0.94" />
       <SolidColorBrush x:Key="DbTopBarBorder" Color="#253149" />

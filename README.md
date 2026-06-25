@@ -1,97 +1,94 @@
 # DarkBot.Net
 
-DarkBot for DarkOrbit — .NET 10 rewrite with Avalonia UI and **Frida-only** game control (no DarkMem / JNI).
+DarkBot для DarkOrbit — переписан на .NET 10 / C# 14 с WPF UI (WPF-UI + ReactiveUI) и управлением Unity-клиентом.
 
-This repository is a **monorepo** with two main parts:
+## Структура репозитория
 
-| Path | Description |
-|------|-------------|
-| [`src/`](src/) | .NET solution — 4-layer Clean Architecture |
-| [`tests/`](tests/) | xUnit test projects |
-| [`Darkorbit-client/`](Darkorbit-client/) | Electron game client (Pepper Flash) + Frida sidecar (`darkDev/`) |
-| [`sidecars/`](sidecars/) | Optional sidecar executables (backpage, captcha, etc.) |
+| Путь | Описание |
+|------|----------|
+| [`src/`](src/) | .NET solution — Clean Architecture, 4 слоя |
+| [`tests/`](tests/) | xUnit тест-проекты |
+| [`darkorbit-unity-bridge/`](darkorbit-unity-bridge/) | Агент для Unity-клиента |
+| [`sidecars/`](sidecars/) | Опциональные sidecar (backpage, verifier) |
+| [`build/`](build/) | MSBuild targets (сборка и bundling `agent.js`) |
 
-## Architecture (4 layers)
+## Архитектура (4 слоя)
 
 ```text
-DarkBot.Net.Presentation   Avalonia UI, composition root
+DarkBot.Net.Presentation   WPF UI, composition root
         ↓
 DarkBot.Net.Application    Bot loop, managers, I*AppService
         ↓
-DarkBot.Net.Core           Contracts, models, Options
+DarkBot.Net.Core           Контракты, модели, Options
         ↑
-DarkBot.Net.Infrastructure Frida, Electron, Login, Backpage, Config
+DarkBot.Net.Infrastructure Unity, Login, Backpage, Config
 ```
 
-| Layer | Project | Responsibility |
-|-------|---------|----------------|
-| **Core** | `DarkBot.Net.Core` | `I*Api`, `IGameConnection`, models — no implementations |
-| **Application** | `DarkBot.Net.Application` | `BotLoopService`, managers, AppService facades |
-| **Infrastructure** | `DarkBot.Net.Infrastructure` | Frida, login/backpage HTTP, config persistence |
+| Слой | Проект | Ответственность |
+|------|--------|-----------------|
+| **Core** | `DarkBot.Net.Core` | `I*Api`, `IGameConnection`, models — без реализаций |
+| **Application** | `DarkBot.Net.Application` | `BotLoopService`, managers, AppService-фасады |
+| **Infrastructure** | `DarkBot.Net.Infrastructure` | Unity bridge, login/backpage HTTP, config persistence |
 | **Presentation** | `DarkBot.Net.Presentation` | Views, ViewModels, `Program.cs` |
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for layer rules and migration notes (old project names → new).
+Подробнее: [ARCHITECTURE.md](ARCHITECTURE.md).
 
-### Game data path
+### Игровой путь данных
 
 ```text
-DarkBot.Net/Darkorbit-client
-  → avm_bridge (WS :44570/ws, HTTP :44570)
-  → Infrastructure.Game (FridaGameApi)
-  → Application managers (snapshot, not process memory)
+Unity-клиент
+  → darkorbit-unity-bridge/agent/dist/agent.js
+  → Infrastructure.Game (IGameConnection)
+  → Application managers (snapshot через RPC)
   → BotLoopService @ 10 Hz
 ```
 
-Legacy DarkMem / KekkaPlayer native code is archived locally under `archive/darkmem-native/` (gitignored).
+C# **не читает память процесса** — только typed snapshot из Unity bridge.
 
-See [PARITY_STATUS.md](PARITY_STATUS.md) for v1 game-client integration status.
+Статус интеграции: [PARITY_STATUS.md](PARITY_STATUS.md).
 
-## Requirements
+## Требования
 
-- **Windows** (game path is Windows-only today)
+- **Windows x64**
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- **Node.js 18+** and `npm` (Darkorbit-client)
-- **Python 3** with `frida`, `psutil`, `aiohttp` (Frida bridge sidecar)
+- **Node.js 22+** и `npm` (сборка `darkorbit-unity-bridge/agent`)
+- **Unity-клиент** DarkOrbit
 
-```bash
-cd Darkorbit-client
-npm install
-pip install -r darkDev/requirements.txt
+```powershell
+cd darkorbit-unity-bridge/agent
+npm ci
+npm run verify
 ```
 
-## Quick start
+## Быстрый старт
 
-1. Build and run the UI:
+1. Собрать и запустить UI:
 
-```bash
+```powershell
 dotnet build DarkBot.Net.slnx
 dotnet run --project src/DarkBot.Net.Presentation
 ```
 
-2. Log in (credentials or SID). The bot will:
-   - launch **Darkorbit-client** with your session
-   - patch client settings (`Movement`, `NoSandbox`)
-   - wait for Pepper Flash PID and Frida WS `/status`
+2. Войти (логин/пароль). Бот запустит Unity-клиент (или подключится к уже запущенному), выполнит авторизацию и дождётся загрузки карты.
 
-3. Wait until the game map loads (`internalMapRevolution`), then verify:
+3. После входа на карту — запустить бота из главного окна.
 
-```bash
-curl http://127.0.0.1:44570/status
-# schemaVersion 2 — mapId, entities[], credits, heroHp
-# Status also pushed on ws://127.0.0.1:44570/ws
+> При `dotnet build` Presentation автоматически собирает `agent.js` и копирует его в output рядом с exe.
+
+## Конфигурация
+
+`src/DarkBot.Net.Presentation/appsettings.json` (секция `DarkBot`).
+
+Локальные переопределения — в `appsettings.Local.json` (не коммитится). Переменные окружения с префиксом `DARKBOT_`.
+
+Подробнее: [darkorbit-unity-bridge/docs/INTEGRATION.md](darkorbit-unity-bridge/docs/INTEGRATION.md).
+
+## Тесты
+
+```powershell
+dotnet test DarkBot.Net.slnx -c Release
 ```
 
-## Configuration
+## CI
 
-`src/DarkBot.Net.Presentation/appsettings.json`:
-
-```json
-{
-  "DarkBot": {
-    "BrowserApi": "FridaClient",
-    "FridaApiPort": 44570,
-    "ControlPort": 44568,
-    "DarkorbitClientPath": ""
-  }
-}
-```
+GitHub Actions (`.github/workflows/ci.yml`): verify Unity bridge agent → `dotnet build` → `dotnet test`.

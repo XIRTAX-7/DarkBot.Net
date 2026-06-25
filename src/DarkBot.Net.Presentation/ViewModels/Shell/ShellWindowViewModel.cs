@@ -12,13 +12,15 @@ namespace DarkBot.Net.Presentation.ViewModels.Shell;
 
 /// <summary>
 /// ViewModel единственного окна приложения.
-/// Управляет <see cref="CurrentViewModel"/> — Login → Main через ViewModelViewHost.
+/// Управляет <see cref="CurrentViewModel"/> — Login → Main.
 /// </summary>
 public sealed partial class ShellWindowViewModel : ViewModelBase, IDisposable
 {
     private readonly CompositeDisposable _navigationSubscriptions = [];
     private readonly LoginViewModel _loginViewModel;
     private readonly MainWindowViewModel _mainViewModel;
+
+    [Reactive] private string _applicationTitle = "DarkBot.Net";
 
     [Reactive(SetModifier = AccessModifier.Private)]
     private ViewModelBase _currentViewModel = null!;

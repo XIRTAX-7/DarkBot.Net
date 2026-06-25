@@ -8,63 +8,7 @@
       <ResourceDictionary.MergedDictionaries>
         <ui:ThemesDictionary Theme="Dark" />
         <ui:ControlsDictionary />
-        <ResourceDictionary Source="Assets/Styles/DarkBotControls.xaml" />
       </ResourceDictionary.MergedDictionaries>
-
-      <ImageBrush x:Key="DbShellBackgroundImage"
-                  ImageSource="/Assets/backgrounds/nebula.png"
-                  Stretch="UniformToFill"
-                  AlignmentX="Center"
-                  AlignmentY="Center" />
-
-      <SolidColorBrush x:Key="DbAppBackground" Color="#0A0D16" />
-      <SolidColorBrush x:Key="DbShellBackground" Color="#0D1220" />
-      <SolidColorBrush x:Key="DbSurface" Color="#101727" Opacity="0.96" />
-      <SolidColorBrush x:Key="DbSurfaceAlt" Color="#151D31" />
-      <SolidColorBrush x:Key="DbSurfaceSoft" Color="#111827" />
-      <SolidColorBrush x:Key="DbSurfaceElevated" Color="#172033" />
-      <SolidColorBrush x:Key="DbBorder" Color="#243047" />
-      <SolidColorBrush x:Key="DbBorderStrong" Color="#3B4A67" />
-      <SolidColorBrush x:Key="DbTextPrimary" Color="#F4F7FB" />
-      <SolidColorBrush x:Key="DbTextSecondary" Color="#9AA7BC" />
-      <SolidColorBrush x:Key="DbTextMuted" Color="#68758B" />
-      <SolidColorBrush x:Key="DbAccent" Color="#8B7CFF" />
-      <SolidColorBrush x:Key="DbAccentSoft" Color="#6D5DF6" Opacity="0.16" />
-      <SolidColorBrush x:Key="DbAccentStrong" Color="#6D5DF6" />
-      <SolidColorBrush x:Key="DbAccentForeground" Color="#FFFFFF" />
-      <SolidColorBrush x:Key="DbSuccess" Color="#35D39B" />
-      <SolidColorBrush x:Key="DbSuccessSoft" Color="#10B981" Opacity="0.14" />
-      <SolidColorBrush x:Key="DbWarning" Color="#F7C948" />
-      <SolidColorBrush x:Key="DbWarningSoft" Color="#F59E0B" Opacity="0.14" />
-      <SolidColorBrush x:Key="DbDanger" Color="#FB7185" />
-      <SolidColorBrush x:Key="DbDangerSoft" Color="#F43F5E" Opacity="0.14" />
-      <SolidColorBrush x:Key="DbMapBackground" Color="#263238" />
-      <SolidColorBrush x:Key="DbMapGrid" Color="#1A2440" />
-      <SolidColorBrush x:Key="DbTopBarBackground" Color="#111827" Opacity="0.94" />
-      <SolidColorBrush x:Key="DbTopBarBorder" Color="#253149" />
-      <SolidColorBrush x:Key="DbInputBackground" Color="#0D1424" />
-      <SolidColorBrush x:Key="DbInputBorder" Color="#28354D" />
-      <SolidColorBrush x:Key="DbInputForeground" Color="#F4F7FB" />
-      <SolidColorBrush x:Key="DbTreeItemHover" Color="#19243A" />
-      <SolidColorBrush x:Key="DbTreeItemSelected" Color="#6D5DF6" Opacity="0.14" />
-      <SolidColorBrush x:Key="DbStatTileBackground" Color="#131C2E" />
-      <SolidColorBrush x:Key="DbStatTileBorder" Color="#273650" />
-
-      <LinearGradientBrush x:Key="DbHeroGradient" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#1A1745" Offset="0" />
-        <GradientStop Color="#172C4C" Offset="0.58" />
-        <GradientStop Color="#0E1F32" Offset="1" />
-      </LinearGradientBrush>
-
-      <LinearGradientBrush x:Key="DbAccentGradientHorizontal" StartPoint="0,0" EndPoint="1,0">
-        <GradientStop Color="#6D5DF6" Offset="0" />
-        <GradientStop Color="#2DD4BF" Offset="1" />
-      </LinearGradientBrush>
-
-      <Geometry x:Key="DbRefreshIconGeometry">
-        M12.57,11.88 C11.47,13.18 9.83,14 7.99,14 C5.03,14 2.57,11.86 2.08,9.04 L3.94,9.1 C4.43,10.88 6.06,12.2 8,12.2 C9.3,12.2 10.46,11.6 11.23,10.67 L9.05,8.71 L14.04,8.45 L14.3,13.44 Z
-        M3.42,4.11 C4.52,2.82 6.16,2 7.99,2 C10.91,2 13.35,4.09 13.88,6.85 L12.02,6.78 C11.5,5.05 9.89,3.8 8,3.8 C6.69,3.8 5.53,4.39 4.76,5.32 L6.95,7.29 L1.96,7.55 L1.7,2.56 Z
-      </Geometry>
 
       <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
     </ResourceDictionary>

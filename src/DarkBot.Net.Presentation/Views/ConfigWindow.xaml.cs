@@ -1,15 +1,13 @@
-using System.Windows;
 using DarkBot.Net.Presentation.Controls;
 using DarkBot.Net.Presentation.ViewModels;
+using Serilog;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
 namespace DarkBot.Net.Presentation.Views;
 
-public partial class ConfigWindow : Window
+public partial class ConfigWindow : FluentWindow
 {
-    private readonly ConfigTreeViewModel? _viewModel;
-
     public ConfigWindow()
         : this(null)
     {
@@ -17,17 +15,11 @@ public partial class ConfigWindow : Window
 
     public ConfigWindow(ConfigTreeViewModel? viewModel)
     {
-        _viewModel = viewModel;
+        Log.Debug("UI config: ConfigWindow ctor start");
+        SystemThemeWatcher.Watch(this);
         InitializeComponent();
-        Loaded += OnLoaded;
-    }
-
-    private void OnLoaded(object? sender, RoutedEventArgs e)
-    {
-        Loaded -= OnLoaded;
-        WindowBackgroundManager.UpdateBackground(this, ApplicationTheme.Dark, WindowBackdropType.Mica);
-
-        if (_viewModel is not null)
-            ConfigTree.ViewModel = _viewModel;
+        ConfigTree.AttachViewModel(viewModel ?? new ConfigTreeViewModel());
+        Closed += (_, _) => Log.Debug("UI config: ConfigWindow closed");
+        Log.Debug("UI config: ConfigWindow ctor complete");
     }
 }

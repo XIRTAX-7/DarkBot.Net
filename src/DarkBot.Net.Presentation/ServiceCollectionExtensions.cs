@@ -47,6 +47,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<BotUiStateService>();
         services.AddSingleton<GameConnectionStatusService>();
 
+        services.AddSingleton<IConfigWindowService, ConfigWindowService>();
+
         services.AddSingleton<LoginViewModel>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<ConfigTreeViewModel>();

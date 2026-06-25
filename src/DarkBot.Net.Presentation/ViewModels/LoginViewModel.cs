@@ -43,7 +43,14 @@ public sealed partial class LoginViewModel : ViewModelBase
         _gameLaunch = gameLaunch;
         _sessionStore = sessionStore;
         _logger = logger;
-        _canLogin = this.WhenAnyValue(x => x.IsBusy, busy => !busy);
+        _canLogin = this.WhenAnyValue(
+            x => x.IsBusy,
+            x => x.Username,
+            x => x.Password,
+            (busy, username, password) =>
+                !busy
+                && !string.IsNullOrWhiteSpace(username)
+                && !string.IsNullOrWhiteSpace(password));
 
         LoadSavedCredentials();
         ApplyTestLoginDefaults(testLoginOptions.Value);

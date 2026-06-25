@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+using System.Reactive.Linq;
 using DarkBot.Net.Core.Config;
 using DarkBot.Net.Core.Managers;
 using ReactiveUI;
@@ -88,6 +90,18 @@ public sealed partial class ConfigTreeNodeViewModel : ViewModelBase
 
 public sealed partial class ConfigTreeViewModel : ViewModelBase
 {
+    public static IReadOnlyList<ConfigSidebarItem> SidebarItems { get; } =
+    [
+        new("Главная", ConfigSidebarSection.Main),
+        new("Сбор", ConfigSidebarSection.Collect),
+        new("Убийство NPC", ConfigSidebarSection.NpcKill),
+        new("PET", ConfigSidebarSection.Pet),
+        new("Группа", ConfigSidebarSection.Group),
+        new("Прочее", ConfigSidebarSection.Other),
+        new("Настройки бота", ConfigSidebarSection.BotSettings),
+        new("Plugins", ConfigSidebarSection.Plugins),
+    ];
+
     public ConfigTreeViewModel(IConfigApi config)
     {
         Profile = config.CurrentProfile;
@@ -97,6 +111,9 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
                 .Select(c => new ConfigTreeNodeViewModel(c, c.Key))
                 .ToList()
             : [];
+
+        SeedSampleBoxes();
+        InitializeReactiveState();
     }
 
     /// <summary>Конструктор для design mode / XAML previewer.</summary>
@@ -104,10 +121,90 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
     {
         Profile = "default";
         RootNodes = [];
+        SeedSampleBoxes();
+        InitializeReactiveState();
     }
 
     public string Profile { get; }
     public IReadOnlyList<ConfigTreeNodeViewModel> RootNodes { get; }
 
+    /// <summary>Пункты бокового меню (экземпляр для биндинга).</summary>
+    public IReadOnlyList<ConfigSidebarItem> SidebarMenuItems => SidebarItems;
+
+    public ConfigSidebarSection SelectedSection =>
+        (SelectedSidebarItem ?? SidebarItems[0]).Section;
+
+    public string PlaceholderMessage =>
+        SelectedSidebarItem is null
+            ? "Раздел в разработке."
+            : $"Раздел «{SelectedSidebarItem.Title}» в разработке.";
+
+    [Reactive] private ConfigSidebarItem? _selectedSidebarItem = SidebarItems[0];
     [Reactive] private ConfigTreeNodeViewModel? _selectedNode;
+
+    [Reactive] private bool _stayAwayFromEnemies;
+    [Reactive] private bool _autoCloak;
+    [Reactive] private string _autoCloakKey = string.Empty;
+    [Reactive] private double _collectRadius = 400;
+    [Reactive] private bool _ignoreContestedBoxes = true;
+    [Reactive] private string _boxSearchFilter = string.Empty;
+
+    public ObservableCollection<BoxInfoRowViewModel> Boxes { get; } = [];
+    public ObservableCollection<BoxInfoRowViewModel> FilteredBoxes { get; } = [];
+
+    private void InitializeReactiveState()
+    {
+        this.WhenAnyValue(x => x.SelectedSidebarItem)
+            .Subscribe(item =>
+            {
+                if (item is null)
+                    SelectedSidebarItem = SidebarItems[0];
+
+                this.RaisePropertyChanged(nameof(SelectedSection));
+                this.RaisePropertyChanged(nameof(PlaceholderMessage));
+            });
+
+        this.WhenAnyValue(x => x.BoxSearchFilter)
+            .Subscribe(_ => RefreshFilteredBoxes());
+
+        RefreshFilteredBoxes();
+    }
+
+    private void SeedSampleBoxes()
+    {
+        if (Boxes.Count > 0)
+            return;
+
+        foreach (var box in CreateSampleBoxes())
+            Boxes.Add(box);
+    }
+
+    private static IEnumerable<BoxInfoRowViewModel> CreateSampleBoxes() =>
+    [
+        new("BONUS_BOX", true, 0, 1),
+        new("PROMETID", true, 0, 2),
+        new("ENDURIUM", true, 0, 3),
+        new("TERBIUM", true, 0, 4),
+        new("PALLADIUM", false, 0, 5),
+        new("XAMOR", false, 0, 6),
+        new("BOLTRUM", false, 0, 7),
+        new("SCRAPIUM", false, 0, 8),
+    ];
+
+    private void RefreshFilteredBoxes()
+    {
+        FilteredBoxes.Clear();
+
+        var filter = BoxSearchFilter.Trim();
+        foreach (var box in Boxes)
+        {
+            if (filter.Length > 0
+                && !box.Name.Contains(filter, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            FilteredBoxes.Add(box);
+        }
+    }
 }

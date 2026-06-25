@@ -11,70 +11,69 @@
         d:DesignWidth="520"
         d:DesignHeight="420">
 
-  <Border Background="Transparent" Padding="24">
-    <Grid>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*" />
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="*" />
-      </Grid.RowDefinitions>
+  <Grid Margin="24">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
 
-      <Border Grid.Row="1"
-              Style="{DynamicResource DbPanel}"
-              MaxWidth="520"
-              HorizontalAlignment="Center">
-        <StackPanel>
-          <Border Style="{DynamicResource DbHero}" Margin="0,0,0,18">
-            <StackPanel>
-              <Border Style="{DynamicResource DbBadgeAccent}"
-                      HorizontalAlignment="Left"
-                      Margin="0,0,0,6">
-                <TextBlock Text="Unity client"
-                           Foreground="{DynamicResource DbAccent}"
-                           FontSize="11"
-                           FontWeight="SemiBold" />
-              </Border>
-              <TextBlock Style="{DynamicResource DbTitle}" Text="DarkOrbit login" Margin="0,0,0,6" />
-              <TextBlock Style="{DynamicResource DbSubtitle}"
-                         Text="Введите логин и пароль. Авторизация выполняется в игре через TS-агент." />
-            </StackPanel>
-          </Border>
+    <ui:Card Grid.Row="1"
+             MaxWidth="520"
+             HorizontalAlignment="Center"
+             Padding="24">
+      <StackPanel>
+        <StackPanel Margin="0,0,0,20">
+          <ui:InfoBadge Value="Unity client"
+                        Severity="Informational"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,8" />
+          <ui:TextBlock FontTypography="TitleLarge"
+                        Text="DarkOrbit login"
+                        Margin="0,0,0,8" />
+          <ui:TextBlock FontTypography="Body"
+                        Appearance="Secondary"
+                        TextWrapping="Wrap"
+                        Text="Введите логин и пароль. Авторизация выполняется в игре через TS-агент." />
+        </StackPanel>
 
-          <ui:TextBox Style="{DynamicResource DbInput}"
-                      Margin="0,0,0,10"
-                      PlaceholderText="Username"
-                      Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
-                      IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
-
-          <PasswordBox x:Name="PasswordBox"
-                       Margin="0,0,0,10"
-                       IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
-
-          <CheckBox Content="Запомнить меня"
-                    Margin="0,0,0,10"
-                    IsChecked="{Binding RememberMe}"
+        <ui:TextBox Margin="0,0,0,12"
+                    PlaceholderText="Username"
+                    Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
                     IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
 
-          <Border Style="{DynamicResource DbCard}" Margin="0,0,0,18">
-            <TextBlock Style="{DynamicResource DbSubtitle}"
-                       Text="{Binding StatusMessage}"
-                       TextWrapping="Wrap" />
-          </Border>
+        <ui:PasswordBox Margin="0,0,0,12"
+                        PlaceholderText="Password"
+                        Icon="{ui:SymbolIcon Password24}"
+                        Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
 
-          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <ui:Button Style="{DynamicResource DbButtonGhost}"
-                       Margin="0,0,10,0"
-                       Content="Cancel"
-                       IsCancel="True"
-                       Click="OnCancelClick" />
-            <ui:Button Style="{DynamicResource DbButtonPrimary}"
-                       Content="Log in"
-                       IsDefault="True"
-                       Command="{Binding LoginCommand}"
-                       IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
-          </StackPanel>
+        <ui:ToggleSwitch Content="Запомнить меня"
+                         LabelPosition="Left"
+                         Margin="0,0,0,16"
+                         IsChecked="{Binding RememberMe}"
+                         IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
+
+        <ui:InfoBar Title="Статус"
+                    Margin="0,0,0,20"
+                    IsOpen="True"
+                    IsClosable="False"
+                    Severity="Informational"
+                    Message="{Binding StatusMessage}" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <ui:Button Appearance="Transparent"
+                     Margin="0,0,8,0"
+                     Content="Cancel"
+                     IsCancel="True"
+                     Click="OnCancelClick" />
+          <ui:Button Appearance="Primary"
+                     Content="Log in"
+                     IsDefault="True"
+                     Command="{Binding LoginCommand}"
+                     IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
         </StackPanel>
-      </Border>
-    </Grid>
-  </Border>
+      </StackPanel>
+    </ui:Card>
+  </Grid>
 </rxui:ReactiveUserControl>

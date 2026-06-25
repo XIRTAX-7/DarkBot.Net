@@ -6,19 +6,22 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:rxui="clr-namespace:ReactiveUI;assembly=ReactiveUI.Wpf"
              xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
              d:DesignWidth="240"
              d:DesignHeight="480">
 
-  <Border Style="{DynamicResource DbPanelSoft}">
+  <ui:Card Padding="16">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
       <StackPanel>
-        <StackPanel Margin="0,0,0,14">
-          <TextBlock Style="{DynamicResource DbSectionTitle}" Text="Ship telemetry" Margin="0,0,0,3" />
-          <TextBlock Style="{DynamicResource DbCaption}" Text="Economy, runtime and network metrics." />
+        <StackPanel Margin="0,0,0,16">
+          <ui:TextBlock FontTypography="Subtitle" Text="Ship telemetry" Margin="0,0,0,4" />
+          <ui:TextBlock FontTypography="Caption"
+                        Appearance="Secondary"
+                        Text="Economy, runtime and network metrics." />
         </StackPanel>
 
-        <Grid Margin="0,0,0,14">
+        <Grid Margin="0,0,0,16">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -28,110 +31,108 @@
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
 
-          <Border Grid.Row="0" Grid.Column="0" Style="{DynamicResource DbMetricTile}" Margin="0,0,5,10">
+          <ui:Card Grid.Row="0" Grid.Column="0" Margin="0,0,4,8" Padding="12">
             <StackPanel>
-              <TextBlock Style="{DynamicResource DbMetricLabel}" Text="Credits" Margin="0,0,0,4" />
-              <TextBlock Style="{DynamicResource DbMetricValue}"
-                         Text="{Binding Credits, StringFormat=N0}" />
+              <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Credits" Margin="0,0,0,4" />
+              <ui:TextBlock FontTypography="Title" Text="{Binding Credits, StringFormat=N0}" />
             </StackPanel>
-          </Border>
+          </ui:Card>
 
-          <Border Grid.Row="0" Grid.Column="1" Style="{DynamicResource DbMetricTile}" Margin="5,0,0,10">
+          <ui:Card Grid.Row="0" Grid.Column="1" Margin="4,0,0,8" Padding="12">
             <StackPanel>
-              <TextBlock Style="{DynamicResource DbMetricLabel}" Text="Uridium" Margin="0,0,0,4" />
-              <TextBlock Style="{DynamicResource DbMetricValue}"
-                         Text="{Binding Uridium, StringFormat=N0}" />
+              <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Uridium" Margin="0,0,0,4" />
+              <ui:TextBlock FontTypography="Title" Text="{Binding Uridium, StringFormat=N0}" />
             </StackPanel>
-          </Border>
+          </ui:Card>
 
-          <Border Grid.Row="1" Grid.Column="0" Style="{DynamicResource DbMetricTile}" Margin="0,0,5,0">
+          <ui:Card Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" Padding="12">
             <StackPanel>
-              <TextBlock Style="{DynamicResource DbMetricLabel}" Text="Experience" Margin="0,0,0,4" />
-              <TextBlock Style="{DynamicResource DbMetricValue}"
-                         Text="{Binding Experience, StringFormat=N0}" />
+              <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Experience" Margin="0,0,0,4" />
+              <ui:TextBlock FontTypography="Title" Text="{Binding Experience, StringFormat=N0}" />
             </StackPanel>
-          </Border>
+          </ui:Card>
 
-          <Border Grid.Row="1" Grid.Column="1" Style="{DynamicResource DbMetricTile}" Margin="5,0,0,0">
+          <ui:Card Grid.Row="1" Grid.Column="1" Margin="4,0,0,0" Padding="12">
             <StackPanel>
-              <TextBlock Style="{DynamicResource DbMetricLabel}" Text="Honor" Margin="0,0,0,4" />
-              <TextBlock Style="{DynamicResource DbMetricValue}"
-                         Text="{Binding Honor, StringFormat=N0}" />
+              <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Honor" Margin="0,0,0,4" />
+              <ui:TextBlock FontTypography="Title" Text="{Binding Honor, StringFormat=N0}" />
             </StackPanel>
-          </Border>
+          </ui:Card>
         </Grid>
 
-        <Border Style="{DynamicResource DbDivider}" Margin="0,0,0,14" />
+        <Separator Margin="0,0,0,16"
+                   Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
 
-        <StackPanel Margin="0,0,0,14">
-          <Border Style="{DynamicResource DbCard}" Margin="0,0,0,10">
+        <StackPanel Margin="0,0,0,16">
+          <ui:Card Margin="0,0,0,8" Padding="12">
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
               <StackPanel>
-                <TextBlock Style="{DynamicResource DbMetricLabel}" Text="Ping" Margin="0,0,0,2" />
-                <TextBlock Style="{DynamicResource DbSubtitle}" Text="Current connection latency" />
+                <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Ping" Margin="0,0,0,2" />
+                <ui:TextBlock FontTypography="Body" Appearance="Secondary" Text="Current connection latency" />
               </StackPanel>
-              <TextBlock Grid.Column="1"
-                         Style="{DynamicResource DbSectionTitle}"
-                         FontFamily="Cascadia Mono, Consolas, monospace"
-                         Text="{Binding Ping, StringFormat={}{0} ms}" />
+              <ui:TextBlock Grid.Column="1"
+                            FontTypography="Subtitle"
+                            FontFamily="Cascadia Mono, Consolas, monospace"
+                            Text="{Binding Ping, StringFormat={}{0} ms}" />
             </Grid>
-          </Border>
+          </ui:Card>
 
-          <Border Style="{DynamicResource DbCard}" Margin="0,0,0,10">
+          <ui:Card Margin="0,0,0,8" Padding="12">
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
               <StackPanel>
-                <TextBlock Style="{DynamicResource DbMetricLabel}" Text="Ticks" Margin="0,0,0,2" />
-                <TextBlock Style="{DynamicResource DbSubtitle}" Text="Bot loop updates" />
+                <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Ticks" Margin="0,0,0,2" />
+                <ui:TextBlock FontTypography="Body" Appearance="Secondary" Text="Bot loop updates" />
               </StackPanel>
-              <TextBlock Grid.Column="1"
-                         Style="{DynamicResource DbSectionTitle}"
-                         FontFamily="Cascadia Mono, Consolas, monospace"
-                         Text="{Binding TickCount}" />
+              <ui:TextBlock Grid.Column="1"
+                            FontTypography="Subtitle"
+                            FontFamily="Cascadia Mono, Consolas, monospace"
+                            Text="{Binding TickCount}" />
             </Grid>
-          </Border>
+          </ui:Card>
 
-          <Border Style="{DynamicResource DbCard}">
+          <ui:Card Padding="12">
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
               <StackPanel>
-                <TextBlock Style="{DynamicResource DbMetricLabel}" Text="Last tick" Margin="0,0,0,2" />
-                <TextBlock Style="{DynamicResource DbSubtitle}" Text="Processing duration" />
+                <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Last tick" Margin="0,0,0,2" />
+                <ui:TextBlock FontTypography="Body" Appearance="Secondary" Text="Processing duration" />
               </StackPanel>
-              <TextBlock Grid.Column="1"
-                         Style="{DynamicResource DbSectionTitle}"
-                         FontFamily="Cascadia Mono, Consolas, monospace"
-                         Text="{Binding LastTickMs, StringFormat={}{0:0.#} ms}" />
+              <ui:TextBlock Grid.Column="1"
+                            FontTypography="Subtitle"
+                            FontFamily="Cascadia Mono, Consolas, monospace"
+                            Text="{Binding LastTickMs, StringFormat={}{0:0.#} ms}" />
             </Grid>
-          </Border>
+          </ui:Card>
         </StackPanel>
 
-        <Border Style="{DynamicResource DbBadgeAccent}"
-                HorizontalAlignment="Stretch"
-                Padding="12,8">
+        <ui:Card Padding="12,8">
           <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*" />
               <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Runtime" Foreground="{DynamicResource DbAccent}" FontSize="11" FontWeight="SemiBold" />
-            <TextBlock Grid.Column="1"
-                       FontFamily="Cascadia Mono, Consolas, monospace"
-                       Foreground="{DynamicResource DbAccent}"
-                       Text="{Binding Runtime}" />
+            <ui:TextBlock FontTypography="Caption"
+                          Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                          Text="Runtime" />
+            <ui:TextBlock Grid.Column="1"
+                          FontTypography="Caption"
+                          FontFamily="Cascadia Mono, Consolas, monospace"
+                          Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                          Text="{Binding Runtime}" />
           </Grid>
-        </Border>
+        </ui:Card>
       </StackPanel>
     </ScrollViewer>
-  </Border>
+  </ui:Card>
 </rxui:ReactiveUserControl>

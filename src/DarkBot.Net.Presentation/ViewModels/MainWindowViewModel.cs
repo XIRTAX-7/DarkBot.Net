@@ -1,7 +1,10 @@
+using System.Reactive.Linq;
 using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Core.Managers;
 using DarkBot.Net.Presentation.Controls;
 using DarkBot.Net.Presentation.Services;
+using DarkBot.Net.Presentation.ViewModels.Shell;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
@@ -15,7 +18,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly BotUiStateService _state;
     private readonly GameConnectionStatusService _gameStatus;
     private readonly IGameClientRestartAppService _clientRestart;
+    private readonly IConfigWindowService _configWindow;
+    private readonly IServiceProvider _services;
     private readonly ILogger<MainWindowViewModel>? _logger;
+    private readonly IObservable<bool> _canRestartClientGate;
 
     [Reactive] private string _title = "DarkBot.Net";
     [Reactive] private bool _botRunning;
@@ -35,6 +41,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         BotUiStateService state,
         GameConnectionStatusService gameStatus,
         IGameClientRestartAppService clientRestart,
+        IConfigWindowService configWindow,
+        IServiceProvider services,
         ILogger<MainWindowViewModel> logger)
     {
         _bot = bot;
@@ -42,8 +50,13 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _state = state;
         _gameStatus = gameStatus;
         _clientRestart = clientRestart;
+        _configWindow = configWindow;
+        _services = services;
         _logger = logger;
+        _canRestartClientGate = this.WhenAnyValue(x => x.CanRestartClient);
         _gameStatus.StatusChanged += RefreshGameStatus;
+        OpenConfigCommand.ThrownExceptions.Subscribe(ex =>
+            _logger?.LogError(ex, "UI config: OpenConfigCommand failed"));
         Refresh();
     }
 
@@ -55,6 +68,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _state = null!;
         _gameStatus = null!;
         _clientRestart = null!;
+        _configWindow = null!;
+        _services = null!;
+        _canRestartClientGate = Observable.Return(false);
         Title = "DarkBot.Net";
         StatusLine = "Ready — design mode";
     }
@@ -92,6 +108,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         Refresh();
     }
 
+    [ReactiveCommand]
+    private void OpenConfig()
+    {
+        _logger?.LogInformation("UI config: OpenConfig requested");
+        _configWindow.Show();
+    }
+
+    [ReactiveCommand]
+    private void OpenLogin() =>
+        _services.GetRequiredService<ShellWindowViewModel>().ShowLogin();
+
     public void MoveShipToMapLocation(MapClickEventArgs click)
     {
         _logger?.LogInformation(
@@ -109,8 +136,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _movement?.MoveTo(click.GameX, click.GameY);
     }
 
-    [ReactiveCommand]
-    private async Task RestartClient()
+    [ReactiveCommand(CanExecute = nameof(_canRestartClientGate))]
+    private async Task RestartClientAsync()
     {
         if (_clientRestart is null || !_clientRestart.CanRestart)
             return;

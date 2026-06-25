@@ -1,41 +1,58 @@
-<Window x:Class="DarkBot.Net.Presentation.Views.ConfigWindow"
+<ui:FluentWindow x:Class="DarkBot.Net.Presentation.Views.ConfigWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:DarkBot.Net.Presentation.Controls"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
         Title="DarkBot Configuration"
         Width="1180" Height="760"
         MinWidth="980" MinHeight="680"
-        Background="{DynamicResource DbAppBackground}"
+        ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+        ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        ExtendsContentIntoTitleBar="True"
+        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        WindowBackdropType="Mica"
+        WindowCornerPreference="Round"
+        WindowStartupLocation="CenterScreen"
         d:DesignWidth="1180"
         d:DesignHeight="760">
 
-  <Border Style="{DynamicResource DbPage}" Padding="18">
-    <Grid>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <ui:TitleBar Grid.Row="0" Title="DarkBot Configuration" />
+
+    <Grid Grid.Row="1" Margin="24,8,24,24">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
       </Grid.RowDefinitions>
 
-      <Border Grid.Row="0" Style="{DynamicResource DbToolbar}" Margin="0,0,0,14">
+      <ui:Card Grid.Row="0" Margin="0,0,0,16" Padding="16">
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <StackPanel>
-            <TextBlock Style="{DynamicResource DbTitle}" Text="Configuration" Margin="0,0,0,2" />
-            <TextBlock Style="{DynamicResource DbSubtitle}" Text="Profiles, bot modules and runtime settings." />
+            <ui:TextBlock FontTypography="Title" Text="Configuration" Margin="0,0,0,4" />
+            <ui:TextBlock FontTypography="Body"
+                          Appearance="Secondary"
+                          Text="Profiles, bot modules and runtime settings." />
           </StackPanel>
-          <Border Grid.Column="1" Style="{DynamicResource DbBadgeAccent}" HorizontalAlignment="Right">
-            <TextBlock Text="DarkBot" Foreground="{DynamicResource DbAccent}" FontSize="11" FontWeight="SemiBold" />
-          </Border>
+          <ui:InfoBadge Grid.Column="1"
+                        Value="DarkBot"
+                        Severity="Attention"
+                        VerticalAlignment="Center" />
         </Grid>
-      </Border>
+      </ui:Card>
 
       <controls:ConfigTreeControl Grid.Row="1" x:Name="ConfigTree" />
     </Grid>
-  </Border>
-</Window>
+  </Grid>
+</ui:FluentWindow>

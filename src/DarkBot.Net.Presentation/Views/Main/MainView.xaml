@@ -12,87 +12,84 @@
         d:DesignWidth="1280"
         d:DesignHeight="820">
 
-  <Border Background="Transparent">
-    <Grid Margin="18">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="*" />
-      </Grid.RowDefinitions>
+  <Grid Margin="24,16,24,24">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
 
-      <Border Grid.Row="0" Style="{DynamicResource DbToolbar}" Margin="0,0,0,14">
-        <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-          </Grid.ColumnDefinitions>
-
-          <ui:Button Grid.Column="0"
-                     Style="{DynamicResource DbButtonPrimary}"
-                     Margin="0,0,10,0"
-                     Command="{Binding ToggleBotCommand}"
-                     Content="{Binding RunButtonText}" />
-
-          <ui:Button Grid.Column="1"
-                     x:Name="ConfigButton"
-                     Style="{DynamicResource DbButtonSecondary}"
-                     Margin="0,0,10,0"
-                     Content="Config" />
-
-          <ui:Button Grid.Column="2"
-                     x:Name="LoginButton"
-                     Style="{DynamicResource DbButtonGhost}"
-                     Margin="0,0,10,0"
-                     Content="Login" />
-
-          <ui:Button Grid.Column="3"
-                     Style="{DynamicResource DbIconButton}"
-                     Margin="0,0,10,0"
-                     Command="{Binding RestartClientCommand}"
-                     IsEnabled="{Binding CanRestartClient}"
-                     ToolTip="Перезапуск клиента">
-            <Viewbox Width="16" Height="16" Stretch="Uniform">
-              <Path Data="{DynamicResource DbRefreshIconGeometry}"
-                    Fill="{DynamicResource DbTextSecondary}" />
-            </Viewbox>
-          </ui:Button>
-
-          <Border Grid.Column="4"
-                  Style="{DynamicResource DbBadge}"
-                  Margin="4,0"
-                  Padding="12,6">
-            <TextBlock Text="{Binding StatusLine}"
-                       TextTrimming="CharacterEllipsis"
-                       VerticalAlignment="Center"
-                       Foreground="{DynamicResource DbTextSecondary}"
-                       FontSize="11"
-                       FontWeight="SemiBold" />
-          </Border>
-
-          <TextBlock Grid.Column="5"
-                     Style="{DynamicResource DbCaption}"
-                     VerticalAlignment="Center"
-                     Text="DarkBot.Net Phase 3" />
-        </Grid>
-      </Border>
-
-      <Grid Grid.Row="1">
+    <ui:Card Grid.Row="0" Margin="0,0,0,16" Padding="12">
+      <Grid>
         <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="Auto" />
           <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="280" />
+          <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" Style="{DynamicResource DbMapFrame}" Margin="0,0,14,0">
+        <ui:Button x:Name="ToggleBotButton"
+                   Grid.Column="0"
+                   Appearance="Primary"
+                   Margin="0,0,8,0"
+                   Content="{Binding RunButtonText}" />
+
+        <ui:Button x:Name="OpenConfigButton"
+                   Grid.Column="1"
+                   Appearance="Secondary"
+                   Margin="0,0,8,0"
+                   Content="Config" />
+
+        <ui:Button x:Name="OpenLoginButton"
+                   Grid.Column="2"
+                   Appearance="Transparent"
+                   Margin="0,0,8,0"
+                   Content="Login" />
+
+        <ui:Button x:Name="RestartClientButton"
+                   Grid.Column="3"
+                   Appearance="Transparent"
+                   Margin="0,0,8,0"
+                   ToolTip="Перезапуск клиента">
+          <ui:Button.Icon>
+            <ui:SymbolIcon Symbol="ArrowClockwise24" />
+          </ui:Button.Icon>
+        </ui:Button>
+
+        <ui:InfoBadge Grid.Column="4"
+                      Margin="8,0"
+                      Value="{Binding StatusLine}"
+                      VerticalAlignment="Center" />
+
+        <ui:TextBlock Grid.Column="5"
+                      FontTypography="Caption"
+                      Appearance="Secondary"
+                      VerticalAlignment="Center"
+                      Text="DarkBot.Net Phase 3" />
+      </Grid>
+    </ui:Card>
+
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="280" />
+      </Grid.ColumnDefinitions>
+
+      <ui:Card Grid.Column="0" Margin="0,0,16,0" Padding="0">
+        <Border MinHeight="620"
+                ClipToBounds="True"
+                Background="{DynamicResource ControlFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4">
           <controls:MapCanvasControl x:Name="MapCanvas"
                                      Snapshot="{Binding Snapshot}" />
         </Border>
+      </ui:Card>
 
-        <controls:StatsPanelControl Grid.Column="1"
-                                    x:Name="StatsPanel" />
-      </Grid>
+      <controls:StatsPanelControl Grid.Column="1"
+                                  x:Name="StatsPanel" />
     </Grid>
-  </Border>
+  </Grid>
 </rxui:ReactiveUserControl>

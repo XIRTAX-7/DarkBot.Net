@@ -8,10 +8,10 @@ internal static class MapCanvasEntitiesDrawer
     private const float LocatorPingSize = 16f;
     private const float TurretOvalDiameterPx = 2f;
 
-    // ConstantEntitiesDrawer.java — game units, не из памяти игры.
-    private const int HeadquarterOvalDiameter = 3500;
+    // SafetyInfo.diameter() — на карте эти зоны воспринимаются как круги безопасности базы.
+    private const int HeadquarterOvalDiameter = 2500;
     private const int HomeBaseOvalDiameter = 3000;
-    private const int BaseSpotOvalDiameter = 1000;
+    private const int BaseSpotOvalDiameter = 500;
 
     public static void DrawConstant(MapCanvasRenderContext ctx)
     {

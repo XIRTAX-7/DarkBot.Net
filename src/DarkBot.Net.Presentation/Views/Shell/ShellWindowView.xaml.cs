@@ -1,8 +1,6 @@
 using System.Reactive.Disposables;
 using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Threading;
 using DarkBot.Net.Infrastructure.Game.Lifecycle;
 using DarkBot.Net.Presentation.Logging;
@@ -10,14 +8,13 @@ using DarkBot.Net.Presentation.ViewModels.Shell;
 using ReactiveUI;
 using Serilog;
 using Wpf.Ui.Appearance;
-using Wpf.Ui.Controls;
 
 namespace DarkBot.Net.Presentation.Views.Shell;
 
 /// <summary>
 /// Единственное окно приложения. PageHost показывает Login или Main.
 /// </summary>
-public partial class ShellWindowView : ReactiveWindow<ShellWindowViewModel>
+public partial class ShellWindowView : ShellWindowViewBase
 {
     private readonly GameShutdownCoordinator? _coordinator;
     private bool _shutdownStarted;
@@ -33,6 +30,8 @@ public partial class ShellWindowView : ReactiveWindow<ShellWindowViewModel>
         _coordinator = coordinator;
         ViewModel = viewModel;
         DataContext = viewModel;
+
+        SystemThemeWatcher.Watch(this);
         InitializeComponent();
 
         this.WhenActivated(disposables =>
@@ -91,10 +90,8 @@ public partial class ShellWindowView : ReactiveWindow<ShellWindowViewModel>
         }
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
+    private void OnLoaded(object sender, System.Windows.RoutedEventArgs e)
     {
-        WindowBackgroundManager.UpdateBackground(this, ApplicationTheme.Dark, WindowBackdropType.Mica);
-
         if (ViewModel?.CurrentViewModel is not null)
             NavigateToViewModel(ViewModel.CurrentViewModel);
 

@@ -6,28 +6,26 @@ DarkBot для DarkOrbit — переписан на .NET 10 / C# 14 с WPF UI (
 
 | Путь | Описание |
 |------|----------|
-| [`src/`](src/) | .NET solution — Clean Architecture, 4 слоя |
+| [`src/`](src/) | .NET solution — Clean Architecture |
 | [`tests/`](tests/) | xUnit тест-проекты |
-| [`darkorbit-unity-bridge/`](darkorbit-unity-bridge/) | Агент для Unity-клиента |
 | [`sidecars/`](sidecars/) | Опциональные sidecar (backpage, verifier) |
-| [`build/`](build/) | MSBuild targets (сборка и bundling `agent.js`) |
 
-## Архитектура (4 слоя)
+## Clean Architecture
 
 ```text
 DarkBot.Net.Presentation   WPF UI, composition root
         ↓
 DarkBot.Net.Application    Bot loop, managers, I*AppService
         ↓
-DarkBot.Net.Core           Контракты, модели, Options
+DarkBot.Net.Core           Contracts, models, Options
         ↑
 DarkBot.Net.Infrastructure Unity, Login, Backpage, Config
 ```
 
-| Слой | Проект | Ответственность |
-|------|--------|-----------------|
-| **Core** | `DarkBot.Net.Core` | `I*Api`, `IGameConnection`, models — без реализаций |
-| **Application** | `DarkBot.Net.Application` | `BotLoopService`, managers, AppService-фасады |
+| Layer | Project | Responsibility |
+|-------|---------|----------------|
+| **Core** | `DarkBot.Net.Core` | `I*Api`, `IGameConnection`, models — no implementations |
+| **Application** | `DarkBot.Net.Application` | `BotLoopService`, managers, AppService facades |
 | **Infrastructure** | `DarkBot.Net.Infrastructure` | Unity bridge, login/backpage HTTP, config persistence |
 | **Presentation** | `DarkBot.Net.Presentation` | Views, ViewModels, `Program.cs` |
 
@@ -37,7 +35,6 @@ DarkBot.Net.Infrastructure Unity, Login, Backpage, Config
 
 ```text
 Unity-клиент
-  → darkorbit-unity-bridge/agent/dist/agent.js
   → Infrastructure.Game (IGameConnection)
   → Application managers (snapshot через RPC)
   → BotLoopService @ 10 Hz
@@ -51,14 +48,7 @@ C# **не читает память процесса** — только typed sn
 
 - **Windows x64**
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- **Node.js 22+** и `npm` (сборка `darkorbit-unity-bridge/agent`)
 - **Unity-клиент** DarkOrbit
-
-```powershell
-cd darkorbit-unity-bridge/agent
-npm ci
-npm run verify
-```
 
 ## Быстрый старт
 
@@ -73,15 +63,11 @@ dotnet run --project src/DarkBot.Net.Presentation
 
 3. После входа на карту — запустить бота из главного окна.
 
-> При `dotnet build` Presentation автоматически собирает `agent.js` и копирует его в output рядом с exe.
-
 ## Конфигурация
 
 `src/DarkBot.Net.Presentation/appsettings.json` (секция `DarkBot`).
 
 Локальные переопределения — в `appsettings.Local.json` (не коммитится). Переменные окружения с префиксом `DARKBOT_`.
-
-Подробнее: [darkorbit-unity-bridge/docs/INTEGRATION.md](darkorbit-unity-bridge/docs/INTEGRATION.md).
 
 ## Тесты
 
@@ -91,4 +77,4 @@ dotnet test DarkBot.Net.slnx -c Release
 
 ## CI
 
-GitHub Actions (`.github/workflows/ci.yml`): verify Unity bridge agent → `dotnet build` → `dotnet test`.
+GitHub Actions (`.github/workflows/ci.yml`): `dotnet build` → `dotnet test`.

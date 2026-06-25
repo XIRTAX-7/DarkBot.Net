@@ -1,6 +1,6 @@
 # DarkBot.Net
 
-DarkBot для DarkOrbit — переписан на .NET 10 / C# 14 с WPF UI (WPF-UI + ReactiveUI) и управлением Unity-клиентом.
+DarkBot для DarkOrbit — разработан на .NET 10 / C# 14 с WPF UI (WPF-UI + ReactiveUI) и управлением Unity-клиентом.
 
 ## Структура репозитория
 

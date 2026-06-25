@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App_Title" xml:space="preserve">
+    <value>DarkBot.Net</value>
+  </data>
+  <data name="App_TitleRunning" xml:space="preserve">
+    <value>DarkBot.Net — работает</value>
+  </data>
+  <data name="App_TitlePaused" xml:space="preserve">
+    <value>DarkBot.Net — на паузе</value>
+  </data>
+  <data name="ConfigWindow_Title" xml:space="preserve">
+    <value>Конфигурация DarkBot</value>
+  </data>
+  <data name="ConfigWindow_Header" xml:space="preserve">
+    <value>Конфигурация</value>
+  </data>
+  <data name="ConfigWindow_Subtitle" xml:space="preserve">
+    <value>Профили, модули бота и параметры работы.</value>
+  </data>
+  <data name="ConfigWindow_Badge" xml:space="preserve">
+    <value>DarkBot</value>
+  </data>
+  <data name="ConfigMain_PageTitle" xml:space="preserve">
+    <value>Главная</value>
+  </data>
+  <data name="ConfigMain_Module" xml:space="preserve">
+    <value>Модуль</value>
+  </data>
+  <data name="ConfigMain_ModuleKillCollect" xml:space="preserve">
+    <value>Убийство и сбор</value>
+  </data>
+  <data name="ConfigMain_WorkingMap" xml:space="preserve">
+    <value>Рабочая карта</value>
+  </data>
+  <data name="ConfigMain_Security" xml:space="preserve">
+    <value>Безопасность</value>
+  </data>
+  <data name="ConfigMain_SaveHealthInRange" xml:space="preserve">
+    <value>Сохранять прочность в интервале</value>
+  </data>
+  <data name="ConfigCollect_PageTitle" xml:space="preserve">
+    <value>Сбор</value>
+  </data>
+  <data name="ConfigPlaceholder_PageTitle" xml:space="preserve">
+    <value>Раздел</value>
+  </data>
+  <data name="Login_UnityClientBadge" xml:space="preserve">
+    <value>Клиент Unity</value>
+  </data>
+  <data name="Login_Title" xml:space="preserve">
+    <value>Вход в DarkOrbit</value>
+  </data>
+  <data name="Login_Description" xml:space="preserve">
+    <value>Введите логин и пароль. Авторизация выполняется в игре через TS-агент.</value>
+  </data>
+  <data name="Login_UsernamePlaceholder" xml:space="preserve">
+    <value>Логин</value>
+  </data>
+  <data name="Login_PasswordPlaceholder" xml:space="preserve">
+    <value>Пароль</value>
+  </data>
+  <data name="Login_RememberMe" xml:space="preserve">
+    <value>Запомнить меня</value>
+  </data>
+  <data name="Login_StatusTitle" xml:space="preserve">
+    <value>Статус</value>
+  </data>
+  <data name="Login_Cancel" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="Login_Submit" xml:space="preserve">
+    <value>Войти</value>
+  </data>
+  <data name="Login_DesignMode" xml:space="preserve">
+    <value>Режим конструктора</value>
+  </data>
+  <data name="Login_LaunchingGame" xml:space="preserve">
+    <value>Запуск игры…</value>
+  </data>
+  <data name="Login_CredentialsRequired" xml:space="preserve">
+    <value>Укажите логин и пароль.</value>
+  </data>
+  <data name="Main_ConfigButton" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="Main_LoginButton" xml:space="preserve">
+    <value>Вход</value>
+  </data>
+  <data name="Main_RestartClientTooltip" xml:space="preserve">
+    <value>Перезапуск клиента</value>
+  </data>
+  <data name="Main_PhaseLabel" xml:space="preserve">
+    <value>DarkBot.Net — фаза 3</value>
+  </data>
+  <data name="Main_StartButton" xml:space="preserve">
+    <value>Старт</value>
+  </data>
+  <data name="Main_PauseButton" xml:space="preserve">
+    <value>Пауза</value>
+  </data>
+  <data name="Main_Ready" xml:space="preserve">
+    <value>Готов</value>
+  </data>
+  <data name="Main_ReadyDesignMode" xml:space="preserve">
+    <value>Готов — режим конструктора</value>
+  </data>
+  <data name="Status_GameNotLaunched" xml:space="preserve">
+    <value>Игра не запущена</value>
+  </data>
+  <data name="Status_OnMapActive" xml:space="preserve">
+    <value>На карте — бот активен</value>
+  </data>
+  <data name="Status_Connecting" xml:space="preserve">
+    <value>Подключение к игре…</value>
+  </data>
+  <data name="Status_Authenticating" xml:space="preserve">
+    <value>Авторизация…</value>
+  </data>
+  <data name="Status_InHangar" xml:space="preserve">
+    <value>Ангар — вход на карту…</value>
+  </data>
+  <data name="Status_EnteringMap" xml:space="preserve">
+    <value>Загрузка карты…</value>
+  </data>
+  <data name="Status_Launching" xml:space="preserve">
+    <value>Запуск игры…</value>
+  </data>
+  <data name="Status_WaitingLoad" xml:space="preserve">
+    <value>Ожидание загрузки игры…</value>
+  </data>
+  <data name="Status_WaitingConnection" xml:space="preserve">
+    <value>Ожидание подключения к игре…</value>
+  </data>
+  <data name="Status_LaunchFailed" xml:space="preserve">
+    <value>Не удалось запустить игру</value>
+  </data>
+  <data name="Status_LaunchFailedWithReason" xml:space="preserve">
+    <value>Не удалось запустить игру: {0}</value>
+  </data>
+  <data name="Status_HpFormat" xml:space="preserve">
+    <value>{0} — HP {1}/{2} — тик {3} мс</value>
+  </data>
+  <data name="Status_PositionFormat" xml:space="preserve">
+    <value>{0} — ({1}, {2}) — {3}</value>
+  </data>
+  <data name="Status_MapFormat" xml:space="preserve">
+    <value>{0} — {1}</value>
+  </data>
+</root>

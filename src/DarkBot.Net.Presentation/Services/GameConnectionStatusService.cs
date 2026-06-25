@@ -3,6 +3,7 @@ using DarkBot.Net.Core.Models.Game;
 using DarkBot.Net.Core.Options;
 using DarkBot.Net.Application.Memory;
 using DarkBot.Net.Infrastructure.Game.Bridge;
+using DarkBot.Net.Presentation.Resources;
 
 namespace DarkBot.Net.Presentation.Services;
 
@@ -32,17 +33,17 @@ public sealed class GameConnectionStatusService
         get
         {
             if (_addresses.HasScreenManager)
-                return "On map — bot active";
+                return UiStrings.Status_OnMapActive;
 
             if (_bridge is not null)
             {
                 return _bridge.RuntimePhase switch
                 {
-                    UnityBridgeRuntimePhase.Bootstrapping => "Connecting to game…",
-                    UnityBridgeRuntimePhase.Authenticating => "Authorizing…",
-                    UnityBridgeRuntimePhase.InHangar => "Hangar — entering map…",
-                    UnityBridgeRuntimePhase.EnteringMap => "Loading map…",
-                    UnityBridgeRuntimePhase.OnMap => "On map — bot active",
+                    UnityBridgeRuntimePhase.Bootstrapping => UiStrings.Status_Connecting,
+                    UnityBridgeRuntimePhase.Authenticating => UiStrings.Status_Authenticating,
+                    UnityBridgeRuntimePhase.InHangar => UiStrings.Status_InHangar,
+                    UnityBridgeRuntimePhase.EnteringMap => UiStrings.Status_EnteringMap,
+                    UnityBridgeRuntimePhase.OnMap => UiStrings.Status_OnMapActive,
                     _ => FormatConnectionPhase()
                 };
             }
@@ -54,19 +55,19 @@ public sealed class GameConnectionStatusService
     private string FormatConnectionPhase() =>
         _game.Phase switch
         {
-            GameConnectionPhase.NotStarted => "Game not launched",
-            GameConnectionPhase.Launching => "Launching game…",
-            GameConnectionPhase.WaitingForGameLoad => "Waiting for game load…",
+            GameConnectionPhase.NotStarted => UiStrings.Status_GameNotLaunched,
+            GameConnectionPhase.Launching => UiStrings.Status_Launching,
+            GameConnectionPhase.WaitingForGameLoad => UiStrings.Status_WaitingLoad,
             GameConnectionPhase.Failed => FormatFailureStatus(),
-            _ => "Waiting for game connection…"
+            _ => UiStrings.Status_WaitingConnection
         };
 
     private string FormatFailureStatus()
     {
         if (!string.IsNullOrWhiteSpace(_game.LastFailureReason))
-            return "Game launch failed: " + _game.LastFailureReason;
+            return UiStrings.Format(nameof(UiStrings.Status_LaunchFailedWithReason), _game.LastFailureReason);
 
-        return "Game launch failed";
+        return UiStrings.Status_LaunchFailed;
     }
 
     public string? FailureReason => _game.LastFailureReason;

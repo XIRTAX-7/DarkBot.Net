@@ -10,16 +10,26 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
              d:DesignWidth="1180"
-             d:DesignHeight="760">
+             d:DesignHeight="760"
+             Background="{DynamicResource ApplicationBackgroundBrush}"
+             Foreground="{DynamicResource TextFillColorPrimaryBrush}">
 
   <ui:TabView>
-    <ui:TabViewItem Header="Общие настройки" IsSelected="True">
+    <ui:TabViewItem IsSelected="True">
+      <ui:TabViewItem.Header>
+        <StackPanel Orientation="Horizontal">
+          <ui:SymbolIcon Margin="0,0,8,0" Symbol="Settings24" />
+          <ui:TextBlock FontTypography="Body" Text="Общие настройки" />
+        </StackPanel>
+      </ui:TabViewItem.Header>
       <ui:NavigationView x:Name="ConfigNavigation"
                          PaneDisplayMode="Left"
                          IsBackButtonVisible="Collapsed"
                          IsPaneToggleVisible="False"
+                         IsTopSeparatorVisible="False"
+                         FrameMargin="0"
                          OpenPaneLength="240"
-                         Margin="0,16,0,0">
+                         Transition="FadeInWithSlide">
         <ui:NavigationView.MenuItems>
           <ui:NavigationViewItem Content="Главная"
                                  NavigationCacheMode="Enabled"
@@ -83,8 +93,14 @@
       </ui:NavigationView>
     </ui:TabViewItem>
 
-    <ui:TabViewItem Header="Зоны карты">
-      <Grid Margin="0,16,0,0">
+    <ui:TabViewItem>
+      <ui:TabViewItem.Header>
+        <StackPanel Orientation="Horizontal">
+          <ui:SymbolIcon Margin="0,0,8,0" Symbol="Map24" />
+          <ui:TextBlock FontTypography="Body" Text="Зоны карты" />
+        </StackPanel>
+      </ui:TabViewItem.Header>
+      <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto" />
           <RowDefinition Height="*" />
@@ -152,23 +168,22 @@
             </Border>
           </ui:Card>
 
-          <ui:Card Grid.Column="1" Padding="16">
-            <ui:CardControl Icon="{ui:SymbolIcon PaintBrush24}">
-              <ui:CardControl.Header>
-                <StackPanel>
-                  <ui:TextBlock FontTypography="Body" Text="Режим выделения" />
-                  <ui:TextBlock FontTypography="Caption"
-                                Appearance="Secondary"
-                                Text="Кисть добавляет квадраты, ластик удаляет"
-                                TextWrapping="Wrap" />
-                </StackPanel>
-              </ui:CardControl.Header>
-              <ComboBox MinWidth="200" SelectedIndex="0">
-                <ComboBoxItem Content="Кисть: добавить квадраты" />
-                <ComboBoxItem Content="Ластик: удалить квадраты" />
-              </ComboBox>
-            </ui:CardControl>
-          </ui:Card>
+          <ui:CardControl Grid.Column="1"
+                          Icon="{ui:SymbolIcon PaintBrush24}">
+            <ui:CardControl.Header>
+              <StackPanel>
+                <ui:TextBlock FontTypography="Body" Text="Режим выделения" />
+                <ui:TextBlock FontTypography="Caption"
+                              Appearance="Secondary"
+                              Text="Кисть добавляет квадраты, ластик удаляет"
+                              TextWrapping="Wrap" />
+              </StackPanel>
+            </ui:CardControl.Header>
+            <ComboBox MinWidth="200" SelectedIndex="0">
+              <ComboBoxItem Content="Кисть: добавить квадраты" />
+              <ComboBoxItem Content="Ластик: удалить квадраты" />
+            </ComboBox>
+          </ui:CardControl>
         </Grid>
       </Grid>
     </ui:TabViewItem>

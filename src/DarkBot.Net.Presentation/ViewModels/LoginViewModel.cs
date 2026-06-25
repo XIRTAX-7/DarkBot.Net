@@ -7,6 +7,7 @@ using DarkBot.Net.Core.Models.Auth;
 using DarkBot.Net.Core.Models.Game;
 using DarkBot.Net.Infrastructure.Game.Session;
 using DarkBot.Net.Presentation.Configuration;
+using DarkBot.Net.Presentation.Resources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ReactiveUI;
@@ -26,7 +27,7 @@ public sealed partial class LoginViewModel : ViewModelBase
     [Reactive] private string _username = string.Empty;
     [Reactive] private string _password = string.Empty;
     [Reactive] private bool _rememberMe = true;
-    [Reactive] private string _statusMessage = "Введите логин и пароль. Авторизация выполняется в игре через TS-агент.";
+    [Reactive] private string _statusMessage = UiStrings.Login_Description;
     [Reactive] private bool _hasError;
     [Reactive] private bool _isBusy;
 
@@ -66,7 +67,7 @@ public sealed partial class LoginViewModel : ViewModelBase
         _logger = null!;
         _canLogin = Observable.Return(true);
         Username = "pilot";
-        StatusMessage = "Design mode";
+        StatusMessage = UiStrings.Login_DesignMode;
     }
 
     private void LoadSavedCredentials()
@@ -117,7 +118,7 @@ public sealed partial class LoginViewModel : ViewModelBase
         try
         {
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
-                throw new InvalidOperationException("Username and password are required.");
+                throw new InvalidOperationException(UiStrings.Login_CredentialsRequired);
 
             var username = Username.Trim();
 
@@ -129,7 +130,7 @@ public sealed partial class LoginViewModel : ViewModelBase
             var launchParameters = GameLaunchParameters.FromCredentials(username, Password);
             _sessionStore.Save(launchParameters);
 
-            StatusMessage = "Запуск игры…";
+            StatusMessage = UiStrings.Login_LaunchingGame;
             _gameLaunch.ScheduleLaunch(launchParameters);
 
             _logger.LogInformation("Login dialog completed — game launch scheduled");

@@ -6,9 +6,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:rxui="clr-namespace:ReactiveUI;assembly=ReactiveUI.Wpf"
         xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels"
+        xmlns:loc="clr-namespace:DarkBot.Net.Presentation.Resources"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:controls="clr-namespace:DarkBot.Net.Presentation.Controls"
         mc:Ignorable="d"
+        xml:lang="ru-RU"
         d:DesignWidth="1280"
         d:DesignHeight="820">
 
@@ -39,19 +41,19 @@
                    Grid.Column="1"
                    Appearance="Secondary"
                    Margin="0,0,8,0"
-                   Content="Config" />
+                   Content="{x:Static loc:UiStrings.Main_ConfigButton}" />
 
         <ui:Button x:Name="OpenLoginButton"
                    Grid.Column="2"
                    Appearance="Transparent"
                    Margin="0,0,8,0"
-                   Content="Login" />
+                   Content="{x:Static loc:UiStrings.Main_LoginButton}" />
 
         <ui:Button x:Name="RestartClientButton"
                    Grid.Column="3"
                    Appearance="Transparent"
                    Margin="0,0,8,0"
-                   ToolTip="Перезапуск клиента">
+                   ToolTip="{x:Static loc:UiStrings.Main_RestartClientTooltip}">
           <ui:Button.Icon>
             <ui:SymbolIcon Symbol="ArrowClockwise24" />
           </ui:Button.Icon>
@@ -66,7 +68,7 @@
                       FontTypography="Caption"
                       Appearance="Secondary"
                       VerticalAlignment="Center"
-                      Text="DarkBot.Net Phase 3" />
+                      Text="{x:Static loc:UiStrings.Main_PhaseLabel}" />
       </Grid>
     </ui:Card>
 

@@ -1,39 +1,45 @@
 <Page x:Class="DarkBot.Net.Presentation.Views.Config.Pages.ConfigMainPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:loc="clr-namespace:DarkBot.Net.Presentation.Resources"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      Title="Главная">
+      Title="{x:Static loc:UiStrings.ConfigMain_PageTitle}"
+      xml:lang="ru-RU"
+      ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+      ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+      Background="{DynamicResource ApplicationBackgroundBrush}"
+      Foreground="{DynamicResource TextFillColorPrimaryBrush}">
 
-  <ScrollViewer VerticalScrollBarVisibility="Auto">
-    <StackPanel Margin="0,0,8,0">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
+    <StackPanel>
       <ui:CardControl Margin="0,0,0,8"
                       Icon="{ui:SymbolIcon Apps24}">
         <ui:CardControl.Header>
-          <ui:TextBlock FontTypography="Body" Text="Модуль" />
+          <ui:TextBlock FontTypography="Body" Text="{x:Static loc:UiStrings.ConfigMain_Module}" />
         </ui:CardControl.Header>
         <ComboBox MinWidth="200" SelectedIndex="0">
-          <ComboBoxItem Content="Kill &amp; Collect" />
+          <ComboBoxItem Content="{x:Static loc:UiStrings.ConfigMain_ModuleKillCollect}" />
         </ComboBox>
       </ui:CardControl>
 
       <ui:CardControl Margin="0,0,0,8"
                       Icon="{ui:SymbolIcon Map24}">
         <ui:CardControl.Header>
-          <ui:TextBlock FontTypography="Body" Text="Рабочая карта" />
+          <ui:TextBlock FontTypography="Body" Text="{x:Static loc:UiStrings.ConfigMain_WorkingMap}" />
         </ui:CardControl.Header>
         <ComboBox MinWidth="200" SelectedIndex="0">
           <ComboBoxItem Content="2-5" />
         </ComboBox>
       </ui:CardControl>
 
-      <ui:CardExpander Header="Безопасность"
+      <ui:CardExpander Header="{x:Static loc:UiStrings.ConfigMain_Security}"
                        IsExpanded="True"
                        Icon="{ui:SymbolIcon Shield24}">
         <ui:CardControl Margin="0,8,0,0"
                         Icon="{ui:SymbolIcon HeartPulse24}">
           <ui:CardControl.Header>
             <ui:TextBlock FontTypography="Body"
-                          Text="Сохранять прочность в интервале"
+                          Text="{x:Static loc:UiStrings.ConfigMain_SaveHealthInRange}"
                           TextWrapping="Wrap" />
           </ui:CardControl.Header>
           <StackPanel Orientation="Horizontal">

@@ -3,6 +3,7 @@ using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using DarkBot.Net.Core.Interfaces.Auth;
 using DarkBot.Net.Infrastructure.Game.Session;
+using DarkBot.Net.Presentation.Resources;
 using DarkBot.Net.Presentation.ViewModels;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
@@ -20,7 +21,7 @@ public sealed partial class ShellWindowViewModel : ViewModelBase, IDisposable
     private readonly LoginViewModel _loginViewModel;
     private readonly MainWindowViewModel _mainViewModel;
 
-    [Reactive] private string _applicationTitle = "DarkBot.Net";
+    [Reactive] private string _applicationTitle = UiStrings.App_Title;
 
     [Reactive(SetModifier = AccessModifier.Private)]
     private ViewModelBase _currentViewModel = null!;

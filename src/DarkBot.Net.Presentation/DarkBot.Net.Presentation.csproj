@@ -10,6 +10,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <StartupObject>DarkBot.Net.Presentation.Program</StartupObject>
+    <NeutralLanguage>ru-RU</NeutralLanguage>
+    <GenerateNeutralResourcesLanguageAttribute>true</GenerateNeutralResourcesLanguageAttribute>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,6 +39,13 @@
   <ItemGroup>
     <ProjectReference Include="..\DarkBot.Net.Application\DarkBot.Net.Application.csproj" />
     <ProjectReference Include="..\DarkBot.Net.Infrastructure\DarkBot.Net.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\UiStrings.resx" />
+    <Compile Update="Resources\UiStrings.Designer.cs">
+      <DependentUpon>UiStrings.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Windows;
 using DarkBot.Net.Presentation.Controls;
 using DarkBot.Net.Presentation.Logging;
 using DarkBot.Net.Presentation.ViewModels;
@@ -9,7 +11,6 @@ using ReactiveUI;
 using ReactiveUI.Builder;
 using Serilog;
 using Splat;
-using System.Windows;
 
 namespace DarkBot.Net.Presentation;
 
@@ -21,6 +22,12 @@ internal static class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        var russianCulture = CultureInfo.GetCultureInfo("ru-RU");
+        CultureInfo.DefaultThreadCurrentCulture = russianCulture;
+        CultureInfo.DefaultThreadCurrentUICulture = russianCulture;
+        Thread.CurrentThread.CurrentCulture = russianCulture;
+        Thread.CurrentThread.CurrentUICulture = russianCulture;
+
         Configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)

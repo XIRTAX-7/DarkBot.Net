@@ -9,9 +9,11 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
              d:DesignWidth="900"
-             d:DesignHeight="600">
+             d:DesignHeight="600"
+             Background="{DynamicResource ApplicationBackgroundBrush}"
+             Foreground="{DynamicResource TextFillColorPrimaryBrush}">
 
-  <ScrollViewer VerticalScrollBarVisibility="Auto">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
     <StackPanel>
       <ui:CardControl Margin="0,0,0,8"
                       Icon="{ui:SymbolIcon Shield24}">
@@ -103,8 +105,6 @@
                        CanUserResizeRows="False"
                        HeadersVisibility="Column"
                        GridLinesVisibility="Horizontal"
-                       Background="Transparent"
-                       BorderThickness="0"
                        MinHeight="240">
             <ui:DataGrid.Columns>
               <DataGridTextColumn Header="Ресурс"

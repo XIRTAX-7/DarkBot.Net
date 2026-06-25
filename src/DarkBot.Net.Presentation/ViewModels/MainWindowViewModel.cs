@@ -2,6 +2,7 @@ using System.Reactive.Linq;
 using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Core.Managers;
 using DarkBot.Net.Presentation.Controls;
+using DarkBot.Net.Presentation.Resources;
 using DarkBot.Net.Presentation.Services;
 using DarkBot.Net.Presentation.ViewModels.Shell;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,12 +24,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly ILogger<MainWindowViewModel>? _logger;
     private readonly IObservable<bool> _canRestartClientGate;
 
-    [Reactive] private string _title = "DarkBot.Net";
+    [Reactive] private string _title = UiStrings.App_Title;
     [Reactive] private bool _botRunning;
     [Reactive] private bool _canRestartClient;
-    [Reactive] private string _runButtonText = "Start";
-    [Reactive] private string _statusLine = "Ready";
-    [Reactive] private string _gameStatusLine = "Game not launched";
+    [Reactive] private string _runButtonText = UiStrings.Main_StartButton;
+    [Reactive] private string _statusLine = UiStrings.Main_Ready;
+    [Reactive] private string _gameStatusLine = UiStrings.Status_GameNotLaunched;
     [Reactive] private BotUiSnapshot _snapshot = new(
         false, false, 0, 0, 0, 0, 0, -1, "Загрузка", 21000, 13500,
         Array.Empty<MapPortalSnapshot>(),
@@ -71,8 +72,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _configWindow = null!;
         _services = null!;
         _canRestartClientGate = Observable.Return(false);
-        Title = "DarkBot.Net";
-        StatusLine = "Ready — design mode";
+        Title = UiStrings.App_Title;
+        StatusLine = UiStrings.Main_ReadyDesignMode;
     }
 
     public void Refresh()
@@ -81,20 +82,33 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         BotRunning = Snapshot.BotRunning;
         CanRestartClient = _clientRestart?.CanRestart ?? false;
         RefreshGameStatus();
-        Title = BotRunning ? "DarkBot.Net — running" : "DarkBot.Net — paused";
-        RunButtonText = BotRunning ? "Pause" : "Start";
+        Title = BotRunning ? UiStrings.App_TitleRunning : UiStrings.App_TitlePaused;
+        RunButtonText = BotRunning ? UiStrings.Main_PauseButton : UiStrings.Main_StartButton;
     }
 
     private void RefreshGameStatus()
     {
         GameStatusLine = _gameStatus.StatusLine;
         StatusLine = Snapshot.HeroValid
-            ? $"{Snapshot.MapName} — HP {Snapshot.HeroHp}/{Snapshot.HeroMaxHp} — tick {Snapshot.LastTickMs:0.#} ms"
+            ? UiStrings.Format(
+                nameof(UiStrings.Status_HpFormat),
+                Snapshot.MapName,
+                Snapshot.HeroHp,
+                Snapshot.HeroMaxHp,
+                Snapshot.LastTickMs.ToString("0.#", System.Globalization.CultureInfo.CurrentCulture))
             : Snapshot.HeroOnMap
-                ? $"{Snapshot.MapName} — ({Snapshot.HeroX:0}, {Snapshot.HeroY:0}) — {_gameStatus.StatusLine}"
+                ? UiStrings.Format(
+                    nameof(UiStrings.Status_PositionFormat),
+                    Snapshot.MapName,
+                    Snapshot.HeroX,
+                    Snapshot.HeroY,
+                    _gameStatus.StatusLine)
                 : Snapshot.MapId == -1
                     ? _gameStatus.StatusLine
-                    : $"{Snapshot.MapName} — {_gameStatus.StatusLine}";
+                    : UiStrings.Format(
+                        nameof(UiStrings.Status_MapFormat),
+                        Snapshot.MapName,
+                        _gameStatus.StatusLine);
     }
 
     [ReactiveCommand]

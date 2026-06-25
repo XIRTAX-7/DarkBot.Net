@@ -6,8 +6,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:rxui="clr-namespace:ReactiveUI;assembly=ReactiveUI.Wpf"
         xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels"
+        xmlns:loc="clr-namespace:DarkBot.Net.Presentation.Resources"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
+        xml:lang="ru-RU"
         d:DesignWidth="520"
         d:DesignHeight="420">
 
@@ -24,37 +26,37 @@
              Padding="24">
       <StackPanel>
         <StackPanel Margin="0,0,0,20">
-          <ui:InfoBadge Value="Unity client"
+          <ui:InfoBadge Value="{x:Static loc:UiStrings.Login_UnityClientBadge}"
                         Severity="Informational"
                         HorizontalAlignment="Left"
                         Margin="0,0,0,8" />
           <ui:TextBlock FontTypography="TitleLarge"
-                        Text="DarkOrbit login"
+                        Text="{x:Static loc:UiStrings.Login_Title}"
                         Margin="0,0,0,8" />
           <ui:TextBlock FontTypography="Body"
                         Appearance="Secondary"
                         TextWrapping="Wrap"
-                        Text="Введите логин и пароль. Авторизация выполняется в игре через TS-агент." />
+                        Text="{x:Static loc:UiStrings.Login_Description}" />
         </StackPanel>
 
         <ui:TextBox Margin="0,0,0,12"
-                    PlaceholderText="Username"
+                    PlaceholderText="{x:Static loc:UiStrings.Login_UsernamePlaceholder}"
                     Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
                     IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
 
         <ui:PasswordBox Margin="0,0,0,12"
-                        PlaceholderText="Password"
+                        PlaceholderText="{x:Static loc:UiStrings.Login_PasswordPlaceholder}"
                         Icon="{ui:SymbolIcon Password24}"
                         Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
 
-        <ui:ToggleSwitch Content="Запомнить меня"
+        <ui:ToggleSwitch Content="{x:Static loc:UiStrings.Login_RememberMe}"
                          LabelPosition="Left"
                          Margin="0,0,0,16"
                          IsChecked="{Binding RememberMe}"
                          IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />
 
-        <ui:InfoBar Title="Статус"
+        <ui:InfoBar Title="{x:Static loc:UiStrings.Login_StatusTitle}"
                     Margin="0,0,0,20"
                     IsOpen="True"
                     IsClosable="False"
@@ -64,11 +66,11 @@
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
           <ui:Button Appearance="Transparent"
                      Margin="0,0,8,0"
-                     Content="Cancel"
+                     Content="{x:Static loc:UiStrings.Login_Cancel}"
                      IsCancel="True"
                      Click="OnCancelClick" />
           <ui:Button Appearance="Primary"
-                     Content="Log in"
+                     Content="{x:Static loc:UiStrings.Login_Submit}"
                      IsDefault="True"
                      Command="{Binding LoginCommand}"
                      IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" />

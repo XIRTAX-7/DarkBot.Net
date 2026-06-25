@@ -4,14 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:DarkBot.Net.Presentation.Controls"
+        xmlns:loc="clr-namespace:DarkBot.Net.Presentation.Resources"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
-        Title="DarkBot Configuration"
+        xml:lang="ru-RU"
+        Title="{x:Static loc:UiStrings.ConfigWindow_Title}"
         Width="1180" Height="760"
         MinWidth="980" MinHeight="680"
         ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
         ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
         ExtendsContentIntoTitleBar="True"
+        Background="Transparent"
         Foreground="{DynamicResource TextFillColorPrimaryBrush}"
         WindowBackdropType="Mica"
         WindowCornerPreference="Round"
@@ -19,13 +22,13 @@
         d:DesignWidth="1180"
         d:DesignHeight="760">
 
-  <Grid>
+  <Grid Background="{DynamicResource ApplicationBackgroundBrush}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <ui:TitleBar Grid.Row="0" Title="DarkBot Configuration" />
+    <ui:TitleBar Grid.Row="0" Title="{x:Static loc:UiStrings.ConfigWindow_Title}" />
 
     <Grid Grid.Row="1" Margin="24,8,24,24">
       <Grid.RowDefinitions>
@@ -40,13 +43,15 @@
             <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <StackPanel>
-            <ui:TextBlock FontTypography="Title" Text="Configuration" Margin="0,0,0,4" />
+            <ui:TextBlock FontTypography="Title"
+                          Text="{x:Static loc:UiStrings.ConfigWindow_Header}"
+                          Margin="0,0,0,4" />
             <ui:TextBlock FontTypography="Body"
                           Appearance="Secondary"
-                          Text="Profiles, bot modules and runtime settings." />
+                          Text="{x:Static loc:UiStrings.ConfigWindow_Subtitle}" />
           </StackPanel>
           <ui:InfoBadge Grid.Column="1"
-                        Value="DarkBot"
+                        Value="{x:Static loc:UiStrings.ConfigWindow_Badge}"
                         Severity="Attention"
                         VerticalAlignment="Center" />
         </Grid>

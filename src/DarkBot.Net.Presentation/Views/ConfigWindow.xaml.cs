@@ -16,8 +16,8 @@ public partial class ConfigWindow : FluentWindow
     public ConfigWindow(ConfigTreeViewModel? viewModel)
     {
         Log.Debug("UI config: ConfigWindow ctor start");
-        SystemThemeWatcher.Watch(this);
         InitializeComponent();
+        ApplicationThemeManager.Apply(ApplicationTheme.Dark, WindowBackdropType.Mica, updateAccent: false);
         ConfigTree.AttachViewModel(viewModel ?? new ConfigTreeViewModel());
         Closed += (_, _) => Log.Debug("UI config: ConfigWindow closed");
         Log.Debug("UI config: ConfigWindow ctor complete");

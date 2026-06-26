@@ -12,6 +12,7 @@
         xmlns:mapCanvas="clr-namespace:DarkBot.Net.Presentation.Controls.Main.MapCanvas"
         mc:Ignorable="d"
         xml:lang="ru-RU"
+        d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel, IsDesignTimeCreatable=True}"
         d:DesignWidth="1280"
         d:DesignHeight="820">
 
@@ -23,79 +24,341 @@
     </ResourceDictionary>
   </UserControl.Resources>
 
-  <Grid Style="{StaticResource WpfUiViewHostGrid}" Margin="24,16,24,24">
+  <Grid Style="{StaticResource WpfUiViewHostGrid}" Margin="20,12,20,20">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <ui:Card Grid.Row="0" Margin="0,0,0,16" Padding="12">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
+    <ui:Card Grid.Row="0" Margin="0,0,0,14" Padding="0">
+      <Border Style="{StaticResource MainCommandBarBorder}">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
 
-        <ui:Button x:Name="ToggleBotButton"
-                   Grid.Column="0"
-                   Appearance="Primary"
-                   Margin="0,0,8,0"
-                   Content="{Binding RunButtonText}" />
-
-        <ui:Button x:Name="OpenConfigButton"
-                   Grid.Column="1"
-                   Appearance="Secondary"
-                   Margin="0,0,8,0"
-                   Content="{x:Static loc:UiStrings.Main_ConfigButton}" />
-
-        <ui:Button x:Name="OpenLoginButton"
-                   Grid.Column="2"
-                   Appearance="Transparent"
-                   Margin="0,0,8,0"
-                   Content="{x:Static loc:UiStrings.Main_LoginButton}" />
-
-        <ui:Button x:Name="RestartClientButton"
-                   Grid.Column="3"
-                   Appearance="Transparent"
-                   Margin="0,0,8,0"
-                   ToolTip="{x:Static loc:UiStrings.Main_RestartClientTooltip}">
-          <ui:Button.Icon>
-            <ui:SymbolIcon Symbol="ArrowClockwise24" />
-          </ui:Button.Icon>
-        </ui:Button>
-
-        <ui:InfoBadge Grid.Column="4"
-                      Margin="8,0"
-                      Value="{Binding StatusLine}"
-                      VerticalAlignment="Center" />
-
-        <ui:TextBlock Grid.Column="5"
-                      FontTypography="Caption"
-                      Appearance="Secondary"
+          <StackPanel Grid.Column="0"
+                      Orientation="Horizontal"
                       VerticalAlignment="Center"
-                      Text="{x:Static loc:UiStrings.Main_PhaseLabel}" />
-      </Grid>
+                      Margin="0,0,14,0">
+            <Border Style="{StaticResource MainBrandMarkBorder}" Margin="0,0,10,0">
+              <ui:SymbolIcon Symbol="Shield24"
+                             FontSize="18"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center" />
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+              <ui:TextBlock FontTypography="Subtitle" Text="DarkBot.Net" />
+              <ui:TextBlock Style="{StaticResource MainMetricCaption}"
+                            Text="{x:Static loc:UiStrings.Main_PhaseLabel}" />
+            </StackPanel>
+          </StackPanel>
+
+          <Border Grid.Column="1"
+                  Style="{StaticResource MainStatusPillBorder}"
+                  Margin="0,0,10,0"
+                  MinWidth="220">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+
+              <Ellipse Grid.Column="0"
+                       Style="{StaticResource MainStatusDot}"
+                       Margin="0,0,8,0" />
+              <ui:TextBlock Grid.Column="1"
+                            FontTypography="Body"
+                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                            Text="{Binding StatusLine, FallbackValue=Готов, TargetNullValue=Готов}"
+                            TextTrimming="CharacterEllipsis"
+                            VerticalAlignment="Center" />
+            </Grid>
+          </Border>
+
+          <Border Grid.Column="2"
+                  Style="{StaticResource MainStatusPillBorder}"
+                  Margin="0,0,10,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <ui:TextBlock Style="{StaticResource MainMetricCaption}"
+                            Text="Конфиг"
+                            VerticalAlignment="Center"
+                            Margin="0,0,8,0" />
+              <ComboBox Style="{StaticResource MainToolbarComboBox}"
+                        SelectedIndex="0"
+                        ToolTip="Визуальный слот под быстрое переключение конфигурации">
+                <ComboBoxItem Content="Конфиг 1" />
+                <ComboBoxItem Content="Конфиг 2" />
+              </ComboBox>
+            </StackPanel>
+          </Border>
+
+          <StackPanel Grid.Column="3"
+                      Orientation="Horizontal"
+                      VerticalAlignment="Center">
+            <ui:Button x:Name="ToggleBotButton"
+                       Style="{StaticResource MainCommandButton}"
+                       Appearance="Primary"
+                       Content="{Binding RunButtonText, FallbackValue=Старт, TargetNullValue=Старт}" />
+
+            <ui:Button x:Name="OpenConfigButton"
+                       Style="{StaticResource MainCommandButton}"
+                       Appearance="Secondary"
+                       Content="{x:Static loc:UiStrings.Main_ConfigButton}" />
+
+            <ui:Button x:Name="OpenLoginButton"
+                       Style="{StaticResource MainCommandButton}"
+                       Appearance="Transparent"
+                       Content="{x:Static loc:UiStrings.Main_LoginButton}" />
+
+            <ui:Button x:Name="RestartClientButton"
+                       Style="{StaticResource MainCommandButtonLast}"
+                       Appearance="Transparent"
+                       Content="Клиент"
+                       ToolTip="{x:Static loc:UiStrings.Main_RestartClientTooltip}">
+              <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="ArrowClockwise24" />
+              </ui:Button.Icon>
+            </ui:Button>
+          </StackPanel>
+        </Grid>
+      </Border>
     </ui:Card>
 
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="280" />
+        <ColumnDefinition Width="360" />
       </Grid.ColumnDefinitions>
 
-      <ui:Card Grid.Column="0" Margin="0,0,16,0" Padding="0">
+      <ui:Card Grid.Column="0" Margin="0,0,14,0" Padding="0">
         <Border MinHeight="620" Style="{StaticResource WpfUiControlSurfaceBorder}">
           <mapCanvas:MapCanvasControl x:Name="MapCanvas"
                                      Snapshot="{Binding Snapshot}" />
         </Border>
       </ui:Card>
 
-      <mainControls:StatsPanelControl Grid.Column="1"
-                                  x:Name="StatsPanel" />
+      <Grid Grid.Column="1">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:Card Grid.Row="0" Margin="0,0,0,14" Padding="16">
+          <StackPanel>
+            <Grid Margin="0,0,0,14">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+
+              <StackPanel>
+                <ui:TextBlock FontTypography="Subtitle" Text="Бортовой статус" />
+                <ui:TextBlock Style="{StaticResource MainMetricCaption}"
+                              Text="{Binding GameStatusLine}" />
+              </StackPanel>
+
+              <Border Grid.Column="1"
+                      Style="{StaticResource MainStatusPillBorder}"
+                      MinHeight="0"
+                      Padding="10,4"
+                      VerticalAlignment="Top">
+                <ui:TextBlock FontTypography="Caption"
+                              Text="{Binding Snapshot.Map.MapName, FallbackValue=Загрузка, TargetNullValue=Загрузка}"
+                              TextTrimming="CharacterEllipsis" />
+              </Border>
+            </Grid>
+
+            <Border Style="{StaticResource MainSurfaceBorder}" Margin="0,0,0,10">
+              <StackPanel>
+                <Grid Margin="0,0,0,10">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+
+                  <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Shield24" Margin="0,0,8,0" />
+                    <ui:TextBlock FontTypography="Body" Text="Корабль" />
+                  </StackPanel>
+
+                  <ui:TextBlock Grid.Column="1"
+                                Style="{StaticResource MainMetricCaption}"
+                                Text="{Binding Snapshot.Map.Hero.Configuration}" />
+                </Grid>
+
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                  </Grid.RowDefinitions>
+
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="72" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+
+                  <ui:TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource MainMetricCaption}" Text="HP" />
+                  <ProgressBar Grid.Row="0"
+                               Grid.Column="1"
+                               Height="6"
+                               Maximum="{Binding Snapshot.Map.Hero.MaxHp}"
+                               Value="{Binding Snapshot.Map.Hero.Hp}"
+                               VerticalAlignment="Center" />
+                  <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Margin="10,0,0,0">
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Hero.Hp, StringFormat=N0}" />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text=" / " />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Hero.MaxHp, StringFormat=N0}" />
+                  </StackPanel>
+
+                  <ui:TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource MainMetricCaption}" Text="Щит" Margin="0,8,0,0" />
+                  <ProgressBar Grid.Row="1"
+                               Grid.Column="1"
+                               Height="6"
+                               Maximum="{Binding Snapshot.Map.Hero.MaxShield}"
+                               Value="{Binding Snapshot.Map.Hero.Shield}"
+                               VerticalAlignment="Center"
+                               Margin="0,8,0,0" />
+                  <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="10,8,0,0">
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Hero.Shield, StringFormat=N0}" />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text=" / " />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Hero.MaxShield, StringFormat=N0}" />
+                  </StackPanel>
+
+                  <ui:TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource MainMetricCaption}" Text="Nano" Margin="0,8,0,0" />
+                  <ProgressBar Grid.Row="2"
+                               Grid.Column="1"
+                               Height="6"
+                               Maximum="{Binding Snapshot.Map.Hero.MaxNano}"
+                               Value="{Binding Snapshot.Map.Hero.Nano}"
+                               VerticalAlignment="Center"
+                               Margin="0,8,0,0" />
+                  <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" Margin="10,8,0,0">
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Hero.Nano, StringFormat=N0}" />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text=" / " />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Hero.MaxNano, StringFormat=N0}" />
+                  </StackPanel>
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <Grid Margin="0,0,0,10">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+
+              <Border Grid.Column="0" Style="{StaticResource MainSurfaceBorder}" Margin="0,0,5,0">
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <ui:SymbolIcon Symbol="AnimalCat24" Margin="0,0,8,0" />
+                    <ui:TextBlock FontTypography="Body" Text="PET" />
+                  </StackPanel>
+
+                  <ui:TextBlock Style="{StaticResource MainMetricCaption}" Text="HP" />
+                  <ProgressBar Height="6"
+                               Maximum="{Binding Snapshot.Map.Pet.MaxHp, TargetNullValue=0}"
+                               Value="{Binding Snapshot.Map.Pet.Hp, TargetNullValue=0}"
+                               Margin="0,4,0,6" />
+                  <StackPanel Orientation="Horizontal">
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Pet.Hp, TargetNullValue=0, FallbackValue=0, StringFormat=N0}" />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text=" / " />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Pet.MaxHp, TargetNullValue=0, FallbackValue=0, StringFormat=N0}" />
+                  </StackPanel>
+
+                  <ui:TextBlock Style="{StaticResource MainMetricCaption}" Text="Топливо" Margin="0,8,0,0" />
+                  <ProgressBar Height="6"
+                               Maximum="{Binding Snapshot.Map.Pet.MaxFuel, TargetNullValue=0}"
+                               Value="{Binding Snapshot.Map.Pet.Fuel, TargetNullValue=0}"
+                               Margin="0,4,0,6" />
+                  <StackPanel Orientation="Horizontal">
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Pet.Fuel, TargetNullValue=0, FallbackValue=0, StringFormat=N0}" />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text=" / " />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Pet.MaxFuel, TargetNullValue=0, FallbackValue=0, StringFormat=N0}" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Column="1" Style="{StaticResource MainSurfaceBorder}" Margin="5,0,0,0">
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <ui:SymbolIcon Symbol="PeopleTeam24" Margin="0,0,8,0" />
+                    <ui:TextBlock FontTypography="Body" Text="Группа" />
+                  </StackPanel>
+
+                  <ui:TextBlock Style="{StaticResource MainMetricValue}"
+                                Text="{Binding Snapshot.Map.Overlay.GroupMembers.Count, StringFormat={}{0} чел.}" />
+                  <ui:TextBlock Style="{StaticResource MainMetricCaption}"
+                                Text="Участники рядом на карте"
+                                TextWrapping="Wrap"
+                                Margin="0,2,0,8" />
+
+                  <ItemsControl MaxHeight="78"
+                                ItemsSource="{Binding Snapshot.Map.Overlay.GroupMembers}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Grid Margin="0,0,0,4">
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                          </Grid.ColumnDefinitions>
+
+                          <ui:TextBlock Text="{Binding DisplayText}"
+                                        FontTypography="Caption"
+                                        TextTrimming="CharacterEllipsis" />
+                          <ui:TextBlock Grid.Column="1"
+                                        FontTypography="Caption"
+                                        FontFamily="Cascadia Mono, Consolas, monospace"
+                                        Margin="8,0,0,0"
+                                        Text="{Binding Hp, StringFormat=N0}" />
+                        </Grid>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+
+              <Border Grid.Column="0" Style="{StaticResource MainSurfaceBorder}" Margin="0,0,5,0">
+                <StackPanel>
+                  <ui:TextBlock Style="{StaticResource MainMetricCaption}" Text="Позиция" />
+                  <StackPanel Orientation="Horizontal">
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Hero.X, StringFormat=N0}" />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text=", " />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Map.Hero.Y, StringFormat=N0}" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Column="1" Style="{StaticResource MainSurfaceBorder}" Margin="5,0,0,0">
+                <StackPanel>
+                  <ui:TextBlock Style="{StaticResource MainMetricCaption}" Text="Пинг / тик" />
+                  <StackPanel Orientation="Horizontal">
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.Ping}" />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text=" ms / " />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text="{Binding Snapshot.LastTickMs, StringFormat=0.#}" />
+                    <ui:TextBlock Style="{StaticResource MainMetricValue}" Text=" ms" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </Grid>
+          </StackPanel>
+        </ui:Card>
+
+        <mainControls:StatsPanelControl Grid.Row="1"
+                                        x:Name="StatsPanel" />
+      </Grid>
     </Grid>
   </Grid>
 </rxui:ReactiveUserControl>

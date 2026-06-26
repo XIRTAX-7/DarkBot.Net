@@ -4,5 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
+    <!-- ReactiveUI.WPF 23.x публикует net10.0-windows10.0.19041; net10.0-windows даёт NU1701 -->
+    <DarkBotWpfTargetFramework>net10.0-windows10.0.19041.0</DarkBotWpfTargetFramework>
   </PropertyGroup>
 </Project>

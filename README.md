@@ -46,7 +46,7 @@ C# **не читает память процесса** — только typed sn
 
 ## Требования
 
-- **Windows x64**
+- **Windows x64**, минимум **Windows 10 build 19041** (май 2020)
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - **Unity-клиент** DarkOrbit
 

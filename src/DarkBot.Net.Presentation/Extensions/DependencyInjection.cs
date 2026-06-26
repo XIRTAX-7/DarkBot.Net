@@ -27,6 +27,7 @@ public static class DependencyInjection
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<ConfigTreeViewModel>();
         services.AddSingleton<StatsPanelViewModel>();
+        services.AddSingleton<TitleBarDiagnosticsViewModel>();
         services.AddSingleton<ShellWindowViewModel>();
 
         services.AddSingleton<IShellWindowService, ShellWindowService>();

@@ -21,8 +21,11 @@ public sealed partial class ShellWindowViewModel : ViewModelBase, IDisposable
     private readonly CompositeDisposable _navigationSubscriptions = [];
     private readonly LoginViewModel _loginViewModel;
     private readonly MainWindowViewModel _mainViewModel;
+    private readonly TitleBarDiagnosticsViewModel _titleBarDiagnostics;
 
     [Reactive] private string _applicationTitle = UiStrings.App_Title;
+
+    public TitleBarDiagnosticsViewModel TitleBarDiagnostics => _titleBarDiagnostics;
 
     [Reactive(SetModifier = AccessModifier.Private)]
     private ViewModelBase _currentViewModel = null!;
@@ -30,10 +33,12 @@ public sealed partial class ShellWindowViewModel : ViewModelBase, IDisposable
     public ShellWindowViewModel(
         LoginViewModel loginViewModel,
         MainWindowViewModel mainViewModel,
+        TitleBarDiagnosticsViewModel titleBarDiagnostics,
         IAppShellAppService appShell)
     {
         _loginViewModel = loginViewModel;
         _mainViewModel = mainViewModel;
+        _titleBarDiagnostics = titleBarDiagnostics;
 
         loginViewModel.LoginSucceeded
             .ObserveOn(RxSchedulers.MainThreadScheduler)
@@ -57,6 +62,7 @@ public sealed partial class ShellWindowViewModel : ViewModelBase, IDisposable
     {
         _loginViewModel = new LoginViewModel();
         _mainViewModel = new MainWindowViewModel();
+        _titleBarDiagnostics = new TitleBarDiagnosticsViewModel();
         CurrentViewModel = _mainViewModel;
     }
 

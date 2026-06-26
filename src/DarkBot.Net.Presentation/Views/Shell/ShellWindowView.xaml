@@ -6,6 +6,7 @@
         xmlns:views="clr-namespace:DarkBot.Net.Presentation.Views.Shell"
         xmlns:loc="clr-namespace:DarkBot.Net.Presentation.Resources"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:shellControls="clr-namespace:DarkBot.Net.Presentation.Controls.Shell"
         mc:Ignorable="d"
         xml:lang="ru-RU"
         Title="{x:Static loc:UiStrings.App_Title}"
@@ -33,7 +34,20 @@
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <ui:TitleBar Grid.Row="0" Title="{Binding ApplicationTitle}" />
+    <ui:TitleBar Grid.Row="0"
+                 Height="48"
+                 Title="{Binding ApplicationTitle}"
+                 ButtonsBackground="Transparent"
+                 ButtonsForeground="{DynamicResource TextFillColorPrimaryBrush}"
+                 CloseWindowByDoubleClickOnIcon="True">
+      <ui:TitleBar.Icon>
+        <ui:SymbolIcon Symbol="Shield24"
+                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+      </ui:TitleBar.Icon>
+      <ui:TitleBar.TrailingContent>
+        <shellControls:TitleBarDiagnosticsControl ViewModel="{Binding TitleBarDiagnostics}" />
+      </ui:TitleBar.TrailingContent>
+    </ui:TitleBar>
 
     <ContentControl Grid.Row="1" x:Name="PageHost" Margin="0,0,0,8" />
   </Grid>

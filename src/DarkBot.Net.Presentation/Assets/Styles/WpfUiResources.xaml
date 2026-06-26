@@ -158,6 +158,91 @@
     <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
 
+  <LinearGradientBrush x:Key="TitleBarDiagnosticsSurfaceBrush" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Color="#332D3440" Offset="0" />
+    <GradientStop Color="#221A1D26" Offset="0.58" />
+    <GradientStop Color="#30222A35" Offset="1" />
+  </LinearGradientBrush>
+
+  <Style x:Key="TitleBarDiagnosticsBorder" TargetType="{x:Type Border}">
+    <Setter Property="Background" Value="{StaticResource TitleBarDiagnosticsSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ControlElevationBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="18" />
+    <Setter Property="Padding" Value="5" />
+    <Setter Property="Margin" Value="0,0,8,0" />
+    <Setter Property="MinHeight" Value="38" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="SnapsToDevicePixels" Value="True" />
+    <Setter Property="Effect">
+      <Setter.Value>
+        <DropShadowEffect BlurRadius="14"
+                          ShadowDepth="0"
+                          Color="#66000000"
+                          Opacity="0.18" />
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="TitleBarDiagnosticMetricPanel" TargetType="{x:Type StackPanel}">
+    <Setter Property="Orientation" Value="Horizontal" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style x:Key="TitleBarDiagnosticMetricPill" TargetType="{x:Type Border}">
+    <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorSecondaryBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="13" />
+    <Setter Property="Padding" Value="7,4,8,4" />
+    <Setter Property="Margin" Value="0,0,4,0" />
+    <Setter Property="MinHeight" Value="28" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style x:Key="TitleBarDiagnosticMetricPillLast"
+         TargetType="{x:Type Border}"
+         BasedOn="{StaticResource TitleBarDiagnosticMetricPill}">
+    <Setter Property="Margin" Value="0" />
+  </Style>
+
+  <Style x:Key="TitleBarDiagnosticIconSurface" TargetType="{x:Type Border}">
+    <Setter Property="Width" Value="22" />
+    <Setter Property="Height" Value="22" />
+    <Setter Property="CornerRadius" Value="11" />
+    <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}" />
+    <Setter Property="Margin" Value="0,0,6,0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style x:Key="TitleBarDiagnosticIcon" TargetType="{x:Type ui:SymbolIcon}">
+    <Setter Property="Width" Value="12" />
+    <Setter Property="Height" Value="12" />
+    <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style x:Key="TitleBarDiagnosticCaption" TargetType="{x:Type ui:TextBlock}">
+    <Setter Property="FontTypography" Value="Caption" />
+    <Setter Property="FontSize" Value="9" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource TextFillColorTertiaryBrush}" />
+    <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style x:Key="TitleBarDiagnosticValue" TargetType="{x:Type ui:TextBlock}">
+    <Setter Property="FontTypography" Value="Caption" />
+    <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, monospace" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="MinWidth" Value="32" />
+    <Setter Property="TextAlignment" Value="Left" />
+    <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+  </Style>
+
   <Style x:Key="WpfUiDivider" TargetType="Separator">
     <Setter Property="Background" Value="{DynamicResource DividerStrokeColorDefaultBrush}" />
   </Style>

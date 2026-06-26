@@ -1,9 +1,7 @@
 using DarkBot.Net.Application.BotEngine.Loop;
-using DarkBot.Net.Core.Options;
 using DarkBot.Net.Infrastructure.Game.Bridge;
 using DarkBot.Net.Infrastructure.Game.Client;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace DarkBot.Net.Infrastructure.Game.Lifecycle;
 
@@ -17,7 +15,6 @@ public sealed class GameShutdownCoordinator
     private readonly UnityGameLauncher _unityLauncher;
     private readonly IBotController _bot;
     private readonly UnityFridaGameApi _unityFrida;
-    private readonly GameApiOptions _options;
     private readonly ILogger<GameShutdownCoordinator> _logger;
     private readonly GameClientLifecycle _lifecycle;
 
@@ -25,14 +22,12 @@ public sealed class GameShutdownCoordinator
         UnityGameLauncher unityLauncher,
         IBotController bot,
         UnityFridaGameApi unityFrida,
-        IOptions<GameApiOptions> options,
         GameClientLifecycle lifecycle,
         ILogger<GameShutdownCoordinator> logger)
     {
         _unityLauncher = unityLauncher;
         _bot = bot;
         _unityFrida = unityFrida;
-        _options = options.Value;
         _lifecycle = lifecycle;
         _logger = logger;
     }
@@ -60,25 +55,22 @@ public sealed class GameShutdownCoordinator
             _logger.LogWarning(ex, "BotController.Stop failed, continuing game client shutdown");
         }
 
-        if (_options.BrowserApi == GameApiMode.UnityClient)
+        try
         {
-            try
-            {
-                _unityFrida.Dispose();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogDebug(ex, "UnityFridaGameApi dispose failed");
-            }
+            _unityFrida.Dispose();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "UnityFridaGameApi dispose failed");
+        }
 
-            try
-            {
-                await _unityLauncher.StopAsync(cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Unity game shutdown failed");
-            }
+        try
+        {
+            await _unityLauncher.StopAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Unity game shutdown failed");
         }
 
         _logger.LogInformation("Game shutdown coordinator completed");

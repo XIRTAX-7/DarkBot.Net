@@ -1,5 +1,3 @@
-using DarkBot.Net.Core.Options;
-
 namespace DarkBot.Net.Core.Interfaces.Game;
 
 public enum GameConnectionPhase
@@ -11,11 +9,9 @@ public enum GameConnectionPhase
     Failed
 }
 
-/// <summary>Порт управления игрой (Frida / Darkorbit-client).</summary>
+/// <summary>Порт управления Unity-клиентом через Frida bridge.</summary>
 public interface IGameConnection
 {
-    GameApiMode Mode { get; }
-
     GameConnectionPhase Phase { get; }
 
     bool IsLaunched { get; }

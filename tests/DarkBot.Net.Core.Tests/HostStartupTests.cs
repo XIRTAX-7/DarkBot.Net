@@ -15,7 +15,7 @@ public class HostStartupTests
             {
                 services.AddLogging();
                 services.AddApplication();
-                services.AddInfrastructure(ctx.Configuration);
+                services.AddInfrastructure();
             })
             .Build();
 

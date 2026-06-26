@@ -22,7 +22,6 @@ public sealed class UnityFridaIntegrationTests
 
         var options = Options.Create(new GameApiOptions
         {
-            BrowserApi = GameApiMode.UnityClient,
             UnityProcessName = "DarkOrbit",
             FridaReadyTimeoutSec = 60
         });

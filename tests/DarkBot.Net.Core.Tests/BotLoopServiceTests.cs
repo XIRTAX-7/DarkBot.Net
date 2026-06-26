@@ -6,7 +6,6 @@ using DarkBot.Net.Application.BotEngine.Runtime;
 using DarkBot.Net.Application.Tests.Fakes;
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Interfaces.Game;
-using DarkBot.Net.Core.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -21,7 +20,6 @@ public class BotLoopServiceTests
         var addresses = new BotAddressRegistry();
         var game = new FakeGameConnection
         {
-            Mode = GameApiMode.UnityClient,
             IsLaunched = false,
             ThrowOnLastInternetReadTime = true
         };

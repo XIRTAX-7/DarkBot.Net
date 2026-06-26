@@ -20,27 +20,6 @@ public static class DependencyInjection
     {
         services.Configure<TestLoginOptions>(Program.Configuration.GetSection(TestLoginOptions.SectionName));
         services.Configure<GameApiOptions>(Program.Configuration.GetSection(GameApiOptions.SectionName));
-        services.PostConfigure<GameApiOptions>(options =>
-        {
-            var ui = Program.Configuration.GetSection(DarkBotUiOptions.SectionName).Get<DarkBotUiOptions>();
-            if (ui is null)
-                return;
-
-            options.LibPath = ui.LibPath;
-            options.ClassesPath = ui.ClassesPath;
-            options.DarkBotJarPath = ui.DarkBotJarPath;
-            options.BrowserApi = ui.BrowserApi;
-            options.Width = ui.GameWidth;
-            options.Height = ui.GameHeight;
-            options.Use3D = ui.Use3D;
-            options.UseProxy = ui.UseProxy;
-            options.ForceGameLanguage = ui.ForceGameLanguage;
-            options.GameLanguage = ui.GameLanguage;
-            options.FridaApiPort = ui.FridaApiPort;
-            options.DarkorbitClientPath = ui.DarkorbitClientPath;
-            options.ClientConnectTimeoutSec = 180;
-            options.FridaReadyTimeoutSec = 180;
-        });
 
         services.AddSingleton<IConfigWindowService, ConfigWindowService>();
 
@@ -65,7 +44,7 @@ public static class DependencyInjection
                     options.ShutdownTimeout = TimeSpan.FromSeconds(10));
 
                 services.AddApplication();
-                services.AddInfrastructure(configuration);
+                services.AddInfrastructure();
                 services.AddPresentationUi();
             })
             .Build();

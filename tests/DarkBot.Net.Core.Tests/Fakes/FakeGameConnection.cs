@@ -1,11 +1,9 @@
 using DarkBot.Net.Core.Interfaces.Game;
-using DarkBot.Net.Core.Options;
 
 namespace DarkBot.Net.Application.Tests.Fakes;
 
 public sealed class FakeGameConnection : IGameConnection
 {
-    public GameApiMode Mode { get; set; } = GameApiMode.UnityClient;
     public GameConnectionPhase Phase { get; set; } = GameConnectionPhase.NotStarted;
     public bool IsLaunched { get; set; }
     public bool IsValid { get; set; }

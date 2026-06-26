@@ -1,6 +1,5 @@
 using DarkBot.Net.Application.BotEngine.Addresses;
 using DarkBot.Net.Core.Interfaces.Game;
-using DarkBot.Net.Core.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -36,8 +35,7 @@ public sealed class BotInstallerService : IHostedService, IDisposable
 
     public void Tick()
     {
-        if (_game.Mode == GameApiMode.UnityClient)
-            _installerProbe?.RefreshStatus();
+        _installerProbe?.RefreshStatus();
 
         if (_addresses.IsInvalid)
         {
@@ -122,7 +120,7 @@ public sealed class BotInstallerService : IHostedService, IDisposable
 
     private void ValidateInstalledAddresses()
     {
-        if (_game.Mode == GameApiMode.UnityClient && !_game.IsValid)
+        if (!_game.IsValid)
         {
             _logger.LogDebug("Frida no longer ready — invalidating addresses");
             _installedScreenManager = 0;

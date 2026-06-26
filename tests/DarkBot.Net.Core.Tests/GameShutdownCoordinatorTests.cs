@@ -61,7 +61,7 @@ public sealed class GameShutdownCoordinatorTests
                 services.AddLogging();
                 services.Configure<HostOptions>(options => options.ShutdownTimeout = TimeSpan.FromSeconds(5));
                 services.AddApplication();
-                services.AddInfrastructure(ctx.Configuration);
+                services.AddInfrastructure();
             })
             .Build();
 
@@ -74,7 +74,7 @@ public sealed class GameShutdownCoordinatorTests
 
     private static GameShutdownCoordinator CreateCoordinator(IBotController bot)
     {
-        var options = Options.Create(new GameApiOptions { BrowserApi = GameApiMode.UnityClient });
+        var options = Options.Create(new GameApiOptions());
         var unitySession = new UnityFridaSession(options, NullLogger<UnityFridaSession>.Instance);
         var unityFrida = new UnityFridaGameApi(
             unitySession,
@@ -91,7 +91,6 @@ public sealed class GameShutdownCoordinatorTests
             unityLauncher,
             bot,
             unityFrida,
-            options,
             new GameClientLifecycle(),
             NullLogger<GameShutdownCoordinator>.Instance);
     }

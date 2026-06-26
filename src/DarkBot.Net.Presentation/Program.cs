@@ -45,9 +45,8 @@ internal static class Program
         try
         {
             Log.Information(
-                "DarkBot.Net UI starting (base directory: {BaseDirectory}, BrowserApi: {BrowserApi}, logs: {LogDirectory})",
+                "DarkBot.Net UI starting (base directory: {BaseDirectory}, logs: {LogDirectory})",
                 AppContext.BaseDirectory,
-                Configuration.GetValue<string>("DarkBot:BrowserApi") ?? "default",
                 System.IO.Path.Combine(AppContext.BaseDirectory, "logs"));
 
             ConfigureReactiveUi();

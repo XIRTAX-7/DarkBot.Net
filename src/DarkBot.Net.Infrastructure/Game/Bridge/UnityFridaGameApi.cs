@@ -47,8 +47,6 @@ public sealed class UnityFridaGameApi :
         _session.AgentEvent += OnAgentEvent;
     }
 
-    public GameApiMode Mode => GameApiMode.UnityClient;
-
     public GameConnectionPhase Phase => _phase;
 
     public bool IsLaunched => _pid != 0;

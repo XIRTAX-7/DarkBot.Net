@@ -1,5 +1,5 @@
-using DarkBot.Net.Application.Managers;
-using DarkBot.Net.Application.Memory;
+using DarkBot.Net.Application.BotEngine.Addresses;
+using DarkBot.Net.Application.BotEngine.Managers;
 using DarkBot.Net.Application.Tests.Fakes;
 
 namespace DarkBot.Net.Application.Tests;

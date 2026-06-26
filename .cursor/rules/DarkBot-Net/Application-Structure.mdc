@@ -1,0 +1,63 @@
+---
+description: "DarkBot.Net.Application — фасады AppService, DTOs, BotEngine (без MediatR)"
+globs:
+  - "DarkBot.Net/src/DarkBot.Net.Application/**"
+alwaysApply: false
+---
+
+# Application — desktop-фасады (как Sample/Desktop.Application)
+
+**Без MediatR.** Use case = `I*AppService` + `*AppService` + DTO + Mapper.
+
+## Два слоя внутри Application
+
+```text
+PUBLIC (Presentation видит):
+  Contracts/          I*AppService
+  DTOs/               Responses, Commands, Queries
+  Mappers/            domain/managers → DTO
+  Services/           *AppService + application IHostedService
+
+INTERNAL (только Application/Infrastructure):
+  BotEngine/
+  ├── Loop/           BotLoopService, IBotController
+  ├── Install/        BotInstallerService
+  ├── Runtime/        BotRuntime, BotModuleRunner
+  ├── Modules/        DisconnectModule, …
+  ├── Managers/       HeroManager, MapManager, MovementApi, …
+  ├── State/          GameMapModel, TrackedHealth, … (impl Core I*Map/IHealth)
+  ├── Addresses/      BotAddressRegistry
+  └── Statistics/     StatImpl (internal для StatsManager)
+  Extensions/         AddApplication()
+```
+
+## Фасад
+
+```csharp
+// Contracts/IBotStatusAppService.cs
+public interface IBotStatusAppService { BotStatusSnapshot Capture(); }
+
+// Services/Bot/BotStatusAppService.cs
+public BotStatusSnapshot Capture() =>
+    BotStatusSnapshotMapper.Create(...);
+```
+
+Scrutor: `*AppService` в `AddAppServices()`.
+
+## Куда класть
+
+| Что | Папка |
+|-----|-------|
+| Контракт для VM | `Contracts/I{Name}AppService.cs` |
+| Response DTO | `DTOs/Responses/{Feature}/` |
+| Маппинг → DTO | `Mappers/{Feature}/` |
+| Фасад | `Services/{Feature}/*AppService.cs` |
+| Tick loop, managers | `BotEngine/` |
+| Impl Core `IGameMap` | `BotEngine/State/` |
+
+## Запрещено
+
+- ❌ MediatR
+- ❌ `Models/` для UI DTO
+- ❌ Корневые `Bot/`, `Managers/`, `Entities/`, `Memory/` (только `BotEngine/`)
+- ❌ Presentation → `BotEngine.*` (кроме DI composition root)

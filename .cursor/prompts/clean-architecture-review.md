@@ -63,27 +63,38 @@ Presentation/
 ```
 
 - [ ] Нет папки `Services/` с бизнес-логикой.
-- [ ] Нет `Presentation/Models/` и `Presentation/Mapping/` — VM биндит `Application.Models.Bot.*`.
+- [ ] Нет `Presentation/Models/` — VM биндит `Application.DTOs.Responses.*`.
 - [ ] `GameConnectionStatusFormatter` — единственное место UiStrings для статуса игры.
 
-### 4. Read models
+### 4. Application: public vs BotEngine
 
-- Application: `Models/Bot/*` — единственный read model для UI (BotStatusSnapshot, MapStatusSnapshot).
-- Presentation: `MapRenderSettings` / `MapDisplayFlag` только в MapCanvas (render, не данные игры).
+```text
+PUBLIC:  Contracts/, DTOs/, Mappers/, Services/*AppService
+INTERNAL: BotEngine/ (Loop, Install, Runtime, Modules, Managers, State, Addresses, Statistics)
+```
 
-### 5. DI и Scrutor
+- [ ] Нет корневых `Bot/`, `Managers/`, `Entities/`, `Memory/` в Application.
+- [ ] Presentation не ссылается на `BotEngine.*`.
+
+### 5. Read models
+
+- Application: `DTOs/Responses/Bot/*` — единственный read model для UI.
+- Application: `Mappers/Bot/*` — маппинг managers → DTO.
+- `MapJavaStationFallbackTests` → `Application.Mappers.Bot`.
+
+### 6. DI и Scrutor
 
 - `AddAppServices()` сканирует `*AppService` в Application.
 - Infrastructure регистрирует `IGameClientRestartAppService`, `IGameShutdownAppService` вручную.
 - Нет дублирующей регистрации hosted services.
 
-### 6. Тесты
+### 7. Тесты
 
-- `MapJavaStationFallbackTests` → Application.Models.Bot.
+- `MapJavaStationFallbackTests` → Application.Mappers.Bot.
 - `GameAutoLaunchHostedServiceTests` → Application.
 - `VerifierSidecarHostedServiceTests` → Infrastructure.
 
-### 7. Регрессии
+### 8. Регрессии
 
 - Login flow (credentials → session → launch).
 - Auto-launch при сохранённой сессии.

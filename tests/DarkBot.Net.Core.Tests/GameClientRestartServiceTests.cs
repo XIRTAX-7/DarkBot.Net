@@ -1,4 +1,4 @@
-using DarkBot.Net.Application.Memory;
+using DarkBot.Net.Application.BotEngine.Addresses;
 using DarkBot.Net.Application.Tests.Helpers;
 using DarkBot.Net.Core.Interfaces.Auth;
 using DarkBot.Net.Core.Interfaces.Game;

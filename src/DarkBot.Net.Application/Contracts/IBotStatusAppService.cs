@@ -1,4 +1,4 @@
-using DarkBot.Net.Application.Models.Bot;
+using DarkBot.Net.Application.DTOs.Responses.Bot;
 
 namespace DarkBot.Net.Application.Contracts;
 

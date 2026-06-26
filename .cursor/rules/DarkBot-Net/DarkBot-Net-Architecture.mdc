@@ -1,5 +1,5 @@
 ---
-description: "DarkBot.Net — Clean Architecture: слои, AppService, зависимости"
+description: "DarkBot.Net — Clean Architecture: слои, AppService-фасады, зависимости"
 globs:
   - "DarkBot.Net/**"
 alwaysApply: false
@@ -14,7 +14,7 @@ Desktop-бот для DarkOrbit: **WPF** + Frida bridge + Unity client.
 | Проект | Роль | Зависит от |
 |--------|------|------------|
 | `DarkBot.Net.Core` | `I*Api`, domain models, `Options/` | — |
-| `DarkBot.Net.Application` | bot loop, `I*AppService`, read models, mapping | Core |
+| `DarkBot.Net.Application` | фасады, DTOs, Mappers, bot loop | Core |
 | `DarkBot.Net.Infrastructure` | Frida, Unity, Login, Serilog, hosted sidecars | Core, Application |
 | `DarkBot.Net.Presentation` | WPF, composition root | Application, Infrastructure |
 
@@ -24,49 +24,36 @@ Infrastructure → Application, Core
 Application → Core
 ```
 
-## Core
-
-- `Options/` — `DarkBotUiOptions`, `TestLoginOptions` и др.
-- ❌ Нет WPF, Serilog host, Frida
-
-## Application
+## Application (desktop-фасады, без MediatR)
 
 - `Contracts/I*AppService` — **единственный** API для ViewModels
-- `Models/Bot/` — read models для UI (`BotStatusSnapshot`, `MapStatusSnapshot`)
-- `Services/` — реализации AppService; сборка snapshot/mapping **здесь**
-- `Managers/`, `Bot/` — tick logic
-- ❌ Нет WPF, XAML, UiStrings
+- `DTOs/Responses/` — snapshot/DTO ответов (`BotStatusSnapshot`, …)
+- `Mappers/` — domain/managers → DTO
+- `Services/` — `*AppService` (orchestration)
+- `BotEngine/` — internal tick loop, managers, state (не для VM)
+- ❌ MediatR, WPF, UiStrings
+
+Подробнее: правило `Application-Structure.mdc`.
 
 ## Infrastructure
 
-- `Game/` — FridaGameApi, launcher, lifecycle
-- `Hosting/` — `VerifierSidecarHostedService`
-- `Logging/` — `DarkBotSerilogHostBuilderExtensions` (`UseDarkBotSerilog`)
-- ❌ Нет ViewModels, XAML
+- `Game/`, `Hosting/`, `Logging/` (`UseDarkBotSerilog`)
+- ❌ ViewModels, XAML
 
 ## Presentation
 
-- ViewModels → **только** `I*AppService` + `Ui/*` (окна, навигация)
-- Snapshot: `_botStatus.Capture()` → `BotStatusSnapshot` **без** промежуточного mapper
-- `Formatting/` — enum → `UiStrings`
-- `Controls/Main/MapCanvas/` — render-only (`MapRenderSettings`, Skia drawers)
-- `Extensions/DependencyInjection.cs` — composition root
-- `Diagnostics/` — ReactiveUI/Splat probe
-- ❌ `Services/`, `Models/`, `Mapping/`, `Configuration/`, `Logging/`
-- ❌ ViewModel → Infrastructure-типы / Manager / `IMovementApi`
-- ❌ Дублировать `Application.Models.Bot.*` в Presentation
-
-## Пример VM
-
-```csharp
-// ✅
-Snapshot = _botStatus.Capture();
-
-// ❌
-Snapshot = BotUiSnapshotMapper.ToUiSnapshot(_botStatus.Capture());
-```
+- ViewModels → `I*AppService` + `Ui/*`
+- `_botStatus.Capture()` → `DTOs.Responses.Bot` напрямую
+- `Formatting/`, `Controls/Main/MapCanvas/` (render-only)
+- ❌ `Services/`, `Models/`, `Mapping/`, дубли Application DTO
 
 ## AppService-фасады
 
 `ILoginAppService` · `IGameLaunchAppService` · `IBotControlAppService` · `IBotStatusAppService` ·
 `IGameConnectionStatusAppService` · `IMovementAppService` · `IAppShellAppService` · `IGameShutdownAppService`
+
+## Запрещено
+
+- ❌ ViewModel → Infrastructure / Manager / `IMovementApi`
+- ❌ `Core → Infrastructure` (compile-time)
+- ❌ MediatR в DarkBot.Net.Application

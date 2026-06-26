@@ -1,6 +1,6 @@
 using System.Reactive.Linq;
 using DarkBot.Net.Application.Contracts;
-using DarkBot.Net.Application.Models.Bot;
+using DarkBot.Net.Application.DTOs.Responses.Bot;
 using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
 using DarkBot.Net.Presentation.Formatting;
 using DarkBot.Net.Presentation.Resources;

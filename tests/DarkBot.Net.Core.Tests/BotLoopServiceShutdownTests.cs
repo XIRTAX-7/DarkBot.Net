@@ -1,6 +1,8 @@
-using DarkBot.Net.Application.Bot;
-using DarkBot.Net.Application.Managers;
-using DarkBot.Net.Application.Memory;
+using DarkBot.Net.Application.BotEngine.Addresses;
+using DarkBot.Net.Application.BotEngine.Install;
+using DarkBot.Net.Application.BotEngine.Loop;
+using DarkBot.Net.Application.BotEngine.Managers;
+using DarkBot.Net.Application.BotEngine.Runtime;
 using DarkBot.Net.Application.Tests.Fakes;
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Interfaces.Game;

@@ -1,6 +1,6 @@
 using DarkBot.Net.Core.Game;
-using DarkBot.Net.Application.Managers;
-using DarkBot.Net.Application.Memory;
+using DarkBot.Net.Application.BotEngine.Addresses;
+using DarkBot.Net.Application.BotEngine.Managers;
 using DarkBot.Net.Application.Tests.Fakes;
 using Microsoft.Extensions.Logging.Abstractions;
 

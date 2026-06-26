@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
-using DarkBot.Net.Application.Models.Bot;
+using DarkBot.Net.Application.DTOs.Responses.Bot;
 using DarkBot.Net.Core.Game;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;

@@ -27,7 +27,7 @@ Views/          ViewModels/         Controls/
 | Тип | Путь |
 |-----|------|
 | ViewModel | `ViewModels/{Feature}/` → только `I*AppService`, команды, UiStrings |
-| Read model для UI | **не здесь** → `Application.Models.Bot` |
+| Read model для UI | **не здесь** → `Application.DTOs.Responses.*` |
 | Render карты | `Controls/Main/MapCanvas/` (`MapRenderSettings`, drawers) |
 | Строки статуса | `Formatting/` |
 | Окна / навигация | `Ui/{Feature}/` |

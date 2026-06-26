@@ -1,5 +1,5 @@
 using DarkBot.Net.Application.Contracts;
-using DarkBot.Net.Application.Memory;
+using DarkBot.Net.Application.BotEngine.Addresses;
 using DarkBot.Net.Core.Interfaces.Game;
 using DarkBot.Net.Core.Options;
 using DarkBot.Net.Infrastructure.Game.Session;

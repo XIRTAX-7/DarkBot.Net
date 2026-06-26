@@ -1,6 +1,9 @@
-using DarkBot.Net.Application.Bot;
-using DarkBot.Net.Application.Managers;
-using DarkBot.Net.Application.Memory;
+using DarkBot.Net.Application.BotEngine.Addresses;
+using DarkBot.Net.Application.BotEngine.Install;
+using DarkBot.Net.Application.BotEngine.Loop;
+using DarkBot.Net.Application.BotEngine.Managers;
+using DarkBot.Net.Application.BotEngine.Runtime;
+using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Application.Services.Game;
 using DarkBot.Net.Core.Managers;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,7 +57,7 @@ public static class DependencyInjection
     public static IServiceCollection AddAppServices(this IServiceCollection services)
     {
         services.Scan(scan => scan
-            .FromAssemblyOf<GameLaunchAppService>()
+            .FromAssemblyOf<ILoginAppService>()
             .AddClasses(classes => classes
                 .Where(type => type.IsClass
                     && !type.IsAbstract

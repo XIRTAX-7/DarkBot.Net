@@ -1,3 +1,4 @@
+using DarkBot.Net.Presentation.Services.Main.Map;
 using SkiaSharp;
 
 namespace DarkBot.Net.Presentation.Controls.Main.MapCanvas;
@@ -68,7 +69,7 @@ internal static class MapCanvasHeroDrawer
         if (ctx.MoveTarget is { } clickTarget)
             DrawClickTarget(ctx, heroPoint, clickTarget);
 
-        if (ctx.HasDisplayFlag(Services.MapDisplayFlag.ShowPet) && ctx.Map.Pet is { Valid: true } pet)
+        if (ctx.HasDisplayFlag(MapDisplayFlag.ShowPet) && ctx.Map.Pet is { Valid: true } pet)
             DrawPet(ctx, pet);
     }
 
@@ -158,7 +159,7 @@ internal static class MapCanvasHeroDrawer
         ctx.Canvas.DrawPath(path, stroke);
     }
 
-    private static void DrawPet(MapCanvasRenderContext ctx, Services.MapPetSnapshot pet)
+    private static void DrawPet(MapCanvasRenderContext ctx, MapPetSnapshot pet)
     {
         var point = ctx.Transform.GameToScreen(pet.X, pet.Y);
         using var outer = new SKPaint { Color = MapCanvasPalette.Pet, Style = SKPaintStyle.Fill, IsAntialias = true };

@@ -1,4 +1,5 @@
-using DarkBot.Net.Presentation.Services;
+using DarkBot.Net.Presentation.Services.Main;
+using DarkBot.Net.Presentation.Services.Main.Map;
 using SkiaSharp;
 
 namespace DarkBot.Net.Presentation.Controls.Main.MapCanvas;
@@ -19,8 +20,8 @@ internal static class MapCanvasRenderer
       long trailLifetimeTicks)
   {
       var map = snapshot?.Map ?? MapRenderSnapshot.Loading;
-      var mapWidth = Math.Max(map.MapWidth > 0 ? map.MapWidth : snapshot?.MapWidth ?? DefaultMapWidth, 1);
-      var mapHeight = Math.Max(map.MapHeight > 0 ? map.MapHeight : snapshot?.MapHeight ?? DefaultMapHeight, 1);
+      var mapWidth = Math.Max(map.MapWidth > 0 ? map.MapWidth : DefaultMapWidth, 1);
+      var mapHeight = Math.Max(map.MapHeight > 0 ? map.MapHeight : DefaultMapHeight, 1);
 
       var ctx = new MapCanvasRenderContext
       {
@@ -31,8 +32,7 @@ internal static class MapCanvasRenderer
           Map = map with
           {
               MapWidth = mapWidth,
-              MapHeight = mapHeight,
-              MapId = map.MapId >= 0 ? map.MapId : snapshot?.MapId ?? map.MapId
+              MapHeight = mapHeight
           },
           HeroTrail = heroTrail,
           MoveTarget = moveTarget,

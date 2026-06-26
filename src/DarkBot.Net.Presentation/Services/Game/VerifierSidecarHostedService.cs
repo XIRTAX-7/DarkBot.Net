@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace DarkBot.Net.Presentation.Services;
+namespace DarkBot.Net.Presentation.Services.Game;
 
 /// <summary>Starts verifier.jar sidecar or dev HTTP stub (POST /verify).</summary>
 public sealed class VerifierSidecarHostedService : BackgroundService

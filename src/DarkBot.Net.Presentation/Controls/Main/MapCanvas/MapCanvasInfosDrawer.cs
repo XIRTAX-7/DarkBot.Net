@@ -1,3 +1,4 @@
+using DarkBot.Net.Presentation.Services.Main.Map;
 using SkiaSharp;
 
 namespace DarkBot.Net.Presentation.Controls.Main.MapCanvas;
@@ -113,14 +114,14 @@ internal static class MapCanvasInfosDrawer
             hero.Shield,
             hero.MaxShield);
 
-        if (ctx.HasDisplayFlag(Services.MapDisplayFlag.HeroName) && !string.IsNullOrEmpty(hero.Name))
+        if (ctx.HasDisplayFlag(MapDisplayFlag.HeroName) && !string.IsNullOrEmpty(hero.Name))
         {
             using var font = new SKFont(MapCanvasPalette.SansTypeface, MapCanvasPalette.FontSmallPx);
             using var paint = new SKPaint { Color = MapCanvasPalette.Text, IsAntialias = true };
             ctx.Canvas.DrawText(hero.Name, marginX, top - 4, SKTextAlign.Left, font, paint);
         }
 
-        if (ctx.HasDisplayFlag(Services.MapDisplayFlag.HpShieldNum))
+        if (ctx.HasDisplayFlag(MapDisplayFlag.HpShieldNum))
             DrawHealthNumbers(ctx, marginX, top, barWidth, hero);
 
         DrawPetBlock(ctx);
@@ -132,7 +133,7 @@ internal static class MapCanvasInfosDrawer
         float left,
         float top,
         float width,
-        Services.MapHeroSnapshot hero)
+        MapHeroSnapshot hero)
     {
         using var font = new SKFont(MapCanvasPalette.ConsolasTypeface, MapCanvasPalette.FontTinyPx);
         using var paint = new SKPaint { Color = MapCanvasPalette.Text, IsAntialias = true };

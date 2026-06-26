@@ -3,7 +3,7 @@ using DarkBot.Net.Presentation.Views.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
-namespace DarkBot.Net.Presentation.Services;
+namespace DarkBot.Net.Presentation.Services.Config;
 
 public sealed class ConfigWindowService(IServiceProvider serviceProvider) : IConfigWindowService
 {

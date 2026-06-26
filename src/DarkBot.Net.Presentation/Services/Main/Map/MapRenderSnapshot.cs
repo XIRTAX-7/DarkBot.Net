@@ -1,6 +1,6 @@
 using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
 
-namespace DarkBot.Net.Presentation.Services;
+namespace DarkBot.Net.Presentation.Services.Main.Map;
 
 public sealed record MapPointSnapshot(double X, double Y);
 

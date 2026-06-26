@@ -1,3 +1,4 @@
+using DarkBot.Net.Presentation.Services.Main.Map;
 using SkiaSharp;
 
 namespace DarkBot.Net.Presentation.Controls.Main.MapCanvas;
@@ -6,7 +7,7 @@ internal static class MapCanvasDevDrawer
 {
     public static void Draw(MapCanvasRenderContext ctx)
     {
-        if (!ctx.HasDisplayFlag(Services.MapDisplayFlag.DevStuff))
+        if (!ctx.HasDisplayFlag(MapDisplayFlag.DevStuff))
             return;
 
         using var font = new SKFont(MapCanvasPalette.ConsolasTypeface, MapCanvasPalette.FontTinyPx);

@@ -3,7 +3,10 @@ using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Core.Managers;
 using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
 using DarkBot.Net.Presentation.Resources;
-using DarkBot.Net.Presentation.Services;
+using DarkBot.Net.Presentation.Services.Config;
+using DarkBot.Net.Presentation.Services.Game;
+using DarkBot.Net.Presentation.Services.Main;
+using DarkBot.Net.Presentation.Services.Main.Map;
 using DarkBot.Net.Presentation.ViewModels.Shared;
 using DarkBot.Net.Presentation.ViewModels.Shell;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,8 +35,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [Reactive] private string _statusLine = UiStrings.Main_Ready;
     [Reactive] private string _gameStatusLine = UiStrings.Status_GameNotLaunched;
     [Reactive] private BotUiSnapshot _snapshot = new(
-        false, false, 0, 0, 0, 0, 0, -1, "Загрузка", 21000, 13500,
-        Array.Empty<MapPortalSnapshot>(),
         false, 0, 0, 0, 0, 0, 0, 0,
         MapRenderSnapshot.Loading);
 
@@ -89,26 +90,27 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private void RefreshGameStatus()
     {
+        var map = Snapshot.Map;
         GameStatusLine = _gameStatus.StatusLine;
-        StatusLine = Snapshot.HeroValid
+        StatusLine = map.Hero.Valid
             ? UiStrings.Format(
                 nameof(UiStrings.Status_HpFormat),
-                Snapshot.MapName,
-                Snapshot.HeroHp,
-                Snapshot.HeroMaxHp,
+                map.MapName,
+                map.Hero.Hp,
+                map.Hero.MaxHp,
                 Snapshot.LastTickMs.ToString("0.#", System.Globalization.CultureInfo.CurrentCulture))
-            : Snapshot.HeroOnMap
+            : map.Hero.OnMap
                 ? UiStrings.Format(
                     nameof(UiStrings.Status_PositionFormat),
-                    Snapshot.MapName,
-                    Snapshot.HeroX,
-                    Snapshot.HeroY,
+                    map.MapName,
+                    map.Hero.X,
+                    map.Hero.Y,
                     _gameStatus.StatusLine)
-                : Snapshot.MapId == -1
+                : map.MapId == -1
                     ? _gameStatus.StatusLine
                     : UiStrings.Format(
                         nameof(UiStrings.Status_MapFormat),
-                        Snapshot.MapName,
+                        map.MapName,
                         _gameStatus.StatusLine);
     }
 

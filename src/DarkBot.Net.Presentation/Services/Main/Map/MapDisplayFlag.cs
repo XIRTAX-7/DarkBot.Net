@@ -1,4 +1,4 @@
-namespace DarkBot.Net.Presentation.Services;
+namespace DarkBot.Net.Presentation.Services.Main.Map;
 
 /// <summary>Флаги отображения карты — порт Java Config.MapDisplay.TOGGLE.</summary>
 [Flags]

@@ -1,4 +1,4 @@
-using DarkBot.Net.Presentation.Services;
+using DarkBot.Net.Presentation.Services.Main.Map;
 
 namespace DarkBot.Net.Presentation.Tests;
 

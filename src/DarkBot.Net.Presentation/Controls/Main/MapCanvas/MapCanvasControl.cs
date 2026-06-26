@@ -2,7 +2,8 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using DarkBot.Net.Core.Game;
-using DarkBot.Net.Presentation.Services;
+using DarkBot.Net.Presentation.Services.Main;
+using DarkBot.Net.Presentation.Services.Main.Map;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.WPF;
@@ -65,13 +66,13 @@ public sealed class MapCanvasControl : SKElement
         gameX = 0;
         gameY = 0;
 
-        if (snapshot is null || snapshot.MapId < 0)
+        if (snapshot is null || snapshot.Map.MapId < 0)
             return false;
 
-        if (!MapViewTransform.HasValidMapSize(snapshot.MapWidth, snapshot.MapHeight))
+        if (!MapViewTransform.HasValidMapSize(snapshot.Map.MapWidth, snapshot.Map.MapHeight))
             return false;
 
-        var transform = MapViewTransform.Create(controlSize, snapshot.MapWidth, snapshot.MapHeight);
+        var transform = MapViewTransform.Create(controlSize, snapshot.Map.MapWidth, snapshot.Map.MapHeight);
         return transform.TryScreenToMap(screenPoint, out gameX, out gameY);
     }
 
@@ -87,8 +88,8 @@ public sealed class MapCanvasControl : SKElement
         MapClicked?.Invoke(this, new MapClickEventArgs(
             gameX, gameY,
             screenPoint.X, screenPoint.Y,
-            Snapshot?.HeroX ?? 0, Snapshot?.HeroY ?? 0,
-            Snapshot?.MapWidth ?? 0, Snapshot?.MapHeight ?? 0));
+            Snapshot?.Map.Hero.X ?? 0, Snapshot?.Map.Hero.Y ?? 0,
+            Snapshot?.Map.MapWidth ?? 0, Snapshot?.Map.MapHeight ?? 0));
     }
 
     protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
@@ -110,7 +111,7 @@ public sealed class MapCanvasControl : SKElement
 
     private void UpdateMoveTarget(BotUiSnapshot? snapshot)
     {
-        if (_moveTarget is not { } target || snapshot is not { HeroOnMap: true, MapId: >= 0 })
+        if (_moveTarget is not { } target || snapshot is not { Map.Hero.OnMap: true } || snapshot.Map.MapId < 0)
             return;
 
         var now = Stopwatch.GetTimestamp();
@@ -120,8 +121,8 @@ public sealed class MapCanvasControl : SKElement
             return;
         }
 
-        var dx = snapshot.HeroX - target.GameX;
-        var dy = snapshot.HeroY - target.GameY;
+        var dx = snapshot.Map.Hero.X - target.GameX;
+        var dy = snapshot.Map.Hero.Y - target.GameY;
         if (Math.Sqrt(dx * dx + dy * dy) < MoveTargetArrivalDistance)
             _moveTarget = null;
     }
@@ -131,18 +132,18 @@ public sealed class MapCanvasControl : SKElement
         var now = Stopwatch.GetTimestamp();
         PruneHeroTrail(now);
 
-        if (snapshot is not { HeroOnMap: true, MapId: >= 0 })
+        if (snapshot is not { Map.Hero.OnMap: true } || snapshot.Map.MapId < 0)
             return;
 
-        if (_trailMapId != snapshot.MapId)
+        if (_trailMapId != snapshot.Map.MapId)
         {
             _heroTrail.Clear();
             _heroTrailSnapshot = [];
             _lastTrailPoint = null;
-            _trailMapId = snapshot.MapId;
+            _trailMapId = snapshot.Map.MapId;
         }
 
-        var point = new HeroTrailPoint((float)snapshot.HeroX, (float)snapshot.HeroY, now);
+        var point = new HeroTrailPoint((float)snapshot.Map.Hero.X, (float)snapshot.Map.Hero.Y, now);
         if (_lastTrailPoint is { } lastPoint)
         {
             if (Distance(lastPoint, point) >= TeleportResetDistance)

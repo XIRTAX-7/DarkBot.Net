@@ -5,7 +5,7 @@ using DarkBot.Net.Infrastructure.Game.Session;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace DarkBot.Net.Presentation.Services;
+namespace DarkBot.Net.Presentation.Services.Game;
 
 public sealed class GameAutoLaunchService : IHostedService
 {

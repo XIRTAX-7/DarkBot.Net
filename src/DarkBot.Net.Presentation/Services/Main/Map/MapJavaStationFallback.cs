@@ -1,6 +1,6 @@
 using DarkBot.Net.Core.Game;
 
-namespace DarkBot.Net.Presentation.Services;
+namespace DarkBot.Net.Presentation.Services.Main.Map;
 
 /// <summary>
 /// Запасные станции — только когда live-данные из игры пусты.

@@ -4,7 +4,7 @@ using DarkBot.Net.Core.Models.Auth;
 using DarkBot.Net.Core.Models.Game;
 using DarkBot.Net.Core.Options;
 using DarkBot.Net.Infrastructure.Game.Session;
-using DarkBot.Net.Presentation.Services;
+using DarkBot.Net.Presentation.Services.Game;
 using DarkBot.Net.Presentation.Tests.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;

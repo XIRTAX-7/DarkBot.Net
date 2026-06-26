@@ -1,4 +1,4 @@
-namespace DarkBot.Net.Presentation.Services;
+namespace DarkBot.Net.Presentation.Services.Main.Map;
 
 public enum MapEntityKind
 {
@@ -51,25 +51,5 @@ public static class MapEntityKindMapping
             "barrier" => MapEntityKind.Barrier,
             "mist" => MapEntityKind.Mist,
             _ => MapEntityKind.Unknown
-        };
-
-    public static string ToAgentKind(MapEntityKind kind) =>
-        kind switch
-        {
-            MapEntityKind.Npc => "npc",
-            MapEntityKind.Box => "box",
-            MapEntityKind.Mine => "mine",
-            MapEntityKind.Player => "player",
-            MapEntityKind.Pet => "pet",
-            MapEntityKind.Relay => "relay",
-            MapEntityKind.SpaceBall => "space_ball",
-            MapEntityKind.Static => "static",
-            MapEntityKind.Portal => "portal",
-            MapEntityKind.BattleStation => "battle_station",
-            MapEntityKind.StationTurret => "station_turret",
-            MapEntityKind.BaseSpot => "base_spot",
-            MapEntityKind.Barrier => "barrier",
-            MapEntityKind.Mist => "mist",
-            _ => "other"
         };
 }

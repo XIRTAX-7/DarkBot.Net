@@ -1,11 +1,10 @@
+using DarkBot.Net.Application.Memory;
 using DarkBot.Net.Core.Interfaces.Game;
 using DarkBot.Net.Core.Models.Game;
-using DarkBot.Net.Core.Options;
-using DarkBot.Net.Application.Memory;
 using DarkBot.Net.Infrastructure.Game.Bridge;
 using DarkBot.Net.Presentation.Resources;
 
-namespace DarkBot.Net.Presentation.Services;
+namespace DarkBot.Net.Presentation.Services.Game;
 
 public sealed class GameConnectionStatusService
 {
@@ -69,8 +68,4 @@ public sealed class GameConnectionStatusService
 
         return UiStrings.Status_LaunchFailed;
     }
-
-    public string? FailureReason => _game.LastFailureReason;
-
-    public bool IsGameConnected => _addresses.HasScreenManager;
 }

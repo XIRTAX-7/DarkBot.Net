@@ -1,4 +1,4 @@
-using DarkBot.Net.Presentation.Services;
+using DarkBot.Net.Presentation.Services.Main.Map;
 
 namespace DarkBot.Net.Presentation.Controls.Main.MapCanvas;
 
@@ -15,6 +15,6 @@ internal readonly ref struct MapCanvasRenderContext
     public required long TrailLifetimeTicks { get; init; }
 
     public bool IsLoading => Map.MapId < 0;
-    public bool HasDisplayFlag(Services.MapDisplayFlag flag) =>
+    public bool HasDisplayFlag(MapDisplayFlag flag) =>
         Map.Settings.DisplayFlags.HasFlag(flag);
 }

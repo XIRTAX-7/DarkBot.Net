@@ -54,24 +54,22 @@ Composition root: `DarkBot.Net.Presentation.Extensions.DependencyInjection.Build
 
 ```text
 Presentation/
-├── Models/          # UI read models (BotUiSnapshot, MapRenderSnapshot)
-├── Mapping/         # Application DTO → UI models
 ├── Formatting/      # UiStrings, форматирование статусов
 ├── Ui/              # окна, навигация (Config, Shell)
+├── Diagnostics/     # UI-диагностика
 ├── ViewModels/
 ├── Views/
-└── Controls/
+└── Controls/        # MapCanvas: render settings + Skia drawers
 ```
 
 - [ ] Нет папки `Services/` с бизнес-логикой.
-- [ ] `BotUiSnapshotMapper` — единственное место сборки UI map snapshot.
+- [ ] Нет `Presentation/Models/` и `Presentation/Mapping/` — VM биндит `Application.Models.Bot.*`.
 - [ ] `GameConnectionStatusFormatter` — единственное место UiStrings для статуса игры.
 
-### 4. Дублирование моделей
+### 4. Read models
 
-- Application: `Models/Bot/*` (UI-agnostic).
-- Presentation: `Models/Main/*` (render flags, settings).
-- Оцени: оправдано ли дублирование или стоит схлопнуть.
+- Application: `Models/Bot/*` — единственный read model для UI (BotStatusSnapshot, MapStatusSnapshot).
+- Presentation: `MapRenderSettings` / `MapDisplayFlag` только в MapCanvas (render, не данные игры).
 
 ### 5. DI и Scrutor
 

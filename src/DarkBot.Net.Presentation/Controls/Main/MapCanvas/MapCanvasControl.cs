@@ -1,9 +1,8 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using DarkBot.Net.Application.Models.Bot;
 using DarkBot.Net.Core.Game;
-using DarkBot.Net.Presentation.Models.Main;
-using DarkBot.Net.Presentation.Models.Main.Map;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.WPF;
@@ -28,13 +27,13 @@ public sealed class MapCanvasControl : SKElement
     public static readonly DependencyProperty SnapshotProperty =
         DependencyProperty.Register(
             nameof(Snapshot),
-            typeof(BotUiSnapshot),
+            typeof(BotStatusSnapshot),
             typeof(MapCanvasControl),
             new PropertyMetadata(null, OnSnapshotChanged));
 
-    public BotUiSnapshot? Snapshot
+    public BotStatusSnapshot? Snapshot
     {
-        get => (BotUiSnapshot?)GetValue(SnapshotProperty);
+        get => (BotStatusSnapshot?)GetValue(SnapshotProperty);
         set => SetValue(SnapshotProperty, value);
     }
 
@@ -51,15 +50,15 @@ public sealed class MapCanvasControl : SKElement
         if (d is not MapCanvasControl control)
             return;
 
-        control.RecordHeroTrailPoint(e.NewValue as BotUiSnapshot);
-        control.UpdateMoveTarget(e.NewValue as BotUiSnapshot);
+        control.RecordHeroTrailPoint(e.NewValue as BotStatusSnapshot);
+        control.UpdateMoveTarget(e.NewValue as BotStatusSnapshot);
         control.InvalidateVisual();
     }
 
     public static bool TryScreenToGame(
         Point screenPoint,
         Size controlSize,
-        BotUiSnapshot? snapshot,
+        BotStatusSnapshot? snapshot,
         out double gameX,
         out double gameY)
     {
@@ -109,7 +108,7 @@ public sealed class MapCanvasControl : SKElement
             TrailLifetimeTicks);
     }
 
-    private void UpdateMoveTarget(BotUiSnapshot? snapshot)
+    private void UpdateMoveTarget(BotStatusSnapshot? snapshot)
     {
         if (_moveTarget is not { } target || snapshot is not { Map.Hero.OnMap: true } || snapshot.Map.MapId < 0)
             return;
@@ -127,7 +126,7 @@ public sealed class MapCanvasControl : SKElement
             _moveTarget = null;
     }
 
-    private void RecordHeroTrailPoint(BotUiSnapshot? snapshot)
+    private void RecordHeroTrailPoint(BotStatusSnapshot? snapshot)
     {
         var now = Stopwatch.GetTimestamp();
         PruneHeroTrail(now);

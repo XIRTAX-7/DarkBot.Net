@@ -1,6 +1,5 @@
+using DarkBot.Net.Application.Models.Bot;
 using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
-using DarkBot.Net.Presentation.Models.Main;
-using DarkBot.Net.Presentation.Models.Main.Map;
 using SkiaSharp;
 
 namespace DarkBot.Net.Presentation.Tests;
@@ -58,9 +57,9 @@ public sealed class MapCanvasRendererTests
     {
         using var bitmap = new SKBitmap(320, 240);
         using var canvas = new SKCanvas(bitmap);
-        var snapshot = new BotUiSnapshot(
+        var snapshot = new BotStatusSnapshot(
             false, 0, 0, 0, 0, 0, 0, 0,
-            MapRenderSnapshot.Loading);
+            MapStatusSnapshot.Loading);
 
         MapCanvasRenderer.Render(canvas, 320, 240, snapshot, [], null, 0, 1);
     }

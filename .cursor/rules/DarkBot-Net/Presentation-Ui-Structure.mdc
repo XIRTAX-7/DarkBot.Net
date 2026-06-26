@@ -1,59 +1,64 @@
 ---
-description: "DarkBot.Net.Presentation — feature-first структура Views, ViewModels, Controls (WPF + ReactiveUI)"
+description: "DarkBot.Net.Presentation — feature-first UI, VM, без бизнес-логики"
 globs:
-  - "DarkBot.Net/src/DarkBot.Net.Presentation/Views/**"
-  - "DarkBot.Net/src/DarkBot.Net.Presentation/ViewModels/**"
-  - "DarkBot.Net/src/DarkBot.Net.Presentation/Controls/**"
+  - "DarkBot.Net/src/DarkBot.Net.Presentation/**"
 alwaysApply: false
 ---
 
-# Presentation UI — структура папок
+# Presentation — структура и границы
 
-Принцип: **feature-first**. Папка = фича, namespace зеркалит путь.
+Принцип: **feature-first** + тонкий UI-слой. Бизнес-логика и read models — в Application.
 
 ## Дерево
 
 ```text
+Extensions/     Formatting/     Diagnostics/     Ui/
+Program.cs      UiStrings       probe            Config/, Shell/
+
 Views/          ViewModels/         Controls/
-├── Shared/     ├── Shared/         ├── Main/
-├── Shell/      ├── Shell/          │   ├── StatsPanelControl.*
-├── Login/      ├── Login/          │   └── MapCanvas/   ← сложный контрол
-├── Main/       ├── Main/           └── Config/
-└── Config/     └── Config/             ├── ConfigTreeControl.*
-    └── Pages/                          └── ConfigCollectSectionControl.*
+├── Shell/      ├── Shell/          ├── Main/MapCanvas/   ← render + Skia
+├── Login/      ├── Login/          └── Config/
+├── Main/       ├── Main/
+└── Config/     └── Config/
 ```
 
 ## Куда класть
 
-| Тип | Путь | Namespace |
-|-----|------|-----------|
-| Окно / экран | `Views/{Feature}/` | `...Views.{Feature}` |
-| Страница навигации | `Views/{Feature}/Pages/` | `...Views.{Feature}.Pages` |
-| Базовый класс UI | `Views/Shared/` | `...Views.Shared` |
-| ViewModel фичи | `ViewModels/{Feature}/` | `...ViewModels.{Feature}` |
-| Базовый VM | `ViewModels/Shared/ViewModelBase` | `...ViewModels.Shared` |
-| Контрол фичи | `Controls/{Feature}/` | `...Controls.{Feature}` |
-| UI-модель / маппинг | `Models/{Feature}/`, `Mapping/`, `Formatting/` | `...Models.{Feature}` |
-| UI-диагностика | `Diagnostics/` | `...Diagnostics` |
-| Окно / навигация UI | `Ui/{Feature}/` | `...Ui.{Feature}` |
-| Сложный контрол (5+ файлов) | `Controls/{Feature}/{Name}/` | `...Controls.{Feature}.{Name}` |
+| Тип | Путь |
+|-----|------|
+| ViewModel | `ViewModels/{Feature}/` → только `I*AppService`, команды, UiStrings |
+| Read model для UI | **не здесь** → `Application.Models.Bot` |
+| Render карты | `Controls/Main/MapCanvas/` (`MapRenderSettings`, drawers) |
+| Строки статуса | `Formatting/` |
+| Окна / навигация | `Ui/{Feature}/` |
+| DI / host | `Extensions/DependencyInjection.cs`, `Program.cs` |
 
-## XAML
+## ViewModel
 
-```xml
-xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels.Config"
-xmlns:mainControls="clr-namespace:DarkBot.Net.Presentation.Controls.Main"
-xmlns:mapCanvas="clr-namespace:DarkBot.Net.Presentation.Controls.Main.MapCanvas"
+```csharp
+// ✅ данные из Application, строки — Formatting/UiStrings
+Snapshot = _botStatus.Capture();
+GameStatusLine = GameConnectionStatusFormatter.Format(_gameStatus.GetStatus());
+
+// ❌ mapper, дубли DTO, менеджеры, Infrastructure
+Snapshot = SomeMapper.ToUi(_botStatus.Capture());
 ```
+
+## MapCanvas
+
+- Принимает `BotStatusSnapshot` (DependencyProperty `Snapshot`)
+- `MapRenderDefaults.Java` — zoom, display flags, round entities
+- PreferGrid/AvoidGrid — только render context, не Application model
 
 ## Запрещено
 
-- ❌ Файлы в корне `Views/`, `ViewModels/`, `Controls/` (кроме переходного рефакторинга)
-- ❌ Плоский namespace `...ViewModels` без сегмента фичи
-- ❌ Контролы одной фичи в папке другой (`ConfigTree` в `Controls/Main`)
-- ❌ Мёртвый UI-код: VM/свойства без биндингов и потребителей
+- ❌ `Presentation/Services/`, `Models/`, `Mapping/`, `Configuration/`, `Logging/`
+- ❌ Дубли `MapEntityKind`, `BotStatusSnapshot`, mapper Application → Presentation
+- ❌ Файлы в корне `Views/`, `ViewModels/`, `Controls/` (кроме `Program.cs`, `App.xaml.cs`)
+- ❌ VM/свойства без биндингов
 
 ## Новая фича
 
-Создавай сразу три папки: `Views/{Feature}/`, `ViewModels/{Feature}/`, `Controls/{Feature}/`.
-Регистрируй view↔vm в `Program.ConfigureReactiveUi()`.
+`Views/{Feature}/` + `ViewModels/{Feature}/` + `Controls/{Feature}/`.
+Контракт use case — новый `I*AppService` в Application, не сервис в Presentation.
+View↔VM — `Program.ConfigureReactiveUi()`.

@@ -1,4 +1,4 @@
-using DarkBot.Net.Presentation.Models.Main.Map;
+using DarkBot.Net.Application.Models.Bot;
 using SkiaSharp;
 
 namespace DarkBot.Net.Presentation.Controls.Main.MapCanvas;
@@ -29,8 +29,8 @@ internal static class MapCanvasZonesDrawer
 
     private static void DrawConfigGridZones(MapCanvasRenderContext ctx)
     {
-        DrawGrid(ctx, ctx.Map.Zones.PreferGrid, MapCanvasPalette.Prefer);
-        DrawGrid(ctx, ctx.Map.Zones.AvoidGrid, MapCanvasPalette.Avoid);
+        DrawGrid(ctx, ctx.PreferGrid, MapCanvasPalette.Prefer);
+        DrawGrid(ctx, ctx.AvoidGrid, MapCanvasPalette.Avoid);
     }
 
     private static void DrawPolygonZone(

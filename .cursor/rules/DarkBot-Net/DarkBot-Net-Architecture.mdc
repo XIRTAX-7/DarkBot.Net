@@ -5,7 +5,7 @@ globs:
 alwaysApply: false
 ---
 
-# Cursor Rules – DarkBot.Net (Clean Architecture)
+# DarkBot.Net — Clean Architecture
 
 Desktop-бот для DarkOrbit: **WPF** + Frida bridge + Unity client.
 
@@ -13,60 +13,60 @@ Desktop-бот для DarkOrbit: **WPF** + Frida bridge + Unity client.
 
 | Проект | Роль | Зависит от |
 |--------|------|------------|
-| `DarkBot.Net.Core` | Контракты (`I*Api`, `IGameFridaProbe`), модели, Options | — |
-| `DarkBot.Net.Application` | Bot loop, managers, `I*AppService`, read models | Core |
-| `DarkBot.Net.Infrastructure` | Frida, Unity, Login, hosted sidecars | Core, Application |
-| `DarkBot.Net.Presentation` | WPF Views/ViewModels, composition root | Application, Infrastructure |
+| `DarkBot.Net.Core` | `I*Api`, domain models, `Options/` | — |
+| `DarkBot.Net.Application` | bot loop, `I*AppService`, read models, mapping | Core |
+| `DarkBot.Net.Infrastructure` | Frida, Unity, Login, Serilog, hosted sidecars | Core, Application |
+| `DarkBot.Net.Presentation` | WPF, composition root | Application, Infrastructure |
 
 ```text
-Presentation → Application (I*AppService), Infrastructure (только DI)
+Presentation → Application (I*AppService), Infrastructure (только DI в Extensions/)
 Infrastructure → Application, Core
 Application → Core
-Core → (ничего)
 ```
+
+## Core
+
+- `Options/` — `DarkBotUiOptions`, `TestLoginOptions` и др.
+- ❌ Нет WPF, Serilog host, Frida
 
 ## Application
 
-- `Contracts/I*AppService` — единственный API для ViewModels
-- `Models/Bot/` — UI-agnostic snapshots
-- `Services/Bot|Game|Auth|Shell|Movement/` — реализации AppService
-- `Managers/`, `Bot/` — bot loop, tick logic
-- ❌ Нет WPF, Frida, Process
+- `Contracts/I*AppService` — **единственный** API для ViewModels
+- `Models/Bot/` — read models для UI (`BotStatusSnapshot`, `MapStatusSnapshot`)
+- `Services/` — реализации AppService; сборка snapshot/mapping **здесь**
+- `Managers/`, `Bot/` — tick logic
+- ❌ Нет WPF, XAML, UiStrings
 
 ## Infrastructure
 
 - `Game/` — FridaGameApi, launcher, lifecycle
-- `Hosting/` — VerifierSidecarHostedService
-- `Logging/` — Serilog host/bootstrap (`UseDarkBotSerilog`, bootstrap logger)
-- Реализации `IGameClientRestartAppService`, `IGameShutdownAppService`
+- `Hosting/` — `VerifierSidecarHostedService`
+- `Logging/` — `DarkBotSerilogHostBuilderExtensions` (`UseDarkBotSerilog`)
 - ❌ Нет ViewModels, XAML
 
 ## Presentation
 
-- ViewModels → **только** `I*AppService` + `Ui/*` контракты
-- `Models/` — UI read models (map render)
-- `Mapping/` — Application → Presentation DTO
-- `Formatting/` — UiStrings
-- `Diagnostics/` — UI-диагностика (ReactiveUI/Splat), не Serilog host
-- `Ui/Config`, `Ui/Shell` — окна и навигация
-- ❌ Нет прямых ссылок на Infrastructure-типы в ViewModels
-- ❌ Нет `Presentation/Logging/` (Serilog — в Infrastructure)
+- ViewModels → **только** `I*AppService` + `Ui/*` (окна, навигация)
+- Snapshot: `_botStatus.Capture()` → `BotStatusSnapshot` **без** промежуточного mapper
+- `Formatting/` — enum → `UiStrings`
+- `Controls/Main/MapCanvas/` — render-only (`MapRenderSettings`, Skia drawers)
+- `Extensions/DependencyInjection.cs` — composition root
+- `Diagnostics/` — ReactiveUI/Splat probe
+- ❌ `Services/`, `Models/`, `Mapping/`, `Configuration/`, `Logging/`
+- ❌ ViewModel → Infrastructure-типы / Manager / `IMovementApi`
+- ❌ Дублировать `Application.Models.Bot.*` в Presentation
+
+## Пример VM
+
+```csharp
+// ✅
+Snapshot = _botStatus.Capture();
+
+// ❌
+Snapshot = BotUiSnapshotMapper.ToUiSnapshot(_botStatus.Capture());
+```
 
 ## AppService-фасады
 
-| Интерфейс | Назначение |
-|-----------|------------|
-| `ILoginAppService` | Логин, credentials, session |
-| `IGameLaunchAppService` | Запуск клиента + Frida connect |
-| `IBotControlAppService` | Start/pause/stop бота |
-| `IBotStatusAppService` | Snapshot для UI |
-| `IGameConnectionStatusAppService` | Фаза подключения |
-| `IMovementAppService` | Движение корабля |
-| `IAppShellAppService` | Login vs Main при старте |
-| `IGameShutdownAppService` | Shutdown клиента |
-
-## Запрещено
-
-- ❌ ViewModel → Infrastructure / Manager / `IMovementApi`
-- ❌ `Core → Infrastructure` (compile-time)
-- ❌ Бизнес-логика в `Presentation/Services/`
+`ILoginAppService` · `IGameLaunchAppService` · `IBotControlAppService` · `IBotStatusAppService` ·
+`IGameConnectionStatusAppService` · `IMovementAppService` · `IAppShellAppService` · `IGameShutdownAppService`

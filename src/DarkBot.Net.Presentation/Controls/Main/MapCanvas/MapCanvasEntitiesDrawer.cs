@@ -1,4 +1,4 @@
-using DarkBot.Net.Presentation.Models.Main.Map;
+using DarkBot.Net.Application.Models.Bot;
 using SkiaSharp;
 
 namespace DarkBot.Net.Presentation.Controls.Main.MapCanvas;
@@ -28,7 +28,7 @@ internal static class MapCanvasEntitiesDrawer
         if (ctx.IsLoading)
             return;
 
-        var round = ctx.Map.Settings.RoundEntities;
+        var round = ctx.Settings.RoundEntities;
         DrawList(ctx, ctx.Map.Entities.Boxes, round);
         DrawList(ctx, ctx.Map.Entities.Mines, round);
         DrawList(ctx, ctx.Map.Entities.Relays, round);

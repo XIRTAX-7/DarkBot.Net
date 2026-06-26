@@ -9,7 +9,7 @@ internal static class MapCanvasBackgroundDrawer
         var canvas = ctx.Canvas;
         var width = ctx.Width;
         var height = ctx.Height;
-        var zoom = ctx.Map.Settings.MapZoom;
+        var zoom = ctx.Settings.MapZoom;
 
         if (zoom < 1.0 && !ctx.IsLoading)
         {

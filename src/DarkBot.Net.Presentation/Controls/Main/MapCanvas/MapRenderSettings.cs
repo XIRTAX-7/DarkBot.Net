@@ -1,4 +1,4 @@
-namespace DarkBot.Net.Presentation.Models.Main.Map;
+namespace DarkBot.Net.Presentation.Controls.Main.MapCanvas;
 
 /// <summary>Флаги отображения карты — порт Java Config.MapDisplay.TOGGLE.</summary>
 [Flags]
@@ -21,10 +21,17 @@ public enum MapDisplayFlag
     MapStartStop = 1 << 13,
 }
 
-internal static class MapDisplayDefaults
+public sealed record MapRenderSettings(
+    bool RoundEntities,
+    int TrailLengthSec,
+    double MapZoom,
+    MapDisplayFlag DisplayFlags,
+    bool CustomBackground,
+    float CustomBackgroundOpacity);
+
+internal static class MapRenderDefaults
 {
-    /// <summary>Значения по умолчанию как в Java DarkBot.</summary>
-    public const MapDisplayFlag JavaDefaults =
+    private const MapDisplayFlag JavaDisplayFlags =
         MapDisplayFlag.NpcNames
         | MapDisplayFlag.Usernames
         | MapDisplayFlag.ResourceNames
@@ -37,4 +44,12 @@ internal static class MapDisplayDefaults
         | MapDisplayFlag.GroupNames
         | MapDisplayFlag.BoosterArea
         | MapDisplayFlag.SortBoosters;
+
+    public static MapRenderSettings Java { get; } = new(
+        RoundEntities: true,
+        TrailLengthSec: 15,
+        MapZoom: 1.0,
+        DisplayFlags: JavaDisplayFlags,
+        CustomBackground: false,
+        CustomBackgroundOpacity: 0.3f);
 }

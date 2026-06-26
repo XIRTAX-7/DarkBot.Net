@@ -1,10 +1,8 @@
 using System.Reactive.Linq;
 using DarkBot.Net.Application.Contracts;
+using DarkBot.Net.Application.Models.Bot;
 using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
 using DarkBot.Net.Presentation.Formatting;
-using DarkBot.Net.Presentation.Mapping;
-using DarkBot.Net.Presentation.Models.Main;
-using DarkBot.Net.Presentation.Models.Main.Map;
 using DarkBot.Net.Presentation.Resources;
 using DarkBot.Net.Presentation.Ui.Config;
 using DarkBot.Net.Presentation.ViewModels.Shared;
@@ -34,9 +32,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [Reactive] private string _runButtonText = UiStrings.Main_StartButton;
     [Reactive] private string _statusLine = UiStrings.Main_Ready;
     [Reactive] private string _gameStatusLine = UiStrings.Status_GameNotLaunched;
-    [Reactive] private BotUiSnapshot _snapshot = new(
+    [Reactive] private BotStatusSnapshot _snapshot = new(
         false, 0, 0, 0, 0, 0, 0, 0,
-        MapRenderSnapshot.Loading);
+        MapStatusSnapshot.Loading);
 
     public MainWindowViewModel(
         IBotControlAppService bot,
@@ -80,7 +78,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     public void Refresh()
     {
-        Snapshot = BotUiSnapshotMapper.ToUiSnapshot(_botStatus.Capture());
+        Snapshot = _botStatus.Capture();
         BotRunning = Snapshot.BotRunning;
         CanRestartClient = _clientRestart?.CanRestart ?? false;
         RefreshGameStatus();

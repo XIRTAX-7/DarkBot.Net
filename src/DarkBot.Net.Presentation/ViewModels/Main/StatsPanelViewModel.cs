@@ -1,4 +1,4 @@
-using DarkBot.Net.Presentation.Models.Main;
+using DarkBot.Net.Application.Models.Bot;
 using DarkBot.Net.Presentation.ViewModels.Shared;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
@@ -29,7 +29,7 @@ public sealed partial class StatsPanelViewModel : ViewModelBase
         Runtime = "00:06:00";
     }
 
-    public void Apply(BotUiSnapshot snapshot)
+    public void Apply(BotStatusSnapshot snapshot)
     {
         Credits = snapshot.Credits;
         Uridium = snapshot.Uridium;

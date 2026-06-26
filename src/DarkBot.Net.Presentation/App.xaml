@@ -8,10 +8,8 @@
       <ResourceDictionary.MergedDictionaries>
         <ui:ThemesDictionary Theme="Dark" />
         <ui:ControlsDictionary />
-        <ResourceDictionary Source="Assets/Styles/ConfigPages.xaml" />
       </ResourceDictionary.MergedDictionaries>
 
-      <!-- WPF-UI: TabView наследует TabControl, стили в ControlsDictionary только для TabControl/TabItem -->
       <Style TargetType="{x:Type ui:TabView}" BasedOn="{StaticResource {x:Type TabControl}}" />
       <Style TargetType="{x:Type ui:TabViewItem}" BasedOn="{StaticResource {x:Type TabItem}}" />
 

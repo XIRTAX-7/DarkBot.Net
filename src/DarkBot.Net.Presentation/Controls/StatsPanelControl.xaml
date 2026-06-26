@@ -11,6 +11,15 @@
              d:DesignWidth="240"
              d:DesignHeight="480">
 
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/DarkBot.Net.Presentation;component/Assets/Styles/WpfUiResources.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </UserControl.Resources>
+
+  <Grid Style="{StaticResource WpfUiViewHostGrid}">
   <ui:Card Padding="16">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
       <StackPanel>
@@ -60,8 +69,7 @@
           </ui:Card>
         </Grid>
 
-        <Separator Margin="0,0,0,16"
-                   Background="{DynamicResource DividerStrokeColorDefaultBrush}" />
+        <Separator Margin="0,0,0,16" Style="{StaticResource WpfUiDivider}" />
 
         <StackPanel Margin="0,0,0,16">
           <ui:Card Margin="0,0,0,8" Padding="12">
@@ -122,17 +130,14 @@
               <ColumnDefinition Width="*" />
               <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <ui:TextBlock FontTypography="Caption"
-                          Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
-                          Text="Runtime" />
+            <ui:TextBlock Style="{StaticResource WpfUiAccentCaption}" Text="Runtime" />
             <ui:TextBlock Grid.Column="1"
-                          FontTypography="Caption"
-                          FontFamily="Cascadia Mono, Consolas, monospace"
-                          Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                          Style="{StaticResource WpfUiAccentMonospaceCaption}"
                           Text="{Binding Runtime}" />
           </Grid>
         </ui:Card>
       </StackPanel>
     </ScrollViewer>
   </ui:Card>
+  </Grid>
 </rxui:ReactiveUserControl>

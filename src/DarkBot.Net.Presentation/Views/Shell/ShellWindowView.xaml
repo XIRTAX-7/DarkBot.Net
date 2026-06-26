@@ -11,16 +11,21 @@
         Title="{x:Static loc:UiStrings.App_Title}"
         Width="1280" Height="820"
         MinWidth="1100" MinHeight="720"
-        ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
-        ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
         ExtendsContentIntoTitleBar="True"
         Background="Transparent"
-        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
         WindowBackdropType="Mica"
         WindowCornerPreference="Round"
         WindowStartupLocation="CenterScreen"
         d:DesignWidth="1280"
         d:DesignHeight="820">
+
+  <views:ShellWindowViewBase.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/DarkBot.Net.Presentation;component/Assets/Styles/WpfUiResources.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </views:ShellWindowViewBase.Resources>
 
   <Grid>
     <Grid.RowDefinitions>

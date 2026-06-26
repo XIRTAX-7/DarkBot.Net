@@ -1,0 +1,52 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                    xmlns:converters="clr-namespace:DarkBot.Net.Presentation.Converters">
+  <!-- Как в Wpf.Ui.ControlsDictionary / ApplicationThemeManager — pack URI для design-time -->
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="pack://application:,,,/Wpf.Ui;component/Resources/Theme/Dark.xaml" />
+    <ResourceDictionary Source="pack://application:,,,/Wpf.Ui;component/Resources/Wpf.Ui.xaml" />
+  </ResourceDictionary.MergedDictionaries>
+
+  <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+  <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+  <!-- NavigationView Page: без явного фона WPF рисует белый Page поверх Mica -->
+  <Style TargetType="{x:Type Page}">
+    <Setter Property="Background" Value="{DynamicResource ApplicationBackgroundBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+  </Style>
+
+  <Style TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <!-- Корневой Grid для Page / UserControl / Window content -->
+  <Style x:Key="WpfUiViewHostGrid" TargetType="Grid">
+    <Setter Property="Background" Value="{DynamicResource ApplicationBackgroundBrush}" />
+  </Style>
+
+  <!-- Встроенная поверхность (карта, превью) -->
+  <Style x:Key="WpfUiControlSurfaceBorder" TargetType="Border">
+    <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="ClipToBounds" Value="True" />
+  </Style>
+
+  <Style x:Key="WpfUiDivider" TargetType="Separator">
+    <Setter Property="Background" Value="{DynamicResource DividerStrokeColorDefaultBrush}" />
+  </Style>
+
+  <Style x:Key="WpfUiAccentCaption" TargetType="{x:Type ui:TextBlock}">
+    <Setter Property="FontTypography" Value="Caption" />
+    <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+  </Style>
+
+  <Style x:Key="WpfUiAccentMonospaceCaption"
+         TargetType="{x:Type ui:TextBlock}"
+         BasedOn="{StaticResource WpfUiAccentCaption}">
+    <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, monospace" />
+  </Style>
+</ResourceDictionary>

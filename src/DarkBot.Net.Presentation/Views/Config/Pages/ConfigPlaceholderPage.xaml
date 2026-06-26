@@ -4,16 +4,22 @@
       xmlns:loc="clr-namespace:DarkBot.Net.Presentation.Resources"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       Title="{x:Static loc:UiStrings.ConfigPlaceholder_PageTitle}"
-      xml:lang="ru-RU"
-      ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
-      ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-      Background="{DynamicResource ApplicationBackgroundBrush}"
-      Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+      xml:lang="ru-RU">
 
-  <ui:Card Margin="0,0,8,0" Padding="24">
-    <ui:TextBlock FontTypography="Body"
-                  Appearance="Secondary"
-                  Text="{Binding PlaceholderMessage}"
-                  TextWrapping="Wrap" />
-  </ui:Card>
+  <Page.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/DarkBot.Net.Presentation;component/Assets/Styles/WpfUiResources.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Page.Resources>
+
+  <Grid Style="{StaticResource WpfUiViewHostGrid}">
+    <ui:Card Margin="0,0,8,0" Padding="24">
+      <ui:TextBlock FontTypography="Body"
+                    Appearance="Secondary"
+                    Text="{Binding PlaceholderMessage}"
+                    TextWrapping="Wrap" />
+    </ui:Card>
+  </Grid>
 </Page>

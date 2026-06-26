@@ -11,10 +11,17 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
              d:DesignWidth="1180"
-             d:DesignHeight="760"
-             Background="{DynamicResource ApplicationBackgroundBrush}"
-             Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+             d:DesignHeight="760">
 
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/DarkBot.Net.Presentation;component/Assets/Styles/WpfUiResources.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </UserControl.Resources>
+
+  <Grid Style="{StaticResource WpfUiViewHostGrid}">
   <ui:TabView>
     <ui:TabViewItem IsSelected="True">
       <ui:TabViewItem.Header>
@@ -198,4 +205,5 @@
       </Grid>
     </ui:TabViewItem>
   </ui:TabView>
+  </Grid>
 </rxui:ReactiveUserControl>

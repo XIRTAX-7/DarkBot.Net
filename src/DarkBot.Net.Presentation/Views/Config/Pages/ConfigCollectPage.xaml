@@ -3,13 +3,18 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:controls="clr-namespace:DarkBot.Net.Presentation.Controls"
       xmlns:loc="clr-namespace:DarkBot.Net.Presentation.Resources"
-      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       Title="{x:Static loc:UiStrings.ConfigCollect_PageTitle}"
-      xml:lang="ru-RU"
-      ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
-      ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-      Background="{DynamicResource ApplicationBackgroundBrush}"
-      Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+      xml:lang="ru-RU">
 
-  <controls:ConfigCollectSectionControl x:Name="CollectSection" />
+  <Page.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/DarkBot.Net.Presentation;component/Assets/Styles/WpfUiResources.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Page.Resources>
+
+  <Grid Style="{StaticResource WpfUiViewHostGrid}">
+    <controls:ConfigCollectSectionControl x:Name="CollectSection" />
+  </Grid>
 </Page>

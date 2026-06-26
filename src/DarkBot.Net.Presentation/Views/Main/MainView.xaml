@@ -14,7 +14,15 @@
         d:DesignWidth="1280"
         d:DesignHeight="820">
 
-  <Grid Margin="24,16,24,24">
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/DarkBot.Net.Presentation;component/Assets/Styles/WpfUiResources.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </UserControl.Resources>
+
+  <Grid Style="{StaticResource WpfUiViewHostGrid}" Margin="24,16,24,24">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
@@ -79,12 +87,7 @@
       </Grid.ColumnDefinitions>
 
       <ui:Card Grid.Column="0" Margin="0,0,16,0" Padding="0">
-        <Border MinHeight="620"
-                ClipToBounds="True"
-                Background="{DynamicResource ControlFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4">
+        <Border MinHeight="620" Style="{StaticResource WpfUiControlSurfaceBorder}">
           <controls:MapCanvasControl x:Name="MapCanvas"
                                      Snapshot="{Binding Snapshot}" />
         </Border>

@@ -4,12 +4,17 @@
       xmlns:loc="clr-namespace:DarkBot.Net.Presentation.Resources"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       Title="{x:Static loc:UiStrings.ConfigMain_PageTitle}"
-      xml:lang="ru-RU"
-      ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
-      ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-      Background="{DynamicResource ApplicationBackgroundBrush}"
-      Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+      xml:lang="ru-RU">
 
+  <Page.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/DarkBot.Net.Presentation;component/Assets/Styles/WpfUiResources.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Page.Resources>
+
+  <Grid Style="{StaticResource WpfUiViewHostGrid}">
   <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
     <StackPanel>
       <ui:CardControl Margin="0,0,0,8"
@@ -79,4 +84,5 @@
       </ui:CardControl>
     </StackPanel>
   </ScrollViewer>
+  </Grid>
 </Page>

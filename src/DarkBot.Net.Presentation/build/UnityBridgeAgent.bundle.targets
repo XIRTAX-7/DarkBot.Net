@@ -1,0 +1,37 @@
+<Project>
+  <!--
+    Собирает darkorbit-unity-bridge/agent (frida-compile) при изменении .ts
+    и кладёт dist/agent.js рядом с exe: darkorbit-unity-bridge/agent/dist/agent.js
+  -->
+  <PropertyGroup>
+    <UnityBridgeAgentDir>$(MSBuildThisFileDirectory)..\..\..\darkorbit-unity-bridge\agent</UnityBridgeAgentDir>
+    <UnityBridgeAgentDistJs>$(UnityBridgeAgentDir)\dist\agent.js</UnityBridgeAgentDistJs>
+    <UnityBridgeAgentBundleLink>darkorbit-unity-bridge\agent\dist\agent.js</UnityBridgeAgentBundleLink>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <UnityBridgeAgentSource Include="$(UnityBridgeAgentDir)\src\**\*.ts" />
+  </ItemGroup>
+
+  <Target Name="BuildUnityBridgeAgent"
+          BeforeTargets="PrepareForBuild"
+          Inputs="@(UnityBridgeAgentSource);$(UnityBridgeAgentDir)\package.json"
+          Outputs="$(UnityBridgeAgentDistJs)"
+          Condition="Exists('$(UnityBridgeAgentDir)\package.json')">
+    <Message Importance="high" Text="Building Unity bridge agent (npm run build)..." />
+    <Exec Command="npm run build" WorkingDirectory="$(UnityBridgeAgentDir)" />
+  </Target>
+
+  <Target Name="EnsureUnityBridgeAgentDist"
+          AfterTargets="BuildUnityBridgeAgent"
+          BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(UnityBridgeAgentDistJs)')"
+           Text="Unity bridge agent bundle missing at $(UnityBridgeAgentDistJs). Run: cd darkorbit-unity-bridge/agent &amp;&amp; npm ci &amp;&amp; npm run build" />
+  </Target>
+
+  <ItemGroup>
+    <Content Include="$(UnityBridgeAgentDistJs)"
+             Link="$(UnityBridgeAgentBundleLink)"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -5,8 +5,11 @@ archive/
 **/bin/
 **/obj/
 **/TestResults/
+artifacts/
+# MSBuild-таргеты Presentation (не build output)
 **/build/
-!**/build-bridge.ps1
+!src/DarkBot.Net.Presentation/build/
+!src/DarkBot.Net.Presentation/build/**
 *.user
 *.suo
 *.userosscache
@@ -30,9 +33,10 @@ darkorbit-unity-bridge/traces/
 DarkOrbit_Version1.1.102/login_trace_*
 DarkOrbit_Version1.1.102/*.webdata.json
 
-# Native libraries (downloaded at runtime via NativeLibrarySetup)
-/lib/*
-!/lib/.gitkeep
+# Legacy JVM/native runtime (do not commit)
+lib/
+sidecars/
+tools/
 **/lib/*.dll
 **/lib/*.jar
 

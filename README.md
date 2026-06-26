@@ -8,7 +8,7 @@ DarkBot для DarkOrbit — разработан на .NET 10 / C# 14 с WPF UI
 |------|----------|
 | [`src/`](src/) | .NET solution — Clean Architecture |
 | [`tests/`](tests/) | xUnit тест-проекты |
-| [`sidecars/`](sidecars/) | Опциональные sidecar (backpage, verifier) |
+| [`darkorbit-unity-bridge/`](darkorbit-unity-bridge/) | Frida agent для Unity-клиента |
 
 ## Clean Architecture
 
@@ -26,7 +26,7 @@ DarkBot.Net.Infrastructure Unity, Login, Backpage, Config
 |-------|---------|----------------|
 | **Core** | `DarkBot.Net.Core` | `I*Api`, `IGameConnection`, models — no implementations |
 | **Application** | `DarkBot.Net.Application` | `BotLoopService`, managers, AppService facades |
-| **Infrastructure** | `DarkBot.Net.Infrastructure` | Unity bridge, login/backpage HTTP, config persistence |
+| **Infrastructure** | `DarkBot.Net.Infrastructure` | Unity bridge, credentials, config persistence |
 | **Presentation** | `DarkBot.Net.Presentation` | Views, ViewModels, `Program.cs` |
 
 Подробнее: [ARCHITECTURE.md](ARCHITECTURE.md).

@@ -34,6 +34,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [Reactive] private BotStatusSnapshot _snapshot = new(
         false, 0, 0, 0, 0, 0, 0, 0,
         MapStatusSnapshot.Loading);
+    [Reactive] private bool _isPetSectionVisible;
+    [Reactive] private bool _isGroupSectionVisible;
 
     public MainWindowViewModel(
         IBotControlAppService bot,
@@ -73,6 +75,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _canRestartClientGate = Observable.Return(false);
         Title = UiStrings.App_Title;
         StatusLine = UiStrings.Main_ReadyDesignMode;
+        IsPetSectionVisible = true;
+        IsGroupSectionVisible = true;
     }
 
     public void Refresh()
@@ -80,8 +84,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         Snapshot = _botStatus.Capture();
         BotRunning = Snapshot.BotRunning;
         CanRestartClient = _clientRestart?.CanRestart ?? false;
+        UpdateOptionalSectionsVisibility();
         RefreshGameStatus();
         Title = BotRunning ? UiStrings.App_TitleRunning : UiStrings.App_TitlePaused;
+    }
+
+    private void UpdateOptionalSectionsVisibility()
+    {
+        var map = Snapshot.Map;
+        IsPetSectionVisible = map.Pet is { Valid: true };
+        IsGroupSectionVisible = map.Overlay.GroupMembers.Count > 0;
     }
 
     private void RefreshGameStatus()
@@ -94,8 +106,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 nameof(UiStrings.Status_HpFormat),
                 map.MapName,
                 map.Hero.Hp,
-                map.Hero.MaxHp,
-                Snapshot.LastTickMs.ToString("0.#", System.Globalization.CultureInfo.CurrentCulture))
+                map.Hero.MaxHp)
             : map.Hero.OnMap
                 ? UiStrings.Format(
                     nameof(UiStrings.Status_PositionFormat),

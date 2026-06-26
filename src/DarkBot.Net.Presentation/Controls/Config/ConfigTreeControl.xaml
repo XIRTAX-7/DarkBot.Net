@@ -151,11 +151,11 @@
           <ui:Card Grid.Column="0" Margin="0,0,16,0" Padding="0">
             <Border ClipToBounds="True"
                     CornerRadius="8"
-                    Background="{DynamicResource ControlFillColorDefaultBrush}"
-                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                    Background="Transparent"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1">
               <Border MinHeight="470"
-                      Background="{DynamicResource ControlFillColorSecondaryBrush}">
+                      Background="Transparent">
                 <Grid>
                   <Border Grid.Row="4" Grid.Column="6"
                           Margin="1"

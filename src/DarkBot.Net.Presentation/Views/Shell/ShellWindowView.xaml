@@ -28,7 +28,7 @@
     </ResourceDictionary>
   </views:ShellWindowViewBase.Resources>
 
-  <Grid>
+  <Grid Background="Transparent">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
@@ -49,6 +49,9 @@
       </ui:TitleBar.TrailingContent>
     </ui:TitleBar>
 
-    <ContentControl Grid.Row="1" x:Name="PageHost" Margin="0,0,0,8" />
+    <ContentControl Grid.Row="1"
+                    x:Name="PageHost"
+                    Background="Transparent"
+                    Margin="0,0,0,8" />
   </Grid>
 </views:ShellWindowViewBase>

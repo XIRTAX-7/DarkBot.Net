@@ -184,6 +184,63 @@
   <data name="Main_ReadyDesignMode" xml:space="preserve">
     <value>Готов — режим конструктора</value>
   </data>
+  <data name="Main_ConfigLabel" xml:space="preserve">
+    <value>Конфиг</value>
+  </data>
+  <data name="Main_ConfigSlotTooltip" xml:space="preserve">
+    <value>Визуальный слот под быстрое переключение конфигурации</value>
+  </data>
+  <data name="Main_ConfigSlot1" xml:space="preserve">
+    <value>Конфиг 1</value>
+  </data>
+  <data name="Main_ConfigSlot2" xml:space="preserve">
+    <value>Конфиг 2</value>
+  </data>
+  <data name="Main_ClientButton" xml:space="preserve">
+    <value>Клиент</value>
+  </data>
+  <data name="Main_ShipSection" xml:space="preserve">
+    <value>Корабль</value>
+  </data>
+  <data name="Main_Hp" xml:space="preserve">
+    <value>Прочность</value>
+  </data>
+  <data name="Main_Shield" xml:space="preserve">
+    <value>Щит</value>
+  </data>
+  <data name="Main_Nano" xml:space="preserve">
+    <value>Наниты</value>
+  </data>
+  <data name="Main_Loading" xml:space="preserve">
+    <value>Загрузка</value>
+  </data>
+  <data name="Main_Position" xml:space="preserve">
+    <value>Позиция</value>
+  </data>
+  <data name="Main_PetSection" xml:space="preserve">
+    <value>Питомец</value>
+  </data>
+  <data name="Main_Fuel" xml:space="preserve">
+    <value>Топливо</value>
+  </data>
+  <data name="Main_GroupSection" xml:space="preserve">
+    <value>Группа</value>
+  </data>
+  <data name="Main_GroupMembersCountUnit" xml:space="preserve">
+    <value>чел.</value>
+  </data>
+  <data name="Main_Stats_Credits" xml:space="preserve">
+    <value>Кредиты</value>
+  </data>
+  <data name="Main_Stats_Uridium" xml:space="preserve">
+    <value>Уридиум</value>
+  </data>
+  <data name="Main_Stats_Experience" xml:space="preserve">
+    <value>Опыт</value>
+  </data>
+  <data name="Main_Stats_Honor" xml:space="preserve">
+    <value>Честь</value>
+  </data>
   <data name="Status_GameNotLaunched" xml:space="preserve">
     <value>Игра не запущена</value>
   </data>
@@ -218,7 +275,7 @@
     <value>Не удалось запустить игру: {0}</value>
   </data>
   <data name="Status_HpFormat" xml:space="preserve">
-    <value>{0} — HP {1}/{2} — тик {3} мс</value>
+    <value>{0} — прочность {1}/{2}</value>
   </data>
   <data name="Status_PositionFormat" xml:space="preserve">
     <value>{0} — ({1}, {2}) — {3}</value>

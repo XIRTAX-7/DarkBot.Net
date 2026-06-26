@@ -6,10 +6,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:rxui="clr-namespace:ReactiveUI;assembly=ReactiveUI.Wpf"
              xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels.Main"
+             xmlns:loc="clr-namespace:DarkBot.Net.Presentation.Resources"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:StatsPanelViewModel, IsDesignTimeCreatable=True}"
              d:DesignWidth="1060"
-             d:DesignHeight="56">
+             d:DesignHeight="48">
 
   <UserControl.Resources>
     <ResourceDictionary>
@@ -19,68 +21,33 @@
     </ResourceDictionary>
   </UserControl.Resources>
 
-  <Grid Style="{StaticResource WpfUiViewHostGrid}">
-    <Border Style="{StaticResource MainCompactSurfaceBorder}" Padding="10,8">
-      <Grid>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto" />
-          <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+  <UniformGrid Columns="4">
+    <StackPanel Margin="0,0,16,0">
+      <ui:TextBlock Style="{StaticResource MainMetricCaption}"
+                    Text="{x:Static loc:UiStrings.Main_Stats_Credits}" />
+      <ui:TextBlock Style="{StaticResource MainMetricValue}"
+                    Text="{Binding Credits, StringFormat=N0}" />
+    </StackPanel>
 
-        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,6">
-          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Credits" />
-          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
-                        Text="{Binding Credits, StringFormat=N0}" />
-        </StackPanel>
+    <StackPanel Margin="0,0,16,0">
+      <ui:TextBlock Style="{StaticResource MainMetricCaption}"
+                    Text="{x:Static loc:UiStrings.Main_Stats_Uridium}" />
+      <ui:TextBlock Style="{StaticResource MainMetricValue}"
+                    Text="{Binding Uridium, StringFormat=N0}" />
+    </StackPanel>
 
-        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,8,6">
-          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Uridium" />
-          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
-                        Text="{Binding Uridium, StringFormat=N0}" />
-        </StackPanel>
+    <StackPanel Margin="0,0,16,0">
+      <ui:TextBlock Style="{StaticResource MainMetricCaption}"
+                    Text="{x:Static loc:UiStrings.Main_Stats_Experience}" />
+      <ui:TextBlock Style="{StaticResource MainMetricValue}"
+                    Text="{Binding Experience, StringFormat=N0}" />
+    </StackPanel>
 
-        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,8,6">
-          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Experience" />
-          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
-                        Text="{Binding Experience, StringFormat=N0}" />
-        </StackPanel>
-
-        <StackPanel Grid.Row="0" Grid.Column="3" Margin="0,0,0,6">
-          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Honor" />
-          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
-                        Text="{Binding Honor, StringFormat=N0}" />
-        </StackPanel>
-
-        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,8,0">
-          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Ping" />
-          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
-                        Text="{Binding Ping, StringFormat={}{0} ms}" />
-        </StackPanel>
-
-        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,8,0">
-          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Ticks" />
-          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
-                        Text="{Binding TickCount}" />
-        </StackPanel>
-
-        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,8,0">
-          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Last tick" />
-          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
-                        Text="{Binding LastTickMs, StringFormat={}{0:0.#} ms}" />
-        </StackPanel>
-
-        <StackPanel Grid.Row="1" Grid.Column="3">
-          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Runtime" />
-          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
-                        Text="{Binding Runtime}" />
-        </StackPanel>
-      </Grid>
-    </Border>
-  </Grid>
+    <StackPanel>
+      <ui:TextBlock Style="{StaticResource MainMetricCaption}"
+                    Text="{x:Static loc:UiStrings.Main_Stats_Honor}" />
+      <ui:TextBlock Style="{StaticResource MainMetricValue}"
+                    Text="{Binding Honor, StringFormat=N0}" />
+    </StackPanel>
+  </UniformGrid>
 </rxui:ReactiveUserControl>

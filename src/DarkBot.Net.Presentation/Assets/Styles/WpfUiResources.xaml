@@ -11,20 +11,14 @@
   <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
   <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
-  <LinearGradientBrush x:Key="WpfUiPremiumCommandBarBrush" StartPoint="0,0" EndPoint="1,1">
-    <GradientStop Color="#262B36" Offset="0" />
-    <GradientStop Color="#181B22" Offset="0.55" />
-    <GradientStop Color="#111318" Offset="1" />
-  </LinearGradientBrush>
-
   <LinearGradientBrush x:Key="WpfUiPremiumBrandBrush" StartPoint="0,0" EndPoint="1,1">
     <GradientStop Color="#3B82F6" Offset="0" />
     <GradientStop Color="#7C3AED" Offset="1" />
   </LinearGradientBrush>
 
-  <!-- NavigationView Page: без явного фона WPF рисует белый Page поверх Mica -->
+  <!-- При WindowBackdropType=Mica фон контента должен быть прозрачным -->
   <Style TargetType="{x:Type Page}">
-    <Setter Property="Background" Value="{DynamicResource ApplicationBackgroundBrush}" />
+    <Setter Property="Background" Value="Transparent" />
     <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
   </Style>
 
@@ -32,23 +26,30 @@
     <Setter Property="Background" Value="Transparent" />
   </Style>
 
-  <!-- Корневой Grid для Page / UserControl / Window content -->
-  <Style x:Key="WpfUiViewHostGrid" TargetType="Grid">
-    <Setter Property="Background" Value="{DynamicResource ApplicationBackgroundBrush}" />
+  <Style TargetType="{x:Type UserControl}">
+    <Setter Property="Background" Value="Transparent" />
   </Style>
 
-  <!-- Встроенная поверхность (карта, превью) -->
+  <Style TargetType="{x:Type ContentControl}">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <Style x:Key="WpfUiViewHostGrid" TargetType="Grid">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <!-- Карта рисует свой фон в Skia; рамка только для обводки -->
   <Style x:Key="WpfUiControlSurfaceBorder" TargetType="Border">
-    <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
     <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="CornerRadius" Value="8" />
     <Setter Property="ClipToBounds" Value="True" />
   </Style>
 
   <Style x:Key="MainSurfaceBorder" TargetType="{x:Type Border}">
-    <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="CornerRadius" Value="8" />
     <Setter Property="Padding" Value="12" />
@@ -59,7 +60,7 @@
          BasedOn="{StaticResource MainSurfaceBorder}">
     <Setter Property="Padding" Value="10,6" />
     <Setter Property="MinHeight" Value="36" />
-    <Setter Property="Background" Value="{DynamicResource ControlFillColorTertiaryBrush}" />
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorSecondaryBrush}" />
   </Style>
 
   <Style x:Key="MainStatusDot" TargetType="{x:Type Ellipse}">
@@ -70,12 +71,10 @@
   </Style>
 
   <Style x:Key="MainCommandBarBorder"
-         TargetType="{x:Type Border}"
-         BasedOn="{StaticResource MainSurfaceBorder}">
-    <Setter Property="Background" Value="{StaticResource WpfUiPremiumCommandBarBrush}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorSecondaryBrush}" />
-    <Setter Property="CornerRadius" Value="14" />
-    <Setter Property="Padding" Value="12,8" />
+         TargetType="{x:Type Border}">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
   </Style>
 
   <Style x:Key="MainBrandMarkBorder" TargetType="{x:Type Border}">
@@ -150,7 +149,7 @@
          BasedOn="{StaticResource MainCompactSurfaceBorder}">
     <Setter Property="Padding" Value="6,2" />
     <Setter Property="MinHeight" Value="0" />
-    <Setter Property="Background" Value="{DynamicResource ControlFillColorTertiaryBrush}" />
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorSecondaryBrush}" />
   </Style>
 
   <Style x:Key="MainCompactSectionLabel" TargetType="{x:Type ui:TextBlock}">
@@ -190,7 +189,7 @@
   </Style>
 
   <Style x:Key="TitleBarDiagnosticMetricPill" TargetType="{x:Type Border}">
-    <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
     <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorSecondaryBrush}" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="CornerRadius" Value="13" />
@@ -256,5 +255,52 @@
          TargetType="{x:Type ui:TextBlock}"
          BasedOn="{StaticResource WpfUiAccentCaption}">
     <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, monospace" />
+  </Style>
+
+  <SolidColorBrush x:Key="MainDashboardHealthBrush" Color="#FF388E3C" />
+  <SolidColorBrush x:Key="MainDashboardShieldBrush" Color="#FF0288D1" />
+  <SolidColorBrush x:Key="MainDashboardNanoBrush" Color="#FFD0D024" />
+  <SolidColorBrush x:Key="MainDashboardFuelBrush" Color="#FFF59E0B" />
+  <SolidColorBrush x:Key="MainDashboardGroupBrush" Color="#FFFFD700" />
+
+  <Style x:Key="MainDashboardMetricLabel" TargetType="{x:Type ui:TextBlock}">
+    <Setter Property="FontTypography" Value="Caption" />
+    <Setter Property="Appearance" Value="Secondary" />
+  </Style>
+
+  <Style x:Key="MainDashboardMetricValue" TargetType="{x:Type ui:TextBlock}">
+    <Setter Property="FontTypography" Value="Caption" />
+    <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, monospace" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <Style x:Key="MainDashboardMetricValueMuted"
+         TargetType="{x:Type ui:TextBlock}"
+         BasedOn="{StaticResource MainDashboardMetricValue}">
+    <Setter Property="Appearance" Value="Secondary" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
+
+  <Style x:Key="MainDashboardMetricDivider" TargetType="{x:Type ui:TextBlock}">
+    <Setter Property="FontTypography" Value="Caption" />
+    <Setter Property="Appearance" Value="Secondary" />
+    <Setter Property="Margin" Value="2,0" />
+  </Style>
+
+  <Style x:Key="MainDashboardHealthProgressBar" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Height" Value="6" />
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorSecondaryBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+
+  <Style x:Key="MainDashboardSectionTitle" TargetType="{x:Type ui:TextBlock}">
+    <Setter Property="FontTypography" Value="BodyStrong" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style x:Key="MainDashboardColumnSeparator" TargetType="{x:Type Rectangle}">
+    <Setter Property="Width" Value="1" />
+    <Setter Property="Fill" Value="{DynamicResource DividerStrokeColorDefaultBrush}" />
+    <Setter Property="Margin" Value="12,0" />
   </Style>
 </ResourceDictionary>

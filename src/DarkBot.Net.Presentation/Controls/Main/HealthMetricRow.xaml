@@ -1,0 +1,35 @@
+<UserControl x:Class="DarkBot.Net.Presentation.Controls.Main.HealthMetricRow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             x:Name="Root"
+             Margin="0,0,0,8">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/DarkBot.Net.Presentation;component/Assets/Styles/WpfUiResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <Grid Margin="0,0,0,4">
+            <ui:TextBlock Style="{StaticResource MainDashboardMetricLabel}"
+                          Text="{Binding Label, ElementName=Root}" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <ui:TextBlock Style="{StaticResource MainDashboardMetricValue}"
+                              Text="{Binding TotalValue, ElementName=Root, StringFormat=N0}" />
+                <ui:TextBlock Style="{StaticResource MainDashboardMetricDivider}"
+                              Text="/" />
+                <ui:TextBlock Style="{StaticResource MainDashboardMetricValueMuted}"
+                              Text="{Binding TotalMaximum, ElementName=Root, StringFormat=N0}" />
+            </StackPanel>
+        </Grid>
+
+        <ProgressBar Style="{StaticResource MainDashboardHealthProgressBar}"
+                     Value="{Binding TotalValue, ElementName=Root, Mode=OneWay}"
+                     Maximum="{Binding TotalMaximum, ElementName=Root, Mode=OneWay}"
+                     Foreground="{Binding FillBrush, ElementName=Root, Mode=OneWay}" />
+    </StackPanel>
+</UserControl>

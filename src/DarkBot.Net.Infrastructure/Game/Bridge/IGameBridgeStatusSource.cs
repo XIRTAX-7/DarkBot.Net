@@ -10,9 +10,5 @@ public interface IGameBridgeStatusSource : IGameBridgePhaseSource
 
     UnityBridgeAgentStatus? AgentStatus { get; }
 
-    UnityBridgeRuntimePhase RuntimePhase { get; }
-
     bool RefreshStatus();
-
-    event Action? StatusChanged;
 }

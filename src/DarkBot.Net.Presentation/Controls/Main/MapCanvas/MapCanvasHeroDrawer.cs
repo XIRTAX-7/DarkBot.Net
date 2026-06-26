@@ -139,15 +139,11 @@ internal static class MapCanvasHeroDrawer
         if (bounds.Count < 3)
             return;
 
-        using var path = new SKPath();
-        var first = ctx.Transform.GameToScreen(bounds[0].X, bounds[0].Y);
-        path.MoveTo(first);
-        for (var i = 1; i < bounds.Count; i++)
-        {
-            var p = ctx.Transform.GameToScreen(bounds[i].X, bounds[i].Y);
-            path.LineTo(p);
-        }
-        path.Close();
+        var points = new SKPoint[bounds.Count];
+        for (var i = 0; i < bounds.Count; i++)
+            points[i] = ctx.Transform.GameToScreen(bounds[i].X, bounds[i].Y);
+
+        using var path = MapCanvasDrawHelpers.BuildClosedPolygonPath(points);
 
         using var stroke = new SKPaint
         {

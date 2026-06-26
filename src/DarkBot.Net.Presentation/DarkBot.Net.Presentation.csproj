@@ -3,7 +3,6 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>$(DarkBotWpfTargetFramework)</TargetFramework>
     <RootNamespace>DarkBot.Net.Presentation</RootNamespace>
-    <PlatformTarget>x64</PlatformTarget>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <UseWPF>true</UseWPF>
     <LangVersion>preview</LangVersion>

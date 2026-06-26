@@ -42,18 +42,14 @@ internal static class MapCanvasZonesDrawer
         if (zone.Polygon.Count < 3)
             return;
 
-        using var path = new SKPath();
-        var first = ctx.Transform.GameToScreen(zone.Polygon[0].X, zone.Polygon[0].Y);
-        path.MoveTo(first);
-        for (var i = 1; i < zone.Polygon.Count; i++)
-        {
-            var p = ctx.Transform.GameToScreen(zone.Polygon[i].X, zone.Polygon[i].Y);
-            path.LineTo(p);
-        }
-        path.Close();
+        var points = new SKPoint[zone.Polygon.Count];
+        for (var i = 0; i < zone.Polygon.Count; i++)
+            points[i] = ctx.Transform.GameToScreen(zone.Polygon[i].X, zone.Polygon[i].Y);
+
+        using var path = MapCanvasDrawHelpers.BuildClosedPolygonPath(points);
 
         using var fillPaint = new SKPaint { Color = fill, Style = SKPaintStyle.Fill, IsAntialias = true };
-        canvasDrawPath(ctx.Canvas, path, fillPaint);
+        ctx.Canvas.DrawPath(path, fillPaint);
 
         if (stroke is { } strokeColor)
         {
@@ -64,12 +60,9 @@ internal static class MapCanvasZonesDrawer
                 StrokeWidth = 1f,
                 IsAntialias = true
             };
-            canvasDrawPath(ctx.Canvas, path, strokePaint);
+            ctx.Canvas.DrawPath(path, strokePaint);
         }
     }
-
-    private static void canvasDrawPath(SKCanvas canvas, SKPath path, SKPaint paint) =>
-        canvas.DrawPath(path, paint);
 
     private static void DrawSafety(MapCanvasRenderContext ctx, MapSafetyZoneSnapshot safety)
     {

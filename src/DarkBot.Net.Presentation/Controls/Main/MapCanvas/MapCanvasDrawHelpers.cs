@@ -100,4 +100,15 @@ internal static class MapCanvasDrawHelpers
 
     public static string FormatHealthNumber(int value) =>
         value.ToString("N0").Replace(',', ' ');
+
+    public static SKPath BuildClosedPolygonPath(ReadOnlySpan<SKPoint> points)
+    {
+        var builder = new SKPathBuilder();
+        builder.MoveTo(points[0]);
+        for (var i = 1; i < points.Length; i++)
+            builder.LineTo(points[i]);
+        builder.Close();
+
+        return builder.Snapshot();
+    }
 }

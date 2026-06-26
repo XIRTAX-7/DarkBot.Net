@@ -1,5 +1,5 @@
-using DarkBot.Net.Presentation.Services.Main;
-using DarkBot.Net.Presentation.Services.Main.Map;
+using DarkBot.Net.Presentation.Models.Main;
+using DarkBot.Net.Presentation.Models.Main.Map;
 using SkiaSharp;
 
 namespace DarkBot.Net.Presentation.Controls.Main.MapCanvas;

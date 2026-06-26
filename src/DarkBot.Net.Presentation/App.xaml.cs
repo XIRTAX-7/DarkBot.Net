@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Threading;
-using DarkBot.Net.Presentation.Logging;
-using DarkBot.Net.Presentation.Services.Shell;
+using DarkBot.Net.Presentation.Diagnostics;
+using DarkBot.Net.Presentation.Ui.Shell;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Wpf.Ui.Appearance;

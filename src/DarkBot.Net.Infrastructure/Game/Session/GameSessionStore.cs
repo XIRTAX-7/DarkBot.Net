@@ -1,7 +1,8 @@
+using DarkBot.Net.Core.Interfaces.Game;
 using DarkBot.Net.Core.Models.Game;
 namespace DarkBot.Net.Infrastructure.Game.Session;
 
-public sealed class GameSessionStore
+public sealed class GameSessionStore : IGameSessionStore
 {
     private GameLaunchParameters? _current;
 

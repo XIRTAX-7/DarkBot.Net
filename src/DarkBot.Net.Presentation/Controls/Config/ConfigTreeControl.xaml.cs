@@ -1,4 +1,4 @@
-using DarkBot.Net.Presentation.Services.Config;
+using DarkBot.Net.Presentation.Ui.Config;
 using DarkBot.Net.Presentation.ViewModels.Config;
 using DarkBot.Net.Presentation.Views.Config.Pages;
 using ReactiveUI;

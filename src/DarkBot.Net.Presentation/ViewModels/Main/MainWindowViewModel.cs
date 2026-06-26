@@ -1,12 +1,12 @@
 using System.Reactive.Linq;
 using DarkBot.Net.Application.Contracts;
-using DarkBot.Net.Core.Managers;
 using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
+using DarkBot.Net.Presentation.Formatting;
+using DarkBot.Net.Presentation.Mapping;
+using DarkBot.Net.Presentation.Models.Main;
+using DarkBot.Net.Presentation.Models.Main.Map;
 using DarkBot.Net.Presentation.Resources;
-using DarkBot.Net.Presentation.Services.Config;
-using DarkBot.Net.Presentation.Services.Game;
-using DarkBot.Net.Presentation.Services.Main;
-using DarkBot.Net.Presentation.Services.Main.Map;
+using DarkBot.Net.Presentation.Ui.Config;
 using DarkBot.Net.Presentation.ViewModels.Shared;
 using DarkBot.Net.Presentation.ViewModels.Shell;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,9 +19,9 @@ namespace DarkBot.Net.Presentation.ViewModels.Main;
 public sealed partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IBotControlAppService _bot;
-    private readonly IMovementApi _movement;
-    private readonly BotUiStateService _state;
-    private readonly GameConnectionStatusService _gameStatus;
+    private readonly IMovementAppService _movement;
+    private readonly IBotStatusAppService _botStatus;
+    private readonly IGameConnectionStatusAppService _gameStatus;
     private readonly IGameClientRestartAppService _clientRestart;
     private readonly IConfigWindowService _configWindow;
     private readonly IServiceProvider _services;
@@ -40,9 +40,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel(
         IBotControlAppService bot,
-        IMovementApi movement,
-        BotUiStateService state,
-        GameConnectionStatusService gameStatus,
+        IMovementAppService movement,
+        IBotStatusAppService botStatus,
+        IGameConnectionStatusAppService gameStatus,
         IGameClientRestartAppService clientRestart,
         IConfigWindowService configWindow,
         IServiceProvider services,
@@ -50,7 +50,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         _bot = bot;
         _movement = movement;
-        _state = state;
+        _botStatus = botStatus;
         _gameStatus = gameStatus;
         _clientRestart = clientRestart;
         _configWindow = configWindow;
@@ -68,7 +68,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         _bot = null!;
         _movement = null!;
-        _state = null!;
+        _botStatus = null!;
         _gameStatus = null!;
         _clientRestart = null!;
         _configWindow = null!;
@@ -80,7 +80,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     public void Refresh()
     {
-        Snapshot = _state.Capture();
+        Snapshot = BotUiSnapshotMapper.ToUiSnapshot(_botStatus.Capture());
         BotRunning = Snapshot.BotRunning;
         CanRestartClient = _clientRestart?.CanRestart ?? false;
         RefreshGameStatus();
@@ -91,7 +91,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void RefreshGameStatus()
     {
         var map = Snapshot.Map;
-        GameStatusLine = _gameStatus.StatusLine;
+        var connectionStatus = _gameStatus.GetStatus();
+        GameStatusLine = GameConnectionStatusFormatter.Format(connectionStatus);
         StatusLine = map.Hero.Valid
             ? UiStrings.Format(
                 nameof(UiStrings.Status_HpFormat),
@@ -105,13 +106,13 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                     map.MapName,
                     map.Hero.X,
                     map.Hero.Y,
-                    _gameStatus.StatusLine)
+                    GameStatusLine)
                 : map.MapId == -1
-                    ? _gameStatus.StatusLine
+                    ? GameStatusLine
                     : UiStrings.Format(
                         nameof(UiStrings.Status_MapFormat),
                         map.MapName,
-                        _gameStatus.StatusLine);
+                        GameStatusLine);
     }
 
     [ReactiveCommand]
@@ -150,7 +151,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             click.MapHeight > 0 ? click.HeroY / click.MapHeight : 0,
             click.GameX / 10.0, click.GameY / 10.0,
             click.MapWidth, click.MapHeight);
-        _movement?.MoveTo(click.GameX, click.GameY);
+        _movement.MoveTo(click.GameX, click.GameY);
     }
 
     [ReactiveCommand(CanExecute = nameof(_canRestartClientGate))]

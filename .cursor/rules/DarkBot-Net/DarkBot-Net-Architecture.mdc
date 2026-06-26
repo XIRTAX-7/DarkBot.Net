@@ -1,5 +1,5 @@
 ---
-description: "Cursor Rules – DarkBot.Net (Avalonia, .NET 10, Clean Architecture, Frida-only)"
+description: "DarkBot.Net — Clean Architecture: слои, AppService, зависимости"
 globs:
   - "DarkBot.Net/**"
 alwaysApply: false
@@ -7,86 +7,66 @@ alwaysApply: false
 
 # Cursor Rules – DarkBot.Net (Clean Architecture)
 
-Desktop-бот для DarkOrbit: Avalonia UI + Frida bridge + Electron client.
+Desktop-бот для DarkOrbit: **WPF** + Frida bridge + Unity client.
 
 ## Слои
 
 | Проект | Роль | Зависит от |
 |--------|------|------------|
 | `DarkBot.Net.Core` | Контракты (`I*Api`, `IGameFridaProbe`), модели, Options | — |
-| `DarkBot.Net.Application` | Bot loop, managers, `I*AppService` | Core |
-| `DarkBot.Net.Infrastructure` | Frida, Electron, Login, Backpage, Config | Core, Application |
-| `DarkBot.Net.Presentation` | Avalonia Views/ViewModels, composition root | Application, Infrastructure |
+| `DarkBot.Net.Application` | Bot loop, managers, `I*AppService`, read models | Core |
+| `DarkBot.Net.Infrastructure` | Frida, Unity, Login, hosted sidecars | Core, Application |
+| `DarkBot.Net.Presentation` | WPF Views/ViewModels, composition root | Application, Infrastructure |
 
 ```text
-Presentation → Application, Infrastructure (DI wiring)
+Presentation → Application (I*AppService), Infrastructure (только DI)
 Infrastructure → Application, Core
 Application → Core
 Core → (ничего)
 ```
 
-## DarkBot.Net.Core
+## Application
 
-- Интерфейсы: `Managers/`, `Game/`, `Auth/`
-- Модели: entities, Frida snapshots, login data
-- `Common/OperationResult.cs`
-- `Options/GameApiOptions.cs`, `LoginOptions.cs`
-- ❌ Нет реализаций, HttpClient, Process, Avalonia
+- `Contracts/I*AppService` — единственный API для ViewModels
+- `Models/Bot/` — UI-agnostic snapshots
+- `Services/Bot|Game|Auth|Shell|Movement/` — реализации AppService
+- `Managers/`, `Bot/` — bot loop, tick logic
+- ❌ Нет WPF, Frida, Process
 
-## DarkBot.Net.Application
+## Infrastructure
 
-- `Contracts/I*AppService` — фасады для UI
-- `Services/Bot/` — BotLoopService, BotRuntime, managers
-- `Services/Game/`, `Services/Auth/` — AppService реализации
-- `Extensions/DependencyInjection.cs` — `AddApplication()`, Scrutor `*AppService`
-- ❌ Нет Frida, Electron, HTTP, UI
+- `Game/` — FridaGameApi, launcher, lifecycle
+- `Hosting/` — VerifierSidecarHostedService
+- `Logging/` — Serilog host/bootstrap (`UseDarkBotSerilog`, bootstrap logger)
+- Реализации `IGameClientRestartAppService`, `IGameShutdownAppService`
+- ❌ Нет ViewModels, XAML
 
-## DarkBot.Net.Infrastructure
+## Presentation
 
-- `Game/` — FridaGameApi, DarkorbitClientLauncher, hosted services
-- `Auth/` — LoginService, BackpageService, captcha
-- `Config/` — ConfigSetting, StubConfigApi
-- `DependencyInjection.cs` — `AddInfrastructure(configuration)`
-- C# **не читает память процесса** — только snapshot из Frida WS/HTTP
-
-## DarkBot.Net.Presentation
-
-- ViewModels вызывают **только** `I*AppService`
-- `Program.cs` — Generic Host + Avalonia
-- `AddApplication()` + `AddInfrastructure()` + `AddPresentationUi()`
-- ❌ ViewModels не зависят от Infrastructure-типов
-
-## Игровой путь (Frida-only)
-
-```text
-DarkBot.Net/Darkorbit-client   ← ЕДИНСТВЕННЫЙ игровой клиент (см. Darkorbit-Client-Path.mdc)
-  → avm_bridge (:44570)
-  → Infrastructure.Game (FridaGameApi)
-  → Core.IGameFridaProbe
-  → Application managers (HeroManager, MapManager, …)
-  → BotLoopService @ 10 Hz
-```
-
-**Не использовать** `C:\Project\darkbot-reloaded\Darkorbit-client` из корня monorepo — только `DarkBot.Net/Darkorbit-client/`.
+- ViewModels → **только** `I*AppService` + `Ui/*` контракты
+- `Models/` — UI read models (map render)
+- `Mapping/` — Application → Presentation DTO
+- `Formatting/` — UiStrings
+- `Diagnostics/` — UI-диагностика (ReactiveUI/Splat), не Serilog host
+- `Ui/Config`, `Ui/Shell` — окна и навигация
+- ❌ Нет прямых ссылок на Infrastructure-типы в ViewModels
+- ❌ Нет `Presentation/Logging/` (Serilog — в Infrastructure)
 
 ## AppService-фасады
 
 | Интерфейс | Назначение |
 |-----------|------------|
-| `ILoginAppService` | Логин credentials/SID |
+| `ILoginAppService` | Логин, credentials, session |
 | `IGameLaunchAppService` | Запуск клиента + Frida connect |
 | `IBotControlAppService` | Start/pause/stop бота |
 | `IBotStatusAppService` | Snapshot для UI |
+| `IGameConnectionStatusAppService` | Фаза подключения |
+| `IMovementAppService` | Движение корабля |
+| `IAppShellAppService` | Login vs Main при старте |
+| `IGameShutdownAppService` | Shutdown клиента |
 
 ## Запрещено
 
-- ❌ `Core → Infrastructure` или `Application → Infrastructure` (compile-time)
-- ❌ Плагины/DLL hot-reload (удалены из v2)
-- ❌ `.Result` / `.Wait()` на Task
-- ❌ Логировать SID, пароли, токены
-
-## Тесты
-
-- `tests/DarkBot.Net.Application.Tests` — bot loop, managers
-- `tests/DarkBot.Net.Core.Tests` — контракты/модели (если нужно)
-- Infrastructure tests — Login, Backpage
+- ❌ ViewModel → Infrastructure / Manager / `IMovementApi`
+- ❌ `Core → Infrastructure` (compile-time)
+- ❌ Бизнес-логика в `Presentation/Services/`

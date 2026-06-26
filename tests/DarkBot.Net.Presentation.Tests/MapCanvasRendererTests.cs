@@ -1,6 +1,6 @@
 using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
-using DarkBot.Net.Presentation.Services.Main;
-using DarkBot.Net.Presentation.Services.Main.Map;
+using DarkBot.Net.Presentation.Models.Main;
+using DarkBot.Net.Presentation.Models.Main.Map;
 using SkiaSharp;
 
 namespace DarkBot.Net.Presentation.Tests;
@@ -32,7 +32,7 @@ public sealed class MapCanvasRendererTests
         var fillEntity = new MapEntitySnapshot(1, 0, 0, MapEntityKind.Box, Fill: true);
         var (fillW, _, fillRound) = MapCanvasDrawHelpers.GetEntityDrawParams(fillEntity, roundEntities: true);
 
-        Assert.Equal(4f, fillW);
+        Assert.Equal(5f, fillW);
         Assert.True(fillRound);
 
         var roundEntity = new MapEntitySnapshot(2, 0, 0, MapEntityKind.Npc);

@@ -33,6 +33,9 @@ Views/          ViewModels/         Controls/
 | ViewModel фичи | `ViewModels/{Feature}/` | `...ViewModels.{Feature}` |
 | Базовый VM | `ViewModels/Shared/ViewModelBase` | `...ViewModels.Shared` |
 | Контрол фичи | `Controls/{Feature}/` | `...Controls.{Feature}` |
+| UI-модель / маппинг | `Models/{Feature}/`, `Mapping/`, `Formatting/` | `...Models.{Feature}` |
+| UI-диагностика | `Diagnostics/` | `...Diagnostics` |
+| Окно / навигация UI | `Ui/{Feature}/` | `...Ui.{Feature}` |
 | Сложный контрол (5+ файлов) | `Controls/{Feature}/{Name}/` | `...Controls.{Feature}.{Name}` |
 
 ## XAML

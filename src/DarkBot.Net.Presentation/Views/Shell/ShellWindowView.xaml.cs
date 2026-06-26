@@ -2,8 +2,8 @@ using System.Reactive.Disposables;
 using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Windows.Threading;
-using DarkBot.Net.Infrastructure.Game.Lifecycle;
-using DarkBot.Net.Presentation.Logging;
+using DarkBot.Net.Application.Contracts;
+using DarkBot.Net.Presentation.Diagnostics;
 using DarkBot.Net.Presentation.ViewModels.Shell;
 using ReactiveUI;
 using Serilog;
@@ -16,7 +16,7 @@ namespace DarkBot.Net.Presentation.Views.Shell;
 /// </summary>
 public partial class ShellWindowView : ShellWindowViewBase
 {
-    private readonly GameShutdownCoordinator? _coordinator;
+    private readonly IGameShutdownAppService? _gameShutdown;
     private bool _shutdownStarted;
 
     /// <summary>Конструктор для XAML designer.</summary>
@@ -25,9 +25,9 @@ public partial class ShellWindowView : ShellWindowViewBase
         InitializeComponent();
     }
 
-    public ShellWindowView(ShellWindowViewModel viewModel, GameShutdownCoordinator coordinator)
+    public ShellWindowView(ShellWindowViewModel viewModel, IGameShutdownAppService gameShutdown)
     {
-        _coordinator = coordinator;
+        _gameShutdown = gameShutdown;
         ViewModel = viewModel;
         DataContext = viewModel;
 
@@ -104,7 +104,7 @@ public partial class ShellWindowView : ShellWindowViewBase
 
     private async void OnClosing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
-        if (_shutdownStarted || _coordinator is null)
+        if (_shutdownStarted || _gameShutdown is null)
             return;
 
         e.Cancel = true;
@@ -112,7 +112,7 @@ public partial class ShellWindowView : ShellWindowViewBase
 
         try
         {
-            await _coordinator.StopGameClientAsync().ConfigureAwait(true);
+            await _gameShutdown.StopGameClientAsync().ConfigureAwait(true);
         }
         finally
         {

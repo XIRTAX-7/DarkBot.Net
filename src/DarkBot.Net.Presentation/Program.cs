@@ -2,7 +2,9 @@ using System.Globalization;
 using System.Windows;
 using DarkBot.Net.Presentation.Controls.Config;
 using DarkBot.Net.Presentation.Controls.Main;
-using DarkBot.Net.Presentation.Logging;
+using DarkBot.Net.Presentation.Extensions;
+using DarkBot.Net.Infrastructure.Logging;
+using DarkBot.Net.Presentation.Diagnostics;
 using DarkBot.Net.Presentation.ViewModels.Config;
 using DarkBot.Net.Presentation.ViewModels.Login;
 using DarkBot.Net.Presentation.ViewModels.Main;
@@ -38,7 +40,7 @@ internal static class Program
             .AddEnvironmentVariables(prefix: "DARKBOT_")
             .Build();
 
-        DarkBotSerilogHostExtensions.ConfigureBootstrapLogger(Configuration);
+        DarkBotSerilogHostBuilderExtensions.ConfigureBootstrapLogger(Configuration);
 
         try
         {
@@ -50,7 +52,7 @@ internal static class Program
 
             ConfigureReactiveUi();
 
-            AppHost = ServiceCollectionExtensions.BuildDarkBotHost(args, Configuration);
+            AppHost = DependencyInjection.BuildDarkBotHost(args, Configuration);
             try
             {
                 AppHost.Start();

@@ -1,26 +1,20 @@
+using DarkBot.Net.Application.Contracts;
+using DarkBot.Net.Core.Options;
+using DarkBot.Net.Presentation.Resources;
+using DarkBot.Net.Presentation.ViewModels.Shared;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using DarkBot.Net.Application.Contracts;
-using DarkBot.Net.Core.Interfaces.Auth;
-using DarkBot.Net.Core.Models.Auth;
-using DarkBot.Net.Core.Models.Game;
-using DarkBot.Net.Infrastructure.Game.Session;
-using DarkBot.Net.Presentation.Configuration;
-using DarkBot.Net.Presentation.Resources;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using DarkBot.Net.Presentation.ViewModels.Shared;
-using ReactiveUI;
-using ReactiveUI.SourceGenerators;
 
 namespace DarkBot.Net.Presentation.ViewModels.Login;
 
 public sealed partial class LoginViewModel : ViewModelBase
 {
-    private readonly ICredentialStore _credentialStore;
-    private readonly IGameLaunchAppService _gameLaunch;
-    private readonly GameSessionStore _sessionStore;
+    private readonly ILoginAppService _login;
     private readonly ILogger<LoginViewModel> _logger;
     private readonly IObservable<bool> _canLogin;
     private readonly Subject<Unit> _loginSucceeded = new();
@@ -35,15 +29,11 @@ public sealed partial class LoginViewModel : ViewModelBase
     public IObservable<Unit> LoginSucceeded => _loginSucceeded;
 
     public LoginViewModel(
-        ICredentialStore credentialStore,
-        IGameLaunchAppService gameLaunch,
-        GameSessionStore sessionStore,
+        ILoginAppService login,
         IOptions<TestLoginOptions> testLoginOptions,
         ILogger<LoginViewModel> logger)
     {
-        _credentialStore = credentialStore;
-        _gameLaunch = gameLaunch;
-        _sessionStore = sessionStore;
+        _login = login;
         _logger = logger;
         _canLogin = this.WhenAnyValue(
             x => x.IsBusy,
@@ -62,9 +52,7 @@ public sealed partial class LoginViewModel : ViewModelBase
     /// <summary>Конструктор для design mode / XAML previewer.</summary>
     public LoginViewModel()
     {
-        _credentialStore = null!;
-        _gameLaunch = null!;
-        _sessionStore = null!;
+        _login = null!;
         _logger = null!;
         _canLogin = Observable.Return(true);
         Username = "pilot";
@@ -73,7 +61,7 @@ public sealed partial class LoginViewModel : ViewModelBase
 
     private void LoadSavedCredentials()
     {
-        if (!_credentialStore.TryLoad(out var saved))
+        if (!_login.TryLoadSavedCredentials(out var saved))
             return;
 
         Username = saved.Username;
@@ -93,7 +81,6 @@ public sealed partial class LoginViewModel : ViewModelBase
         _logger.LogDebug("Login form pre-filled from appsettings.Local.json");
     }
 
-    /// <summary>Автовход при локальных TestLogin-учётных данных (appsettings.Local.json).</summary>
     private void ScheduleAutoLoginFromTestCredentials(TestLoginOptions testLogin)
     {
         if (string.IsNullOrWhiteSpace(testLogin.Username) || string.IsNullOrWhiteSpace(testLogin.Password))
@@ -118,22 +105,8 @@ public sealed partial class LoginViewModel : ViewModelBase
 
         try
         {
-            if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
-                throw new InvalidOperationException(UiStrings.Login_CredentialsRequired);
-
-            var username = Username.Trim();
-
-            if (RememberMe)
-                _credentialStore.Save(new SavedCredentials(username, Password));
-            else
-                _credentialStore.Clear();
-
-            var launchParameters = GameLaunchParameters.FromCredentials(username, Password);
-            _sessionStore.Save(launchParameters);
-
+            _login.LoginWithCredentials(Username, Password, RememberMe);
             StatusMessage = UiStrings.Login_LaunchingGame;
-            _gameLaunch.ScheduleLaunch(launchParameters);
-
             _logger.LogInformation("Login dialog completed — game launch scheduled");
             _loginSucceeded.OnNext(Unit.Default);
         }

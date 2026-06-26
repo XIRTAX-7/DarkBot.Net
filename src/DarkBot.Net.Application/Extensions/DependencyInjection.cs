@@ -45,6 +45,9 @@ public static class DependencyInjection
         services.AddSingleton<IBotController>(sp => sp.GetRequiredService<BotLoopService>());
         services.AddHostedService(sp => sp.GetRequiredService<BotLoopService>());
 
+        services.AddSingleton<GameAutoLaunchHostedService>();
+        services.AddHostedService(sp => sp.GetRequiredService<GameAutoLaunchHostedService>());
+
         return services;
     }
 

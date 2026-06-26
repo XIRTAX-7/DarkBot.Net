@@ -14,6 +14,7 @@ public static class GameServiceCollectionExtensions
     public static IServiceCollection AddGameServices(this IServiceCollection services)
     {
         services.AddSingleton<GameSessionStore>();
+        services.AddSingleton<IGameSessionStore>(sp => sp.GetRequiredService<GameSessionStore>());
         services.AddSingleton<UnityFridaSession>();
         services.AddSingleton<UnityFridaGameApi>();
         services.AddSingleton<UnityProcessFinder>();
@@ -23,6 +24,7 @@ public static class GameServiceCollectionExtensions
 
         services.AddSingleton<IGameConnection>(sp => sp.GetRequiredService<UnityFridaGameApi>());
         services.AddSingleton<IGameBridgeStatusSource>(sp => sp.GetRequiredService<UnityFridaGameApi>());
+        services.AddSingleton<IGameBridgePhaseSource>(sp => sp.GetRequiredService<UnityFridaGameApi>());
         services.AddSingleton<IGameInstallerProbe>(sp => sp.GetRequiredService<UnityFridaGameApi>());
 
         services.AddSingleton<UnityBridgeStateProbe>();
@@ -35,6 +37,8 @@ public static class GameServiceCollectionExtensions
         services.AddSingleton<GameLaunchSessionResolver>();
         services.AddSingleton<GameClientRestartService>();
         services.AddSingleton<IGameClientRestartAppService>(sp => sp.GetRequiredService<GameClientRestartService>());
+        services.AddSingleton<GameShutdownAppService>();
+        services.AddSingleton<IGameShutdownAppService>(sp => sp.GetRequiredService<GameShutdownAppService>());
         services.AddHostedService<GameClientRestartListener>();
         services.AddSingleton<GameClientShutdownService>();
         services.AddHostedService(sp => sp.GetRequiredService<GameClientShutdownService>());

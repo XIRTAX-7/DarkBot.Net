@@ -1,8 +1,7 @@
 using System.Reactive.Disposables;
 using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
-using DarkBot.Net.Core.Interfaces.Auth;
-using DarkBot.Net.Infrastructure.Game.Session;
+using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Presentation.Resources;
 using DarkBot.Net.Presentation.ViewModels.Login;
 using DarkBot.Net.Presentation.ViewModels.Main;
@@ -31,8 +30,7 @@ public sealed partial class ShellWindowViewModel : ViewModelBase, IDisposable
     public ShellWindowViewModel(
         LoginViewModel loginViewModel,
         MainWindowViewModel mainViewModel,
-        ICredentialStore credentialStore,
-        GameSessionStore sessionStore)
+        IAppShellAppService appShell)
     {
         _loginViewModel = loginViewModel;
         _mainViewModel = mainViewModel;
@@ -42,7 +40,7 @@ public sealed partial class ShellWindowViewModel : ViewModelBase, IDisposable
             .Subscribe(_ => NavigateToMain())
             .DisposeWith(_navigationSubscriptions);
 
-        if (sessionStore.HasSession || credentialStore.HasSaved)
+        if (appShell.ShouldOpenMainScreen)
         {
             Log.Information("Saved credentials or session detected — opening main screen");
             CurrentViewModel = mainViewModel;

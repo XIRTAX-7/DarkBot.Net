@@ -1,4 +1,4 @@
-using DarkBot.Net.Presentation.Services.Main;
+using DarkBot.Net.Presentation.Models.Main;
 using DarkBot.Net.Presentation.ViewModels.Shared;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;

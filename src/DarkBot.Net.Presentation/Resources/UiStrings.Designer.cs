@@ -49,6 +49,12 @@ public static class UiStrings
     public static string ConfigMain_WorkingMap => GetString(nameof(ConfigMain_WorkingMap));
     public static string ConfigMain_Security => GetString(nameof(ConfigMain_Security));
     public static string ConfigMain_SaveHealthInRange => GetString(nameof(ConfigMain_SaveHealthInRange));
+    public static string Config_VisibilityLevel_Basic => GetString(nameof(Config_VisibilityLevel_Basic));
+    public static string Config_VisibilityLevel_Intermediate => GetString(nameof(Config_VisibilityLevel_Intermediate));
+    public static string Config_VisibilityLevel_Advanced => GetString(nameof(Config_VisibilityLevel_Advanced));
+    public static string Config_VisibilityLevel_Developer => GetString(nameof(Config_VisibilityLevel_Developer));
+    public static string ConfigMain_WaitBeforeRevive => GetString(nameof(ConfigMain_WaitBeforeRevive));
+    public static string ConfigMain_WaitBeforeReviveHint => GetString(nameof(ConfigMain_WaitBeforeReviveHint));
     public static string ConfigCollect_PageTitle => GetString(nameof(ConfigCollect_PageTitle));
     public static string ConfigPlaceholder_PageTitle => GetString(nameof(ConfigPlaceholder_PageTitle));
     public static string Login_UnityClientBadge => GetString(nameof(Login_UnityClientBadge));

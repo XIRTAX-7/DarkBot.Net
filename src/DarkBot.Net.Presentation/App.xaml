@@ -16,6 +16,7 @@
       <Style TargetType="{x:Type ui:TabViewItem}" BasedOn="{StaticResource {x:Type TabItem}}" />
 
       <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+      <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </ResourceDictionary>
   </Application.Resources>
 </Application>

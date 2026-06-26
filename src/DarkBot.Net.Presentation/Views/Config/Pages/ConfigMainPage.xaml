@@ -60,6 +60,23 @@
           </StackPanel>
         </ui:CardControl>
       </ui:CardExpander>
+
+      <ui:CardControl Margin="0,8,0,0"
+                      Icon="{ui:SymbolIcon Timer24}"
+                      Visibility="{Binding ShowIntermediateSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <ui:CardControl.Header>
+          <StackPanel>
+            <ui:TextBlock FontTypography="Body"
+                          Text="{x:Static loc:UiStrings.ConfigMain_WaitBeforeRevive}"
+                          TextWrapping="Wrap" />
+            <ui:TextBlock FontTypography="Caption"
+                          Appearance="Secondary"
+                          Text="{x:Static loc:UiStrings.ConfigMain_WaitBeforeReviveHint}"
+                          TextWrapping="Wrap" />
+          </StackPanel>
+        </ui:CardControl.Header>
+        <ui:NumberBox Value="5" Minimum="5" Maximum="60" Width="72" />
+      </ui:CardControl>
     </StackPanel>
   </ScrollViewer>
 </Page>

@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Reactive.Linq;
 using DarkBot.Net.Core.Config;
 using DarkBot.Net.Core.Managers;
+using DarkBot.Net.Presentation.Resources;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 
@@ -102,6 +103,17 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
         new("Plugins", ConfigSidebarSection.Plugins),
     ];
 
+    public static ConfigVisibilityLevelItem DefaultVisibilityLevel { get; } =
+        new(ConfigSettingVisibilityDefaults.Level, UiStrings.Config_VisibilityLevel_Basic);
+
+    public static IReadOnlyList<ConfigVisibilityLevelItem> VisibilityLevels { get; } =
+    [
+        DefaultVisibilityLevel,
+        new(ConfigSettingVisibility.Intermediate, UiStrings.Config_VisibilityLevel_Intermediate),
+        new(ConfigSettingVisibility.Advanced, UiStrings.Config_VisibilityLevel_Advanced),
+        new(ConfigSettingVisibility.Developer, UiStrings.Config_VisibilityLevel_Developer),
+    ];
+
     public ConfigTreeViewModel(IConfigApi config)
     {
         Profile = config.CurrentProfile;
@@ -113,6 +125,7 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
             : [];
 
         SeedSampleBoxes();
+        SelectedVisibilityLevel = DefaultVisibilityLevel;
         InitializeReactiveState();
     }
 
@@ -122,6 +135,7 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
         Profile = "default";
         RootNodes = [];
         SeedSampleBoxes();
+        SelectedVisibilityLevel = DefaultVisibilityLevel;
         InitializeReactiveState();
     }
 
@@ -139,8 +153,18 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
             ? "Раздел в разработке."
             : $"Раздел «{SelectedSidebarItem.Title}» в разработке.";
 
+    public bool ShowIntermediateSettings =>
+        IsSettingVisible(ConfigSettingVisibility.Intermediate);
+
+    public bool ShowAdvancedSettings =>
+        IsSettingVisible(ConfigSettingVisibility.Advanced);
+
+    public bool IsSettingVisible(ConfigSettingVisibility required) =>
+        required.IsVisibleAt(SelectedVisibilityLevel?.Level ?? ConfigSettingVisibilityDefaults.Level);
+
     [Reactive] private ConfigSidebarItem? _selectedSidebarItem = SidebarItems[0];
     [Reactive] private ConfigTreeNodeViewModel? _selectedNode;
+    [Reactive] private ConfigVisibilityLevelItem? _selectedVisibilityLevel = DefaultVisibilityLevel;
 
     [Reactive] private bool _stayAwayFromEnemies;
     [Reactive] private bool _autoCloak;
@@ -166,6 +190,13 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
 
         this.WhenAnyValue(x => x.BoxSearchFilter)
             .Subscribe(_ => RefreshFilteredBoxes());
+
+        this.WhenAnyValue(x => x.SelectedVisibilityLevel)
+            .Subscribe(_ =>
+            {
+                this.RaisePropertyChanged(nameof(ShowIntermediateSettings));
+                this.RaisePropertyChanged(nameof(ShowAdvancedSettings));
+            });
 
         RefreshFilteredBoxes();
     }

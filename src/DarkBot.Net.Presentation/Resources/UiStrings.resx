@@ -97,6 +97,24 @@
   <data name="ConfigMain_SaveHealthInRange" xml:space="preserve">
     <value>Сохранять прочность в интервале</value>
   </data>
+  <data name="Config_VisibilityLevel_Basic" xml:space="preserve">
+    <value>Основные</value>
+  </data>
+  <data name="Config_VisibilityLevel_Intermediate" xml:space="preserve">
+    <value>Расширенные</value>
+  </data>
+  <data name="Config_VisibilityLevel_Advanced" xml:space="preserve">
+    <value>Профессионал</value>
+  </data>
+  <data name="Config_VisibilityLevel_Developer" xml:space="preserve">
+    <value>Разработка</value>
+  </data>
+  <data name="ConfigMain_WaitBeforeRevive" xml:space="preserve">
+    <value>Ожидание перед респавном</value>
+  </data>
+  <data name="ConfigMain_WaitBeforeReviveHint" xml:space="preserve">
+    <value>Секунд до возрождения после смерти</value>
+  </data>
   <data name="ConfigCollect_PageTitle" xml:space="preserve">
     <value>Сбор</value>
   </data>

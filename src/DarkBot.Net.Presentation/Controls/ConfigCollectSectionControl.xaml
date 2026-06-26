@@ -36,7 +36,8 @@
       </ui:CardControl>
 
       <ui:CardControl Margin="0,0,0,8"
-                      Icon="{ui:SymbolIcon Keyboard24}">
+                      Icon="{ui:SymbolIcon Keyboard24}"
+                      Visibility="{Binding ShowIntermediateSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
         <ui:CardControl.Header>
           <ui:TextBlock FontTypography="Body"
                         Text="Кнопка использования невидимости"
@@ -84,7 +85,9 @@
         <ui:ToggleSwitch IsChecked="{Binding IgnoreContestedBoxes}" />
       </ui:CardControl>
 
-      <ui:Card Margin="0,16,0,0" Padding="16">
+      <ui:Card Margin="0,16,0,0"
+              Padding="16"
+              Visibility="{Binding ShowAdvancedSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
         <StackPanel>
           <ui:TextBlock FontTypography="Subtitle" Text="Ресурсы" Margin="0,0,0,4" />
           <ui:TextBlock FontTypography="Caption"

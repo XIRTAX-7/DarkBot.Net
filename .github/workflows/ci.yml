@@ -1,10 +1,13 @@
 name: CI
 
+# Отключено на время активной разработки.
+# Чтобы включить снова — раскомментируйте push/pull_request ниже.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
+#  push:
+#    branches: [main]
+#  pull_request:
+#    branches: [main]
 
 jobs:
   build:

@@ -7,6 +7,7 @@
              xmlns:rxui="clr-namespace:ReactiveUI;assembly=ReactiveUI.Wpf"
              xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels"
              xmlns:pages="clr-namespace:DarkBot.Net.Presentation.Views.Config.Pages"
+             xmlns:controls="clr-namespace:DarkBot.Net.Presentation.Controls"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
              d:DesignWidth="1180"
@@ -90,6 +91,15 @@
             </ui:NavigationViewItem.Icon>
           </ui:NavigationViewItem>
         </ui:NavigationView.FooterMenuItems>
+        <ui:NavigationView.PaneFooter>
+          <!-- PaneFooter рендерится через ContentPresenter в шаблоне NavigationView и теряет DataContext -->
+          <ComboBox x:Name="VisibilityLevelCombo"
+                    Margin="4,12,4,4"
+                    HorizontalAlignment="Stretch"
+                    ItemsSource="{Binding ViewModel.VisibilityLevels, RelativeSource={RelativeSource AncestorType=controls:ConfigTreeControl}}"
+                    SelectedItem="{Binding ViewModel.SelectedVisibilityLevel, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=controls:ConfigTreeControl}}"
+                    DisplayMemberPath="Title" />
+        </ui:NavigationView.PaneFooter>
       </ui:NavigationView>
     </ui:TabViewItem>
 

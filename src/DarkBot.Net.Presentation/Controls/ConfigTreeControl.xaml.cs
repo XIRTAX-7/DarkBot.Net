@@ -24,6 +24,7 @@ public partial class ConfigTreeControl : ReactiveUserControl<ConfigTreeViewModel
     public void AttachViewModel(ConfigTreeViewModel viewModel)
     {
         ViewModel = viewModel;
+        ConfigNavigation.DataContext = viewModel;
         _pageProvider.Attach(viewModel);
         TryNavigateToMainPage();
     }

@@ -14,7 +14,7 @@ public sealed class ConfigNavigationPageProvider : INavigationViewPageProvider
     public object? GetPage(Type pageType)
     {
         if (pageType == typeof(ConfigMainPage))
-            return new ConfigMainPage();
+            return new ConfigMainPage(_viewModel ?? new ConfigTreeViewModel());
 
         if (pageType == typeof(ConfigCollectPage))
             return new ConfigCollectPage(_viewModel ?? new ConfigTreeViewModel());

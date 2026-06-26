@@ -90,32 +90,23 @@
                         </ui:Button>
 
                         <mainControls:BotRunToggleButton x:Name="ToggleBotButton"
-                                                         Margin="0,0,6,0"
                                                          VerticalAlignment="Center" />
 
                         <Rectangle Style="{StaticResource MainToolbarDivider}" />
 
-                        <StackPanel Orientation="Horizontal"
-                                    VerticalAlignment="Center"
-                                    Margin="0,0,6,0">
-                            <ui:TextBlock Style="{StaticResource MainMetricCaption}"
-                                          Text="{x:Static loc:UiStrings.Main_ConfigLabel}"
-                                          VerticalAlignment="Center"
-                                          Margin="0,0,8,0" />
+                        <StackPanel Style="{StaticResource MainToolbarConfigGroup}">
                             <ComboBox Style="{StaticResource MainToolbarComboBox}"
                                       SelectedIndex="0"
                                       ToolTip="{x:Static loc:UiStrings.Main_ConfigSlotTooltip}">
                                 <ComboBoxItem Content="{x:Static loc:UiStrings.Main_ConfigSlot1}" />
                                 <ComboBoxItem Content="{x:Static loc:UiStrings.Main_ConfigSlot2}" />
                             </ComboBox>
+
+                            <ui:Button x:Name="OpenConfigButton"
+                                       Style="{StaticResource MainCommandButtonLast}"
+                                       Appearance="Secondary"
+                                       Content="{x:Static loc:UiStrings.Main_ConfigButton}" />
                         </StackPanel>
-
-                        <Rectangle Style="{StaticResource MainToolbarDivider}" />
-
-                        <ui:Button x:Name="OpenConfigButton"
-                                   Style="{StaticResource MainCommandButtonLast}"
-                                   Appearance="Secondary"
-                                   Content="{x:Static loc:UiStrings.Main_ConfigButton}" />
                     </StackPanel>
                 </Border>
             </Grid>

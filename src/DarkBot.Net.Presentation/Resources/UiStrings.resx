@@ -181,11 +181,8 @@
   <data name="Main_ReadyDesignMode" xml:space="preserve">
     <value>Готов — режим конструктора</value>
   </data>
-  <data name="Main_ConfigLabel" xml:space="preserve">
-    <value>Конфиг</value>
-  </data>
   <data name="Main_ConfigSlotTooltip" xml:space="preserve">
-    <value>Визуальный слот под быстрое переключение конфигурации</value>
+    <value>Переключение конфигурации</value>
   </data>
   <data name="Main_ConfigSlot1" xml:space="preserve">
     <value>Конфиг 1</value>

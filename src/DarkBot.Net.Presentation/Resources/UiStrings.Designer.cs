@@ -77,7 +77,6 @@ public static class UiStrings
     public static string Main_StopBotTooltip => GetString(nameof(Main_StopBotTooltip));
     public static string Main_Ready => GetString(nameof(Main_Ready));
     public static string Main_ReadyDesignMode => GetString(nameof(Main_ReadyDesignMode));
-    public static string Main_ConfigLabel => GetString(nameof(Main_ConfigLabel));
     public static string Main_ConfigSlotTooltip => GetString(nameof(Main_ConfigSlotTooltip));
     public static string Main_ConfigSlot1 => GetString(nameof(Main_ConfigSlot1));
     public static string Main_ConfigSlot2 => GetString(nameof(Main_ConfigSlot2));

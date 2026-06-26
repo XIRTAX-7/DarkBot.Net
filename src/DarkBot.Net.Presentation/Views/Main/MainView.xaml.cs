@@ -1,8 +1,9 @@
 using System.Reactive.Disposables;
 using System.Reactive.Disposables.Fluent;
 using System.Windows.Threading;
-using DarkBot.Net.Presentation.Controls;
-using DarkBot.Net.Presentation.ViewModels;
+using DarkBot.Net.Presentation.Controls.Main;
+using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
+using DarkBot.Net.Presentation.ViewModels.Main;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Serilog;

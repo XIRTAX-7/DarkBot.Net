@@ -1,5 +1,5 @@
-using DarkBot.Net.Presentation.ViewModels;
-using DarkBot.Net.Presentation.Views;
+using DarkBot.Net.Presentation.ViewModels.Config;
+using DarkBot.Net.Presentation.Views.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 

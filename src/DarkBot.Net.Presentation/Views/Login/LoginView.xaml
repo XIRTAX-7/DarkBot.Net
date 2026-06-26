@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:rxui="clr-namespace:ReactiveUI;assembly=ReactiveUI.Wpf"
-        xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels"
+        xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels.Login"
         xmlns:loc="clr-namespace:DarkBot.Net.Presentation.Resources"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"

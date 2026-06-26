@@ -1,0 +1,56 @@
+---
+description: "DarkBot.Net.Presentation — feature-first структура Views, ViewModels, Controls (WPF + ReactiveUI)"
+globs:
+  - "DarkBot.Net/src/DarkBot.Net.Presentation/Views/**"
+  - "DarkBot.Net/src/DarkBot.Net.Presentation/ViewModels/**"
+  - "DarkBot.Net/src/DarkBot.Net.Presentation/Controls/**"
+alwaysApply: false
+---
+
+# Presentation UI — структура папок
+
+Принцип: **feature-first**. Папка = фича, namespace зеркалит путь.
+
+## Дерево
+
+```text
+Views/          ViewModels/         Controls/
+├── Shared/     ├── Shared/         ├── Main/
+├── Shell/      ├── Shell/          │   ├── StatsPanelControl.*
+├── Login/      ├── Login/          │   └── MapCanvas/   ← сложный контрол
+├── Main/       ├── Main/           └── Config/
+└── Config/     └── Config/             ├── ConfigTreeControl.*
+    └── Pages/                          └── ConfigCollectSectionControl.*
+```
+
+## Куда класть
+
+| Тип | Путь | Namespace |
+|-----|------|-----------|
+| Окно / экран | `Views/{Feature}/` | `...Views.{Feature}` |
+| Страница навигации | `Views/{Feature}/Pages/` | `...Views.{Feature}.Pages` |
+| Базовый класс UI | `Views/Shared/` | `...Views.Shared` |
+| ViewModel фичи | `ViewModels/{Feature}/` | `...ViewModels.{Feature}` |
+| Базовый VM | `ViewModels/Shared/ViewModelBase` | `...ViewModels.Shared` |
+| Контрол фичи | `Controls/{Feature}/` | `...Controls.{Feature}` |
+| Сложный контрол (5+ файлов) | `Controls/{Feature}/{Name}/` | `...Controls.{Feature}.{Name}` |
+
+## XAML
+
+```xml
+xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels.Config"
+xmlns:mainControls="clr-namespace:DarkBot.Net.Presentation.Controls.Main"
+xmlns:mapCanvas="clr-namespace:DarkBot.Net.Presentation.Controls.Main.MapCanvas"
+```
+
+## Запрещено
+
+- ❌ Файлы в корне `Views/`, `ViewModels/`, `Controls/` (кроме переходного рефакторинга)
+- ❌ Плоский namespace `...ViewModels` без сегмента фичи
+- ❌ Контролы одной фичи в папке другой (`ConfigTree` в `Controls/Main`)
+- ❌ Мёртвый UI-код: VM/свойства без биндингов и потребителей
+
+## Новая фича
+
+Создавай сразу три папки: `Views/{Feature}/`, `ViewModels/{Feature}/`, `Controls/{Feature}/`.
+Регистрируй view↔vm в `Program.ConfigureReactiveUi()`.

@@ -1,8 +1,11 @@
 using System.Globalization;
 using System.Windows;
-using DarkBot.Net.Presentation.Controls;
+using DarkBot.Net.Presentation.Controls.Config;
+using DarkBot.Net.Presentation.Controls.Main;
 using DarkBot.Net.Presentation.Logging;
-using DarkBot.Net.Presentation.ViewModels;
+using DarkBot.Net.Presentation.ViewModels.Config;
+using DarkBot.Net.Presentation.ViewModels.Login;
+using DarkBot.Net.Presentation.ViewModels.Main;
 using DarkBot.Net.Presentation.Views.Login;
 using DarkBot.Net.Presentation.Views.Main;
 using Microsoft.Extensions.Configuration;

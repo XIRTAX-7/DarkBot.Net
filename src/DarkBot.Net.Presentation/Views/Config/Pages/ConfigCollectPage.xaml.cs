@@ -1,5 +1,5 @@
 using System.Windows.Controls;
-using DarkBot.Net.Presentation.ViewModels;
+using DarkBot.Net.Presentation.ViewModels.Config;
 
 namespace DarkBot.Net.Presentation.Views.Config.Pages;
 

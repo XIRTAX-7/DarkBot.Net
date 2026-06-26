@@ -1,5 +1,5 @@
 using DarkBot.Net.Presentation.ViewModels.Shell;
-using DarkBot.Net.Presentation.Views;
+using DarkBot.Net.Presentation.Views.Shared;
 
 namespace DarkBot.Net.Presentation.Views.Shell;
 

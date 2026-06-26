@@ -1,4 +1,4 @@
-using DarkBot.Net.Presentation.Controls;
+using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
 using DarkBot.Net.Presentation.Services;
 using SkiaSharp;
 

@@ -1,4 +1,6 @@
-using DarkBot.Net.Presentation.ViewModels;
+using DarkBot.Net.Presentation.ViewModels.Config;
+using DarkBot.Net.Presentation.ViewModels.Login;
+using DarkBot.Net.Presentation.ViewModels.Main;
 using DarkBot.Net.Presentation.ViewModels.Shell;
 using ReactiveUI;
 using Serilog;

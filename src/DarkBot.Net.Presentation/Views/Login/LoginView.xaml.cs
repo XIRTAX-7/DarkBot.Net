@@ -1,5 +1,5 @@
 using System.Windows;
-using DarkBot.Net.Presentation.ViewModels;
+using DarkBot.Net.Presentation.ViewModels.Login;
 using ReactiveUI;
 using Serilog;
 

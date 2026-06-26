@@ -1,4 +1,4 @@
-using DarkBot.Net.Presentation.ViewModels;
+using DarkBot.Net.Presentation.ViewModels.Config;
 using DarkBot.Net.Presentation.Views.Config.Pages;
 using Wpf.Ui.Abstractions;
 

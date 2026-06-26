@@ -1,4 +1,4 @@
-using DarkBot.Net.Presentation.Controls;
+using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
 
 namespace DarkBot.Net.Presentation.Services;
 

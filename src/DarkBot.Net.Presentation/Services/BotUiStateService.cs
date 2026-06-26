@@ -3,7 +3,6 @@ using DarkBot.Net.Application.Managers;
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Game.Stats;
 using DarkBot.Net.Core.Managers;
-using DarkBot.Net.Presentation.Controls;
 
 namespace DarkBot.Net.Presentation.Services;
 

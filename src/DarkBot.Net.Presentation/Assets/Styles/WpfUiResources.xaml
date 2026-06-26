@@ -124,6 +124,40 @@
     <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, monospace" />
   </Style>
 
+  <Style x:Key="MainBottomPanelTitle" TargetType="{x:Type ui:TextBlock}">
+    <Setter Property="FontTypography" Value="BodyStrong" />
+  </Style>
+
+  <Style x:Key="MainCompactSurfaceBorder"
+         TargetType="{x:Type Border}"
+         BasedOn="{StaticResource MainSurfaceBorder}">
+    <Setter Property="Padding" Value="8" />
+    <Setter Property="CornerRadius" Value="6" />
+  </Style>
+
+  <Style x:Key="MainCompactMetricCaption" TargetType="{x:Type ui:TextBlock}">
+    <Setter Property="FontTypography" Value="Caption" />
+    <Setter Property="Appearance" Value="Secondary" />
+  </Style>
+
+  <Style x:Key="MainCompactMetricValue" TargetType="{x:Type ui:TextBlock}">
+    <Setter Property="FontTypography" Value="Body" />
+    <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, monospace" />
+  </Style>
+
+  <Style x:Key="MainCompactStatusPillBorder"
+         TargetType="{x:Type Border}"
+         BasedOn="{StaticResource MainCompactSurfaceBorder}">
+    <Setter Property="Padding" Value="6,2" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Background" Value="{DynamicResource ControlFillColorTertiaryBrush}" />
+  </Style>
+
+  <Style x:Key="MainCompactSectionLabel" TargetType="{x:Type ui:TextBlock}">
+    <Setter Property="FontTypography" Value="Caption" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
   <Style x:Key="WpfUiDivider" TargetType="Separator">
     <Setter Property="Background" Value="{DynamicResource DividerStrokeColorDefaultBrush}" />
   </Style>

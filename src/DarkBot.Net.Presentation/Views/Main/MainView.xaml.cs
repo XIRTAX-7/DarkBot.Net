@@ -25,7 +25,9 @@ public partial class MainView : ReactiveUserControl<MainWindowViewModel>
             if (ViewModel is null)
                 return;
 
-            this.BindCommand(ViewModel, vm => vm.ToggleBotCommand, v => v.ToggleBotButton)
+            this.Bind(ViewModel, vm => vm.BotRunning, v => v.ToggleBotButton.IsRunning)
+                .DisposeWith(disposables);
+            this.BindCommand(ViewModel, vm => vm.ToggleBotCommand, v => v.ToggleBotButton.ActionButtonControl)
                 .DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.OpenConfigCommand, v => v.OpenConfigButton)
                 .DisposeWith(disposables);
@@ -64,4 +66,5 @@ public partial class MainView : ReactiveUserControl<MainWindowViewModel>
         _statsViewModel.Apply(ViewModel.Snapshot);
         MapCanvas.Snapshot = ViewModel.Snapshot;
     }
+
 }

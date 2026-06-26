@@ -72,9 +72,10 @@ public static class UiStrings
     public static string Main_ConfigButton => GetString(nameof(Main_ConfigButton));
     public static string Main_LoginButton => GetString(nameof(Main_LoginButton));
     public static string Main_RestartClientTooltip => GetString(nameof(Main_RestartClientTooltip));
-    public static string Main_PhaseLabel => GetString(nameof(Main_PhaseLabel));
     public static string Main_StartButton => GetString(nameof(Main_StartButton));
-    public static string Main_PauseButton => GetString(nameof(Main_PauseButton));
+    public static string Main_StopButton => GetString(nameof(Main_StopButton));
+    public static string Main_StartBotTooltip => GetString(nameof(Main_StartBotTooltip));
+    public static string Main_StopBotTooltip => GetString(nameof(Main_StopBotTooltip));
     public static string Main_Ready => GetString(nameof(Main_Ready));
     public static string Main_ReadyDesignMode => GetString(nameof(Main_ReadyDesignMode));
     public static string Status_GameNotLaunched => GetString(nameof(Status_GameNotLaunched));

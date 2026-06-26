@@ -161,19 +161,22 @@
     <value>Настройки</value>
   </data>
   <data name="Main_LoginButton" xml:space="preserve">
-    <value>Вход</value>
+    <value>Выход</value>
   </data>
   <data name="Main_RestartClientTooltip" xml:space="preserve">
     <value>Перезапуск клиента</value>
   </data>
-  <data name="Main_PhaseLabel" xml:space="preserve">
-    <value>DarkBot.Net — фаза 3</value>
-  </data>
   <data name="Main_StartButton" xml:space="preserve">
     <value>Старт</value>
   </data>
-  <data name="Main_PauseButton" xml:space="preserve">
-    <value>Пауза</value>
+  <data name="Main_StopButton" xml:space="preserve">
+    <value>Стоп</value>
+  </data>
+  <data name="Main_StartBotTooltip" xml:space="preserve">
+    <value>Запустить бота</value>
+  </data>
+  <data name="Main_StopBotTooltip" xml:space="preserve">
+    <value>Остановить бота</value>
   </data>
   <data name="Main_Ready" xml:space="preserve">
     <value>Готов</value>

@@ -8,8 +8,8 @@
              xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels.Main"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
-             d:DesignWidth="240"
-             d:DesignHeight="480">
+             d:DesignWidth="1060"
+             d:DesignHeight="56">
 
   <UserControl.Resources>
     <ResourceDictionary>
@@ -20,124 +20,67 @@
   </UserControl.Resources>
 
   <Grid Style="{StaticResource WpfUiViewHostGrid}">
-  <ui:Card Padding="16">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-      <StackPanel>
-        <StackPanel Margin="0,0,0,16">
-          <ui:TextBlock FontTypography="Subtitle" Text="Ship telemetry" Margin="0,0,0,4" />
-          <ui:TextBlock FontTypography="Caption"
-                        Appearance="Secondary"
-                        Text="Economy, runtime and network metrics." />
+    <Border Style="{StaticResource MainCompactSurfaceBorder}" Padding="10,8">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,6">
+          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Credits" />
+          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
+                        Text="{Binding Credits, StringFormat=N0}" />
         </StackPanel>
 
-        <Grid Margin="0,0,0,16">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-          </Grid.ColumnDefinitions>
-
-          <ui:Card Grid.Row="0" Grid.Column="0" Margin="0,0,4,8" Padding="12">
-            <StackPanel>
-              <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Credits" Margin="0,0,0,4" />
-              <ui:TextBlock FontTypography="Title" Text="{Binding Credits, StringFormat=N0}" />
-            </StackPanel>
-          </ui:Card>
-
-          <ui:Card Grid.Row="0" Grid.Column="1" Margin="4,0,0,8" Padding="12">
-            <StackPanel>
-              <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Uridium" Margin="0,0,0,4" />
-              <ui:TextBlock FontTypography="Title" Text="{Binding Uridium, StringFormat=N0}" />
-            </StackPanel>
-          </ui:Card>
-
-          <ui:Card Grid.Row="1" Grid.Column="0" Margin="0,0,4,0" Padding="12">
-            <StackPanel>
-              <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Experience" Margin="0,0,0,4" />
-              <ui:TextBlock FontTypography="Title" Text="{Binding Experience, StringFormat=N0}" />
-            </StackPanel>
-          </ui:Card>
-
-          <ui:Card Grid.Row="1" Grid.Column="1" Margin="4,0,0,0" Padding="12">
-            <StackPanel>
-              <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Honor" Margin="0,0,0,4" />
-              <ui:TextBlock FontTypography="Title" Text="{Binding Honor, StringFormat=N0}" />
-            </StackPanel>
-          </ui:Card>
-        </Grid>
-
-        <Separator Margin="0,0,0,16" Style="{StaticResource WpfUiDivider}" />
-
-        <StackPanel Margin="0,0,0,16">
-          <ui:Card Margin="0,0,0,8" Padding="12">
-            <Grid>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-              </Grid.ColumnDefinitions>
-              <StackPanel>
-                <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Ping" Margin="0,0,0,2" />
-                <ui:TextBlock FontTypography="Body" Appearance="Secondary" Text="Current connection latency" />
-              </StackPanel>
-              <ui:TextBlock Grid.Column="1"
-                            FontTypography="Subtitle"
-                            FontFamily="Cascadia Mono, Consolas, monospace"
-                            Text="{Binding Ping, StringFormat={}{0} ms}" />
-            </Grid>
-          </ui:Card>
-
-          <ui:Card Margin="0,0,0,8" Padding="12">
-            <Grid>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-              </Grid.ColumnDefinitions>
-              <StackPanel>
-                <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Ticks" Margin="0,0,0,2" />
-                <ui:TextBlock FontTypography="Body" Appearance="Secondary" Text="Bot loop updates" />
-              </StackPanel>
-              <ui:TextBlock Grid.Column="1"
-                            FontTypography="Subtitle"
-                            FontFamily="Cascadia Mono, Consolas, monospace"
-                            Text="{Binding TickCount}" />
-            </Grid>
-          </ui:Card>
-
-          <ui:Card Padding="12">
-            <Grid>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-              </Grid.ColumnDefinitions>
-              <StackPanel>
-                <ui:TextBlock FontTypography="Caption" Appearance="Secondary" Text="Last tick" Margin="0,0,0,2" />
-                <ui:TextBlock FontTypography="Body" Appearance="Secondary" Text="Processing duration" />
-              </StackPanel>
-              <ui:TextBlock Grid.Column="1"
-                            FontTypography="Subtitle"
-                            FontFamily="Cascadia Mono, Consolas, monospace"
-                            Text="{Binding LastTickMs, StringFormat={}{0:0.#} ms}" />
-            </Grid>
-          </ui:Card>
+        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,8,6">
+          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Uridium" />
+          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
+                        Text="{Binding Uridium, StringFormat=N0}" />
         </StackPanel>
 
-        <ui:Card Padding="12,8">
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <ui:TextBlock Style="{StaticResource WpfUiAccentCaption}" Text="Runtime" />
-            <ui:TextBlock Grid.Column="1"
-                          Style="{StaticResource WpfUiAccentMonospaceCaption}"
-                          Text="{Binding Runtime}" />
-          </Grid>
-        </ui:Card>
-      </StackPanel>
-    </ScrollViewer>
-  </ui:Card>
+        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,8,6">
+          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Experience" />
+          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
+                        Text="{Binding Experience, StringFormat=N0}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="3" Margin="0,0,0,6">
+          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Honor" />
+          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
+                        Text="{Binding Honor, StringFormat=N0}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,8,0">
+          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Ping" />
+          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
+                        Text="{Binding Ping, StringFormat={}{0} ms}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,8,0">
+          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Ticks" />
+          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
+                        Text="{Binding TickCount}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,8,0">
+          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Last tick" />
+          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
+                        Text="{Binding LastTickMs, StringFormat={}{0:0.#} ms}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="3">
+          <ui:TextBlock Style="{StaticResource MainCompactMetricCaption}" Text="Runtime" />
+          <ui:TextBlock Style="{StaticResource MainCompactMetricValue}"
+                        Text="{Binding Runtime}" />
+        </StackPanel>
+      </Grid>
+    </Border>
   </Grid>
 </rxui:ReactiveUserControl>

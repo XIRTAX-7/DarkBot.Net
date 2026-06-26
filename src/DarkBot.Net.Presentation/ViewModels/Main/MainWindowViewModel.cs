@@ -29,7 +29,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [Reactive] private string _title = UiStrings.App_Title;
     [Reactive] private bool _botRunning;
     [Reactive] private bool _canRestartClient;
-    [Reactive] private string _runButtonText = UiStrings.Main_StartButton;
     [Reactive] private string _statusLine = UiStrings.Main_Ready;
     [Reactive] private string _gameStatusLine = UiStrings.Status_GameNotLaunched;
     [Reactive] private BotStatusSnapshot _snapshot = new(
@@ -83,7 +82,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         CanRestartClient = _clientRestart?.CanRestart ?? false;
         RefreshGameStatus();
         Title = BotRunning ? UiStrings.App_TitleRunning : UiStrings.App_TitlePaused;
-        RunButtonText = BotRunning ? UiStrings.Main_PauseButton : UiStrings.Main_StartButton;
     }
 
     private void RefreshGameStatus()

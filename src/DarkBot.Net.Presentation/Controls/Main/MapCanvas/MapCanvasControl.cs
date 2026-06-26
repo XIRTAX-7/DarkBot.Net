@@ -43,6 +43,14 @@ public sealed class MapCanvasControl : SKElement
     {
         ClipToBounds = true;
         Focusable = true;
+        HorizontalAlignment = HorizontalAlignment.Stretch;
+        VerticalAlignment = VerticalAlignment.Stretch;
+    }
+
+    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+    {
+        base.OnRenderSizeChanged(sizeInfo);
+        InvalidateVisual();
     }
 
     private static void OnSnapshotChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

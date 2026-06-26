@@ -6,8 +6,6 @@ using DarkBot.Net.Presentation.Formatting;
 using DarkBot.Net.Presentation.Resources;
 using DarkBot.Net.Presentation.Ui.Config;
 using DarkBot.Net.Presentation.ViewModels.Shared;
-using DarkBot.Net.Presentation.ViewModels.Shell;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
@@ -22,7 +20,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly IGameConnectionStatusAppService _gameStatus;
     private readonly IGameClientRestartAppService _clientRestart;
     private readonly IConfigWindowService _configWindow;
-    private readonly IServiceProvider _services;
     private readonly ILogger<MainWindowViewModel>? _logger;
     private readonly IObservable<bool> _canRestartClientGate;
 
@@ -31,9 +28,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [Reactive] private bool _canRestartClient;
     [Reactive] private string _statusLine = UiStrings.Main_Ready;
     [Reactive] private string _gameStatusLine = UiStrings.Status_GameNotLaunched;
-    [Reactive] private BotStatusSnapshot _snapshot = new(
-        false, 0, 0, 0, 0, 0, 0, 0,
-        MapStatusSnapshot.Loading);
+    [Reactive] private BotStatusSnapshot _snapshot = BotStatusSnapshot.Empty;
     [Reactive] private bool _isPetSectionVisible;
     [Reactive] private bool _isGroupSectionVisible;
 
@@ -44,7 +39,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         IGameConnectionStatusAppService gameStatus,
         IGameClientRestartAppService clientRestart,
         IConfigWindowService configWindow,
-        IServiceProvider services,
         ILogger<MainWindowViewModel> logger)
     {
         _bot = bot;
@@ -53,7 +47,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _gameStatus = gameStatus;
         _clientRestart = clientRestart;
         _configWindow = configWindow;
-        _services = services;
         _logger = logger;
         _canRestartClientGate = this.WhenAnyValue(x => x.CanRestartClient);
         _gameStatus.StatusChanged += RefreshGameStatus;
@@ -71,7 +64,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _gameStatus = null!;
         _clientRestart = null!;
         _configWindow = null!;
-        _services = null!;
         _canRestartClientGate = Observable.Return(false);
         Title = UiStrings.App_Title;
         StatusLine = UiStrings.Main_ReadyDesignMode;
@@ -139,10 +131,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _logger?.LogInformation("UI config: OpenConfig requested");
         _configWindow.Show();
     }
-
-    [ReactiveCommand]
-    private void OpenLogin() =>
-        _services.GetRequiredService<ShellWindowViewModel>().ShowLogin();
 
     public void MoveShipToMapLocation(MapClickEventArgs click)
     {

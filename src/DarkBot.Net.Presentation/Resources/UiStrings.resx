@@ -160,9 +160,6 @@
   <data name="Main_ConfigButton" xml:space="preserve">
     <value>Настройки</value>
   </data>
-  <data name="Main_LoginButton" xml:space="preserve">
-    <value>Выход</value>
-  </data>
   <data name="Main_RestartClientTooltip" xml:space="preserve">
     <value>Перезапуск клиента</value>
   </data>
@@ -195,9 +192,6 @@
   </data>
   <data name="Main_ConfigSlot2" xml:space="preserve">
     <value>Конфиг 2</value>
-  </data>
-  <data name="Main_ClientButton" xml:space="preserve">
-    <value>Клиент</value>
   </data>
   <data name="Main_ShipSection" xml:space="preserve">
     <value>Корабль</value>
@@ -232,14 +226,35 @@
   <data name="Main_Stats_Credits" xml:space="preserve">
     <value>Кредиты</value>
   </data>
+  <data name="Main_Stats_CreditsPerHour" xml:space="preserve">
+    <value>Кр/ч</value>
+  </data>
   <data name="Main_Stats_Uridium" xml:space="preserve">
     <value>Уридиум</value>
+  </data>
+  <data name="Main_Stats_UridiumPerHour" xml:space="preserve">
+    <value>Ур/ч</value>
   </data>
   <data name="Main_Stats_Experience" xml:space="preserve">
     <value>Опыт</value>
   </data>
+  <data name="Main_Stats_ExperiencePerHour" xml:space="preserve">
+    <value>Оп/ч</value>
+  </data>
   <data name="Main_Stats_Honor" xml:space="preserve">
     <value>Честь</value>
+  </data>
+  <data name="Main_Stats_HonorPerHour" xml:space="preserve">
+    <value>Ч/ч</value>
+  </data>
+  <data name="Main_Stats_Running" xml:space="preserve">
+    <value>Работает</value>
+  </data>
+  <data name="Main_Stats_Paused" xml:space="preserve">
+    <value>Пауза</value>
+  </data>
+  <data name="Main_Stats_Cargo" xml:space="preserve">
+    <value>Груз</value>
   </data>
   <data name="Status_GameNotLaunched" xml:space="preserve">
     <value>Игра не запущена</value>

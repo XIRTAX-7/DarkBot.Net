@@ -33,8 +33,6 @@ public partial class MainView : ReactiveUserControl<MainWindowViewModel>
                 .DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.OpenConfigCommand, v => v.OpenConfigButton)
                 .DisposeWith(disposables);
-            this.BindCommand(ViewModel, vm => vm.OpenLoginCommand, v => v.OpenLoginButton)
-                .DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.RestartClientCommand, v => v.RestartClientButton)
                 .DisposeWith(disposables);
 

@@ -70,7 +70,6 @@ public static class UiStrings
     public static string Login_LaunchingGame => GetString(nameof(Login_LaunchingGame));
     public static string Login_CredentialsRequired => GetString(nameof(Login_CredentialsRequired));
     public static string Main_ConfigButton => GetString(nameof(Main_ConfigButton));
-    public static string Main_LoginButton => GetString(nameof(Main_LoginButton));
     public static string Main_RestartClientTooltip => GetString(nameof(Main_RestartClientTooltip));
     public static string Main_StartButton => GetString(nameof(Main_StartButton));
     public static string Main_StopButton => GetString(nameof(Main_StopButton));
@@ -82,7 +81,6 @@ public static class UiStrings
     public static string Main_ConfigSlotTooltip => GetString(nameof(Main_ConfigSlotTooltip));
     public static string Main_ConfigSlot1 => GetString(nameof(Main_ConfigSlot1));
     public static string Main_ConfigSlot2 => GetString(nameof(Main_ConfigSlot2));
-    public static string Main_ClientButton => GetString(nameof(Main_ClientButton));
     public static string Main_ShipSection => GetString(nameof(Main_ShipSection));
     public static string Main_Hp => GetString(nameof(Main_Hp));
     public static string Main_Shield => GetString(nameof(Main_Shield));
@@ -94,9 +92,16 @@ public static class UiStrings
     public static string Main_GroupSection => GetString(nameof(Main_GroupSection));
     public static string Main_GroupMembersCountUnit => GetString(nameof(Main_GroupMembersCountUnit));
     public static string Main_Stats_Credits => GetString(nameof(Main_Stats_Credits));
+    public static string Main_Stats_CreditsPerHour => GetString(nameof(Main_Stats_CreditsPerHour));
     public static string Main_Stats_Uridium => GetString(nameof(Main_Stats_Uridium));
+    public static string Main_Stats_UridiumPerHour => GetString(nameof(Main_Stats_UridiumPerHour));
     public static string Main_Stats_Experience => GetString(nameof(Main_Stats_Experience));
+    public static string Main_Stats_ExperiencePerHour => GetString(nameof(Main_Stats_ExperiencePerHour));
     public static string Main_Stats_Honor => GetString(nameof(Main_Stats_Honor));
+    public static string Main_Stats_HonorPerHour => GetString(nameof(Main_Stats_HonorPerHour));
+    public static string Main_Stats_Running => GetString(nameof(Main_Stats_Running));
+    public static string Main_Stats_Paused => GetString(nameof(Main_Stats_Paused));
+    public static string Main_Stats_Cargo => GetString(nameof(Main_Stats_Cargo));
     public static string Status_GameNotLaunched => GetString(nameof(Status_GameNotLaunched));
     public static string Status_OnMapActive => GetString(nameof(Status_OnMapActive));
     public static string Status_Connecting => GetString(nameof(Status_Connecting));

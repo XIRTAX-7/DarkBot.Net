@@ -10,4 +10,30 @@ public sealed record BotStatusSnapshot(
     double Experience,
     double Honor,
     int Ping,
-    MapStatusSnapshot Map);
+    TimeSpan RunningTime,
+    double EarnedCreditsPerHour,
+    double EarnedUridiumPerHour,
+    double EarnedExperiencePerHour,
+    double EarnedHonorPerHour,
+    int Cargo,
+    int MaxCargo,
+    MapStatusSnapshot Map)
+{
+    public static BotStatusSnapshot Empty { get; } = new(
+        BotRunning: false,
+        TickCount: 0,
+        LastTickMs: 0,
+        Credits: 0,
+        Uridium: 0,
+        Experience: 0,
+        Honor: 0,
+        Ping: 0,
+        RunningTime: TimeSpan.Zero,
+        EarnedCreditsPerHour: 0,
+        EarnedUridiumPerHour: 0,
+        EarnedExperiencePerHour: 0,
+        EarnedHonorPerHour: 0,
+        Cargo: 0,
+        MaxCargo: 0,
+        Map: MapStatusSnapshot.Loading);
+}

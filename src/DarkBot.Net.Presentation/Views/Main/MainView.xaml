@@ -32,95 +32,93 @@
         </Grid.RowDefinitions>
 
         <ui:Card Grid.Row="0" Margin="0" Padding="12,8">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0"
-                      Orientation="Horizontal"
-                      VerticalAlignment="Center"
-                      Margin="0,0,14,0">
-                        <Border Style="{StaticResource MainBrandMarkBorder}" Margin="0,0,10,0">
-                            <ui:SymbolIcon Symbol="Shield24"
-                             FontSize="18"
-                             HorizontalAlignment="Center"
-                             VerticalAlignment="Center" />
-                        </Border>
-                        <ui:TextBlock FontTypography="Subtitle"
-                          VerticalAlignment="Center"
-                          Text="{x:Static loc:UiStrings.App_Title}" />
-                    </StackPanel>
-
-                    <Border Grid.Column="1"
-                  Style="{StaticResource MainStatusPillBorder}"
-                  Margin="0,0,10,0"
-                  MinWidth="220">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <Ellipse Grid.Column="0"
-                       Style="{StaticResource MainStatusDot}"
-                       Margin="0,0,8,0" />
-                            <ui:TextBlock Grid.Column="1"
-                            FontTypography="Body"
-                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                            Text="{Binding StatusLine, FallbackValue={x:Static loc:UiStrings.Main_Ready}, TargetNullValue={x:Static loc:UiStrings.Main_Ready}}"
-                            TextTrimming="CharacterEllipsis"
-                            VerticalAlignment="Center" />
-                        </Grid>
-                    </Border>
-
-                    <Border Grid.Column="2"
-                  Style="{StaticResource MainStatusPillBorder}"
-                  Margin="0,0,10,0">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <ui:TextBlock Style="{StaticResource MainMetricCaption}"
-                            Text="{x:Static loc:UiStrings.Main_ConfigLabel}"
+                <StackPanel Grid.Column="0"
+                            Orientation="Horizontal"
                             VerticalAlignment="Center"
-                            Margin="0,0,8,0" />
-                            <ComboBox Style="{StaticResource MainToolbarComboBox}"
-                        SelectedIndex="0"
-                        ToolTip="{x:Static loc:UiStrings.Main_ConfigSlotTooltip}">
-                                <ComboBoxItem Content="{x:Static loc:UiStrings.Main_ConfigSlot1}" />
-                                <ComboBoxItem Content="{x:Static loc:UiStrings.Main_ConfigSlot2}" />
-                            </ComboBox>
-                        </StackPanel>
+                            Margin="0,0,14,0">
+                    <Border Style="{StaticResource MainBrandMarkBorder}" Margin="0,0,10,0">
+                        <ui:SymbolIcon Symbol="Shield24"
+                                       FontSize="18"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
                     </Border>
+                    <ui:TextBlock FontTypography="Subtitle"
+                                  VerticalAlignment="Center"
+                                  Text="{x:Static loc:UiStrings.App_Title}" />
+                </StackPanel>
 
-                    <StackPanel Grid.Column="3"
-                                Orientation="Horizontal"
+                <Border Grid.Column="1"
+                        Style="{StaticResource MainStatusPillBorder}"
+                        Margin="0,0,10,0"
+                        MinWidth="220">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Ellipse Grid.Column="0"
+                                 Style="{StaticResource MainStatusDot}"
+                                 Margin="0,0,8,0" />
+                        <ui:TextBlock Grid.Column="1"
+                                      FontTypography="Body"
+                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                      Text="{Binding StatusLine, FallbackValue={x:Static loc:UiStrings.Main_Ready}, TargetNullValue={x:Static loc:UiStrings.Main_Ready}}"
+                                      TextTrimming="CharacterEllipsis"
+                                      VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="2"
+                        Style="{StaticResource MainToolbarActionsBorder}">
+                    <StackPanel Orientation="Horizontal"
                                 VerticalAlignment="Center">
                         <ui:Button x:Name="RestartClientButton"
-                                   Style="{StaticResource MainCommandButton}"
+                                   Style="{StaticResource MainCommandIconButton}"
                                    Appearance="Transparent"
-                                   Content="{x:Static loc:UiStrings.Main_ClientButton}"
                                    ToolTip="{x:Static loc:UiStrings.Main_RestartClientTooltip}">
                             <ui:Button.Icon>
                                 <ui:SymbolIcon Symbol="ArrowClockwise24" />
                             </ui:Button.Icon>
                         </ui:Button>
-                        <mainControls:BotRunToggleButton x:Name="ToggleBotButton" />
+
+                        <mainControls:BotRunToggleButton x:Name="ToggleBotButton"
+                                                         Margin="0,0,6,0"
+                                                         VerticalAlignment="Center" />
+
+                        <Rectangle Style="{StaticResource MainToolbarDivider}" />
+
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center"
+                                    Margin="0,0,6,0">
+                            <ui:TextBlock Style="{StaticResource MainMetricCaption}"
+                                          Text="{x:Static loc:UiStrings.Main_ConfigLabel}"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,8,0" />
+                            <ComboBox Style="{StaticResource MainToolbarComboBox}"
+                                      SelectedIndex="0"
+                                      ToolTip="{x:Static loc:UiStrings.Main_ConfigSlotTooltip}">
+                                <ComboBoxItem Content="{x:Static loc:UiStrings.Main_ConfigSlot1}" />
+                                <ComboBoxItem Content="{x:Static loc:UiStrings.Main_ConfigSlot2}" />
+                            </ComboBox>
+                        </StackPanel>
+
+                        <Rectangle Style="{StaticResource MainToolbarDivider}" />
+
                         <ui:Button x:Name="OpenConfigButton"
-                                   Style="{StaticResource MainCommandButton}"
+                                   Style="{StaticResource MainCommandButtonLast}"
                                    Appearance="Secondary"
                                    Content="{x:Static loc:UiStrings.Main_ConfigButton}" />
-                        <ui:Button x:Name="OpenLoginButton"
-                                   Style="{StaticResource MainCommandButtonLast}"
-                                   Appearance="Danger"
-                                   Content="{x:Static loc:UiStrings.Main_LoginButton}">
-                            <ui:Button.Icon>
-                                <ui:SymbolIcon Symbol="SignOut24" Filled="True" />
-                            </ui:Button.Icon>
-                        </ui:Button>
                     </StackPanel>
-                </Grid>
+                </Border>
+            </Grid>
         </ui:Card>
 
         <Border Grid.Row="1"
@@ -135,6 +133,10 @@
 
         <ui:Card Grid.Row="2" Padding="16,14">
             <StackPanel>
+                <mainControls:StatsPanelControl x:Name="StatsPanel" />
+
+                <Separator Style="{StaticResource WpfUiDivider}" Margin="0,14,0,14" />
+
                 <Grid MinHeight="120">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" MinWidth="240" />
@@ -252,10 +254,6 @@
                         </ItemsControl>
                     </StackPanel>
                 </Grid>
-
-                <Separator Style="{StaticResource WpfUiDivider}" Margin="0,14,0,14" />
-
-                <mainControls:StatsPanelControl x:Name="StatsPanel" />
             </StackPanel>
         </ui:Card>
     </Grid>

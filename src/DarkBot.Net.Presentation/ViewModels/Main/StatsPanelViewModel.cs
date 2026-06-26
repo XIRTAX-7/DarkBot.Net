@@ -1,4 +1,6 @@
 using DarkBot.Net.Application.DTOs.Responses.Bot;
+using DarkBot.Net.Presentation.Formatting;
+using DarkBot.Net.Presentation.Resources;
 using DarkBot.Net.Presentation.ViewModels.Shared;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
@@ -7,25 +9,39 @@ namespace DarkBot.Net.Presentation.ViewModels.Main;
 
 public sealed partial class StatsPanelViewModel : ViewModelBase
 {
-    [Reactive] private double _credits;
-    [Reactive] private double _uridium;
-    [Reactive] private double _experience;
-    [Reactive] private double _honor;
+    [Reactive] private string _sessionStateText = UiStrings.Main_Stats_Paused;
+    [Reactive] private string _runningTimeText = "00";
+    [Reactive] private double _earnedCreditsPerHour;
+    [Reactive] private double _earnedUridiumPerHour;
+    [Reactive] private double _earnedExperiencePerHour;
+    [Reactive] private double _earnedHonorPerHour;
+    [Reactive] private int _cargo;
+    [Reactive] private int _maxCargo;
 
     /// <summary>Конструктор для design mode / XAML previewer.</summary>
     public StatsPanelViewModel()
     {
-        Credits = 1_250_000;
-        Uridium = 42_500;
-        Experience = 987_654_321;
-        Honor = 12_345;
+        SessionStateText = UiStrings.Main_Stats_Running;
+        RunningTimeText = "01:23:45";
+        EarnedCreditsPerHour = 1_250_000;
+        EarnedUridiumPerHour = 42_500;
+        EarnedExperiencePerHour = 987_654;
+        EarnedHonorPerHour = 12_345;
+        Cargo = 120;
+        MaxCargo = 500;
     }
 
     public void Apply(BotStatusSnapshot snapshot)
     {
-        Credits = snapshot.Credits;
-        Uridium = snapshot.Uridium;
-        Experience = snapshot.Experience;
-        Honor = snapshot.Honor;
+        SessionStateText = snapshot.BotRunning
+            ? UiStrings.Main_Stats_Running
+            : UiStrings.Main_Stats_Paused;
+        RunningTimeText = StatsDisplayFormat.FormatRunningTime(snapshot.RunningTime);
+        EarnedCreditsPerHour = snapshot.EarnedCreditsPerHour;
+        EarnedUridiumPerHour = snapshot.EarnedUridiumPerHour;
+        EarnedExperiencePerHour = snapshot.EarnedExperiencePerHour;
+        EarnedHonorPerHour = snapshot.EarnedHonorPerHour;
+        Cargo = snapshot.Cargo;
+        MaxCargo = snapshot.MaxCargo;
     }
 }

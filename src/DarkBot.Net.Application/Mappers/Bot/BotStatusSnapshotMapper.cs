@@ -26,6 +26,13 @@ internal static class BotStatusSnapshotMapper
             Experience: stats.GetStatValue(Stats.General.Experience),
             Honor: stats.GetStatValue(Stats.General.Honor),
             Ping: stats.Ping,
+            RunningTime: stats.RunningTime,
+            EarnedCreditsPerHour: StatsDisplayMapper.ToEarnedPerHour(stats.EarnedCredits, stats.RunningTime),
+            EarnedUridiumPerHour: StatsDisplayMapper.ToEarnedPerHour(stats.EarnedUridium, stats.RunningTime),
+            EarnedExperiencePerHour: StatsDisplayMapper.ToEarnedPerHour(stats.EarnedExperience, stats.RunningTime),
+            EarnedHonorPerHour: StatsDisplayMapper.ToEarnedPerHour(stats.EarnedHonor, stats.RunningTime),
+            Cargo: stats.Cargo,
+            MaxCargo: stats.MaxCargo,
             Map: CreateMapStatusSnapshot(hero, map, entities, frida, stats, bot, movement));
 
     private static MapStatusSnapshot CreateMapStatusSnapshot(

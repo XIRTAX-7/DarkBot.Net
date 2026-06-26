@@ -57,9 +57,7 @@ public sealed class MapCanvasRendererTests
     {
         using var bitmap = new SKBitmap(320, 240);
         using var canvas = new SKCanvas(bitmap);
-        var snapshot = new BotStatusSnapshot(
-            false, 0, 0, 0, 0, 0, 0, 0,
-            MapStatusSnapshot.Loading);
+        var snapshot = BotStatusSnapshot.Empty;
 
         MapCanvasRenderer.Render(canvas, 320, 240, snapshot, [], null, 0, 1);
     }

@@ -88,8 +88,11 @@ public static class UiStrings
     public static string Main_Position => GetString(nameof(Main_Position));
     public static string Main_PetSection => GetString(nameof(Main_PetSection));
     public static string Main_Fuel => GetString(nameof(Main_Fuel));
+    public static string Main_TargetSection => GetString(nameof(Main_TargetSection));
     public static string Main_GroupSection => GetString(nameof(Main_GroupSection));
     public static string Main_GroupMembersCountUnit => GetString(nameof(Main_GroupMembersCountUnit));
+    public static string Main_SectionCollapseTooltip => GetString(nameof(Main_SectionCollapseTooltip));
+    public static string Main_SectionExpandTooltip => GetString(nameof(Main_SectionExpandTooltip));
     public static string Main_Stats_Credits => GetString(nameof(Main_Stats_Credits));
     public static string Main_Stats_CreditsPerHour => GetString(nameof(Main_Stats_CreditsPerHour));
     public static string Main_Stats_Uridium => GetString(nameof(Main_Stats_Uridium));

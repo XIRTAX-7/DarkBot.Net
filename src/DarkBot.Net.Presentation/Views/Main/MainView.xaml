@@ -175,39 +175,124 @@
                     </StackPanel>
 
                     <Rectangle Grid.Column="1"
-                               x:Name="PetSectionSeparator"
+                               x:Name="TargetSectionSeparator"
                                Style="{StaticResource MainDashboardColumnSeparator}"
-                               Visibility="{Binding IsPetSectionVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                               Visibility="{Binding HasTargetSection, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                     <StackPanel Grid.Column="2"
-                                x:Name="PetSection"
-                                Visibility="{Binding IsPetSectionVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                x:Name="TargetSection"
+                                Visibility="{Binding HasTargetSection, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <ui:SymbolIcon Symbol="AnimalCat24" FontSize="16" Margin="0,0,8,0" />
+                            <ui:SymbolIcon Symbol="Target24" FontSize="16" Margin="0,0,8,0" />
                             <ui:TextBlock Style="{StaticResource MainDashboardSectionTitle}"
-                                          Text="{x:Static loc:UiStrings.Main_PetSection}" />
+                                          Text="{x:Static loc:UiStrings.Main_TargetSection}" />
                         </StackPanel>
 
+                        <ui:TextBlock Margin="0,0,0,8"
+                                      Text="{Binding Snapshot.Map.Target.Name, FallbackValue=—, TargetNullValue=—}"
+                                      TextTrimming="CharacterEllipsis">
+                            <ui:TextBlock.Style>
+                                <Style TargetType="{x:Type ui:TextBlock}" BasedOn="{StaticResource MainDashboardMetricLabel}">
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Snapshot.Map.Target.IsEnemy}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource MainDashboardEnemyBrush}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Snapshot.Map.Target.IsEnemy}" Value="False">
+                                            <Setter Property="Foreground" Value="{StaticResource MainDashboardAllyBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:TextBlock.Style>
+                        </ui:TextBlock>
+
                         <mainControls:HealthMetricRow Label="{x:Static loc:UiStrings.Main_Hp}"
-                                                      Value="{Binding Snapshot.Map.Pet.Hp, TargetNullValue=0}"
-                                                      Maximum="{Binding Snapshot.Map.Pet.MaxHp, TargetNullValue=0}"
+                                                      Value="{Binding Snapshot.Map.Target.Hp, TargetNullValue=0}"
+                                                      Maximum="{Binding Snapshot.Map.Target.MaxHp, TargetNullValue=1}"
                                                       FillBrush="{StaticResource MainDashboardHealthBrush}" />
-                        <mainControls:HealthMetricRow Label="{x:Static loc:UiStrings.Main_Fuel}"
-                                                      Value="{Binding Snapshot.Map.Pet.Fuel, TargetNullValue=0}"
-                                                      Maximum="{Binding Snapshot.Map.Pet.MaxFuel, TargetNullValue=0}"
-                                                      FillBrush="{StaticResource MainDashboardFuelBrush}"
-                                                      Margin="0" />
                     </StackPanel>
 
                     <Rectangle Grid.Column="3"
-                               x:Name="GroupSectionSeparator"
+                               x:Name="PetSectionSeparator"
                                Style="{StaticResource MainDashboardColumnSeparator}"
-                               Visibility="{Binding IsGroupSectionVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                               Visibility="{Binding HasPetSection, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                     <StackPanel Grid.Column="4"
-                                x:Name="GroupSection"
-                                Visibility="{Binding IsGroupSectionVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                x:Name="PetSection"
+                                Visibility="{Binding HasPetSection, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <ui:SymbolIcon Symbol="AnimalCat24" FontSize="16" Margin="0,0,8,0" />
+                                <ui:TextBlock Style="{StaticResource MainDashboardSectionTitle}"
+                                              Text="{x:Static loc:UiStrings.Main_PetSection}" />
+                            </StackPanel>
+
+                            <ui:Button HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Command="{Binding TogglePetSectionCommand}"
+                                       Appearance="Transparent"
+                                       Width="28"
+                                       Height="28"
+                                       Padding="0">
+                                <ui:Button.Style>
+                                    <Style TargetType="{x:Type ui:Button}" BasedOn="{StaticResource MainCommandIconButton}">
+                                        <Setter Property="ToolTip" Value="{x:Static loc:UiStrings.Main_SectionCollapseTooltip}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPetSectionExpanded}" Value="False">
+                                                <Setter Property="ToolTip" Value="{x:Static loc:UiStrings.Main_SectionExpandTooltip}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:Button.Style>
+                                <Grid Width="16" Height="16">
+                                    <ui:SymbolIcon Symbol="ChevronDown24"
+                                                   FontSize="14"
+                                                   Visibility="{Binding IsPetSectionExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    <ui:SymbolIcon Symbol="ChevronRight24" FontSize="14">
+                                        <ui:SymbolIcon.Style>
+                                            <Style TargetType="{x:Type ui:SymbolIcon}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsPetSectionExpanded}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ui:SymbolIcon.Style>
+                                    </ui:SymbolIcon>
+                                </Grid>
+                            </ui:Button>
+                        </Grid>
+
+                        <StackPanel>
+                            <StackPanel.Visibility>
+                                <MultiBinding Converter="{StaticResource BooleanAndConverter}">
+                                    <Binding Path="HasPetSection" />
+                                    <Binding Path="IsPetSectionExpanded" />
+                                </MultiBinding>
+                            </StackPanel.Visibility>
+
+                            <mainControls:HealthMetricRow Label="{x:Static loc:UiStrings.Main_Hp}"
+                                                          Value="{Binding Snapshot.Map.Pet.Hp, TargetNullValue=0}"
+                                                          Maximum="{Binding Snapshot.Map.Pet.MaxHp, TargetNullValue=0}"
+                                                          FillBrush="{StaticResource MainDashboardHealthBrush}" />
+                            <mainControls:HealthMetricRow Label="{x:Static loc:UiStrings.Main_Fuel}"
+                                                          Value="{Binding Snapshot.Map.Pet.Fuel, TargetNullValue=0}"
+                                                          Maximum="{Binding Snapshot.Map.Pet.MaxFuel, TargetNullValue=0}"
+                                                          FillBrush="{StaticResource MainDashboardFuelBrush}"
+                                                          Margin="0" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+
+                <Separator Style="{StaticResource WpfUiDivider}"
+                           Margin="0,14,0,14"
+                           Visibility="{Binding HasGroupSection, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                <StackPanel x:Name="GroupSection"
+                            Visibility="{Binding HasGroupSection, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <ui:SymbolIcon Symbol="PeopleTeam24" FontSize="16" Margin="0,0,8,0" />
                             <ui:TextBlock Style="{StaticResource MainDashboardSectionTitle}"
                                           Text="{x:Static loc:UiStrings.Main_GroupSection}" />
@@ -219,14 +304,81 @@
                             </ui:TextBlock>
                         </StackPanel>
 
-                        <ItemsControl ItemsSource="{Binding Snapshot.Map.Overlay.GroupMembers}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Margin="0,0,0,8">
+                        <ui:Button HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"
+                                   Command="{Binding ToggleGroupSectionCommand}"
+                                   Appearance="Transparent"
+                                   Width="28"
+                                   Height="28"
+                                   Padding="0">
+                            <ui:Button.Style>
+                                <Style TargetType="{x:Type ui:Button}" BasedOn="{StaticResource MainCommandIconButton}">
+                                    <Setter Property="ToolTip" Value="{x:Static loc:UiStrings.Main_SectionCollapseTooltip}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsGroupSectionExpanded}" Value="False">
+                                            <Setter Property="ToolTip" Value="{x:Static loc:UiStrings.Main_SectionExpandTooltip}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:Button.Style>
+                            <Grid Width="16" Height="16">
+                                <ui:SymbolIcon Symbol="ChevronDown24"
+                                               FontSize="14"
+                                               Visibility="{Binding IsGroupSectionExpanded, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                <ui:SymbolIcon Symbol="ChevronRight24" FontSize="14">
+                                    <ui:SymbolIcon.Style>
+                                        <Style TargetType="{x:Type ui:SymbolIcon}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsGroupSectionExpanded}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ui:SymbolIcon.Style>
+                                </ui:SymbolIcon>
+                            </Grid>
+                        </ui:Button>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding Snapshot.Map.Overlay.GroupMembers}">
+                        <ItemsControl.Visibility>
+                            <MultiBinding Converter="{StaticResource BooleanAndConverter}">
+                                <Binding Path="HasGroupSection" />
+                                <Binding Path="IsGroupSectionExpanded" />
+                            </MultiBinding>
+                        </ItemsControl.Visibility>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="4" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,12,10" Padding="0,0,4,0">
+                                    <StackPanel>
                                         <Grid Margin="0,0,0,4">
                                             <ui:TextBlock Text="{Binding DisplayText}"
-                                                          Style="{StaticResource MainDashboardMetricLabel}"
-                                                          TextTrimming="CharacterEllipsis" />
+                                                          TextTrimming="CharacterEllipsis">
+                                                <ui:TextBlock.Style>
+                                                    <Style TargetType="{x:Type ui:TextBlock}" BasedOn="{StaticResource MainDashboardMetricLabel}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsLeader}" Value="True">
+                                                                <Setter Property="FontWeight" Value="SemiBold" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsDead}" Value="True">
+                                                                <Setter Property="TextDecorations" Value="Strikethrough" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsCloaked}" Value="True">
+                                                                <Setter Property="Opacity" Value="0.55" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsLocked}" Value="True">
+                                                                <Setter Property="TextDecorations" Value="Underline" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ui:TextBlock.Style>
+                                            </ui:TextBlock>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                                 <ui:TextBlock Style="{StaticResource MainDashboardMetricValue}"
                                                               Text="{Binding Hp, StringFormat=N0}" />
@@ -235,16 +387,40 @@
                                                               Text="{Binding MaxHp, StringFormat=N0}" />
                                             </StackPanel>
                                         </Grid>
-                                        <ProgressBar Style="{StaticResource MainDashboardHealthProgressBar}"
-                                                     Value="{Binding Hp}"
-                                                     Maximum="{Binding MaxHp}"
-                                                     Foreground="{StaticResource MainDashboardGroupBrush}" />
+
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="6" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <ProgressBar Grid.Column="0"
+                                                         Style="{StaticResource MainDashboardCompactHealthProgressBar}"
+                                                         Value="{Binding Hp}"
+                                                         Maximum="{Binding MaxHp}"
+                                                         Foreground="{StaticResource MainDashboardGroupBrush}" />
+
+                                            <ProgressBar Grid.Column="2"
+                                                         Style="{StaticResource MainDashboardCompactHealthProgressBar}"
+                                                         Value="{Binding TargetHp}"
+                                                         Maximum="{Binding TargetMaxHp}"
+                                                         Foreground="{StaticResource MainDashboardEnemyBrush}">
+                                                <ProgressBar.Visibility>
+                                                    <Binding Path="HasTarget">
+                                                        <Binding.Converter>
+                                                            <BooleanToVisibilityConverter />
+                                                        </Binding.Converter>
+                                                    </Binding>
+                                                </ProgressBar.Visibility>
+                                            </ProgressBar>
+                                        </Grid>
                                     </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
             </StackPanel>
         </ui:Card>
     </Grid>

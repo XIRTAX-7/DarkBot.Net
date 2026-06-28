@@ -29,8 +29,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [Reactive] private string _statusLine = UiStrings.Main_Ready;
     [Reactive] private string _gameStatusLine = UiStrings.Status_GameNotLaunched;
     [Reactive] private BotStatusSnapshot _snapshot = BotStatusSnapshot.Empty;
-    [Reactive] private bool _isPetSectionVisible;
-    [Reactive] private bool _isGroupSectionVisible;
+    [Reactive] private bool _hasPetSection;
+    [Reactive] private bool _hasTargetSection;
+    [Reactive] private bool _hasGroupSection;
+    [Reactive] private bool _isPetSectionExpanded = true;
+    [Reactive] private bool _isGroupSectionExpanded = true;
 
     public MainWindowViewModel(
         IBotControlAppService bot,
@@ -67,8 +70,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _canRestartClientGate = Observable.Return(false);
         Title = UiStrings.App_Title;
         StatusLine = UiStrings.Main_ReadyDesignMode;
-        IsPetSectionVisible = true;
-        IsGroupSectionVisible = true;
+        IsPetSectionExpanded = true;
+        IsGroupSectionExpanded = true;
+        HasPetSection = true;
+        HasTargetSection = true;
+        HasGroupSection = true;
     }
 
     public void Refresh()
@@ -84,9 +90,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void UpdateOptionalSectionsVisibility()
     {
         var map = Snapshot.Map;
-        IsPetSectionVisible = map.Pet is { Valid: true };
-        IsGroupSectionVisible = map.Overlay.GroupMembers.Count > 0;
+        HasPetSection = map.Pet is { Valid: true };
+        HasTargetSection = map.Target is { Id: > 0 };
+        HasGroupSection = map.Overlay.GroupMembers.Count > 0;
     }
+
+    [ReactiveCommand]
+    private void TogglePetSection() => IsPetSectionExpanded = !IsPetSectionExpanded;
+
+    [ReactiveCommand]
+    private void ToggleGroupSection() => IsGroupSectionExpanded = !IsGroupSectionExpanded;
 
     private void RefreshGameStatus()
     {

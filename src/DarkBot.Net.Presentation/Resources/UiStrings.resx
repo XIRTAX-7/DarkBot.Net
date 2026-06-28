@@ -214,11 +214,20 @@
   <data name="Main_Fuel" xml:space="preserve">
     <value>Топливо</value>
   </data>
+  <data name="Main_TargetSection" xml:space="preserve">
+    <value>Цель</value>
+  </data>
   <data name="Main_GroupSection" xml:space="preserve">
     <value>Группа</value>
   </data>
   <data name="Main_GroupMembersCountUnit" xml:space="preserve">
     <value>чел.</value>
+  </data>
+  <data name="Main_SectionCollapseTooltip" xml:space="preserve">
+    <value>Свернуть</value>
+  </data>
+  <data name="Main_SectionExpandTooltip" xml:space="preserve">
+    <value>Развернуть</value>
   </data>
   <data name="Main_Stats_Credits" xml:space="preserve">
     <value>Кредиты</value>

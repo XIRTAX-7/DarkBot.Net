@@ -9,6 +9,7 @@
   </ResourceDictionary.MergedDictionaries>
 
   <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+  <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
   <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
   <LinearGradientBrush x:Key="WpfUiPremiumBrandBrush" StartPoint="0,0" EndPoint="1,1">
@@ -336,6 +337,14 @@
   <SolidColorBrush x:Key="MainDashboardNanoBrush" Color="#FFD0D024" />
   <SolidColorBrush x:Key="MainDashboardFuelBrush" Color="#FFF59E0B" />
   <SolidColorBrush x:Key="MainDashboardGroupBrush" Color="#FFFFD700" />
+  <SolidColorBrush x:Key="MainDashboardEnemyBrush" Color="#FFD50000" />
+  <SolidColorBrush x:Key="MainDashboardAllyBrush" Color="#FF388E3C" />
+
+  <Style x:Key="MainDashboardCompactHealthProgressBar"
+         TargetType="{x:Type ProgressBar}"
+         BasedOn="{StaticResource MainDashboardHealthProgressBar}">
+    <Setter Property="Height" Value="4" />
+  </Style>
 
   <Style x:Key="MainDashboardMetricLabel" TargetType="{x:Type ui:TextBlock}">
     <Setter Property="FontTypography" Value="Caption" />

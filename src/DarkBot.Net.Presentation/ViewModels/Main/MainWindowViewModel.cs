@@ -34,6 +34,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [Reactive] private bool _hasGroupSection;
     [Reactive] private bool _isPetSectionExpanded = true;
     [Reactive] private bool _isGroupSectionExpanded = true;
+    [Reactive] private bool _isMapDashboardReady;
 
     public MainWindowViewModel(
         IBotControlAppService bot,
@@ -75,6 +76,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         HasPetSection = true;
         HasTargetSection = true;
         HasGroupSection = true;
+        IsMapDashboardReady = true;
     }
 
     public void Refresh()
@@ -90,6 +92,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void UpdateOptionalSectionsVisibility()
     {
         var map = Snapshot.Map;
+        IsMapDashboardReady = map.MapId >= 0;
         HasPetSection = map.Pet is { Valid: true };
         HasTargetSection = map.Target is { Id: > 0 };
         HasGroupSection = map.Overlay.GroupMembers.Count > 0;

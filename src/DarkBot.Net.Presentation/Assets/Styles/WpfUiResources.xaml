@@ -11,6 +11,7 @@
   <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
   <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
   <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+  <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
   <converters:ShipConfigurationLabelConverter x:Key="ShipConfigurationLabelConverter" />
   <converters:GameCoordinateScaleConverter x:Key="GameCoordinateScaleConverter" />
   <converters:PositiveToVisibilityConverter x:Key="PositiveToVisibilityConverter" />

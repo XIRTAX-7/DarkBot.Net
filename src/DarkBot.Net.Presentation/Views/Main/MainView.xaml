@@ -122,7 +122,31 @@
                                         Snapshot="{Binding Snapshot}" />
         </Border>
 
-        <ui:Card Grid.Row="2" Padding="16,14">
+        <Grid Grid.Row="2">
+            <ui:Card Padding="16,14"
+                     Visibility="{Binding IsMapDashboardReady, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            MinHeight="120">
+                    <ui:ProgressRing IsIndeterminate="True"
+                                     Width="32"
+                                     Height="32"
+                                     Margin="0,0,0,12" />
+                    <ui:TextBlock FontTypography="Body"
+                                  HorizontalAlignment="Center"
+                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                  Text="{x:Static loc:UiStrings.Main_Loading}" />
+                    <ui:TextBlock FontTypography="Caption"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,6,0,0"
+                                  Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                  Text="{Binding GameStatusLine, FallbackValue={x:Static loc:UiStrings.Status_GameNotLaunched}, TargetNullValue={x:Static loc:UiStrings.Status_GameNotLaunched}}"
+                                  TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </ui:Card>
+
+            <ui:Card Padding="16,14"
+                     Visibility="{Binding IsMapDashboardReady, Converter={StaticResource BooleanToVisibilityConverter}}">
             <StackPanel>
                 <mainControls:StatsPanelControl x:Name="StatsPanel" />
 
@@ -282,11 +306,9 @@
 
                                     <Rectangle Style="{StaticResource MainToolbarDivider}"
                                                Height="28"
-                                               Margin="8,0"
-                                               Visibility="{Binding Snapshot.Map.Hero.MaxCargo, Converter={StaticResource PositiveToVisibilityConverter}}" />
+                                               Margin="8,0" />
 
-                                    <StackPanel MinWidth="56"
-                                                Visibility="{Binding Snapshot.Map.Hero.MaxCargo, Converter={StaticResource PositiveToVisibilityConverter}}">
+                                    <StackPanel MinWidth="56">
                                         <ui:TextBlock Style="{StaticResource MainDashboardStatChipLabel}"
                                                       Text="{x:Static loc:UiStrings.Main_Stats_Cargo}" />
                                         <StackPanel Orientation="Horizontal"
@@ -451,6 +473,7 @@
                     </ItemsControl>
                 </StackPanel>
             </StackPanel>
-        </ui:Card>
+            </ui:Card>
+        </Grid>
     </Grid>
 </rxui:ReactiveUserControl>

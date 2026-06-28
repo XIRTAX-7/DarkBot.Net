@@ -1,0 +1,46 @@
+<UserControl x:Class="DarkBot.Net.Presentation.Controls.Shell.TitleBarDiagnosticMetricControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             x:Name="Root"
+             mc:Ignorable="d"
+             VerticalAlignment="Center"
+             d:DesignWidth="72"
+             d:DesignHeight="28">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/DarkBot.Net.Presentation;component/Assets/Styles/WpfUiResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border VerticalAlignment="Center">
+        <Border.Style>
+            <Style TargetType="{x:Type Border}" BasedOn="{StaticResource TitleBarDiagnosticMetricPill}">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsLast, ElementName=Root}" Value="True">
+                        <Setter Property="Margin" Value="0" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+
+        <StackPanel Style="{StaticResource TitleBarDiagnosticMetricPanel}">
+            <Border Style="{StaticResource TitleBarDiagnosticIconSurface}">
+                <ui:SymbolIcon Symbol="{Binding Symbol, ElementName=Root}"
+                               Style="{StaticResource TitleBarDiagnosticIcon}" />
+            </Border>
+
+            <StackPanel Style="{StaticResource TitleBarDiagnosticTextPanel}">
+                <ui:TextBlock Style="{StaticResource TitleBarDiagnosticCaption}"
+                              Text="{Binding Caption, ElementName=Root}" />
+                <ui:TextBlock Style="{StaticResource TitleBarDiagnosticValue}"
+                              Text="{Binding Value, ElementName=Root}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

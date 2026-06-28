@@ -6,10 +6,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:rxui="clr-namespace:ReactiveUI;assembly=ReactiveUI.Wpf"
              xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels.Shell"
+             xmlns:shellControls="clr-namespace:DarkBot.Net.Presentation.Controls.Shell"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
-             d:DesignWidth="360"
-             d:DesignHeight="36">
+             VerticalAlignment="Center"
+             d:DataContext="{d:DesignInstance Type=vm:TitleBarDiagnosticsViewModel, IsDesignTimeCreatable=True}"
+             d:DesignWidth="320"
+             d:DesignHeight="32">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -23,65 +26,19 @@
             ToolTip="Tick · Память · Ping · FPS">
         <StackPanel Orientation="Horizontal"
                     VerticalAlignment="Center">
-            <Border Style="{StaticResource TitleBarDiagnosticMetricPill}">
-                <StackPanel Style="{StaticResource TitleBarDiagnosticMetricPanel}">
-                    <Border Style="{StaticResource TitleBarDiagnosticIconSurface}">
-                        <ui:SymbolIcon Symbol="HeartPulse24"
-                                       Style="{StaticResource TitleBarDiagnosticIcon}" />
-                    </Border>
-                    <StackPanel VerticalAlignment="Center">
-                        <ui:TextBlock Style="{StaticResource TitleBarDiagnosticCaption}"
-                                      Text="TICK" />
-                        <ui:TextBlock Style="{StaticResource TitleBarDiagnosticValue}"
-                                      Text="{Binding TickMsText}" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource TitleBarDiagnosticMetricPill}">
-                <StackPanel Style="{StaticResource TitleBarDiagnosticMetricPanel}">
-                    <Border Style="{StaticResource TitleBarDiagnosticIconSurface}">
-                        <ui:SymbolIcon Symbol="Memory16"
-                                       Style="{StaticResource TitleBarDiagnosticIcon}" />
-                    </Border>
-                    <StackPanel VerticalAlignment="Center">
-                        <ui:TextBlock Style="{StaticResource TitleBarDiagnosticCaption}"
-                                      Text="RAM" />
-                        <ui:TextBlock Style="{StaticResource TitleBarDiagnosticValue}"
-                                      Text="{Binding MemoryMbText}" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource TitleBarDiagnosticMetricPill}">
-                <StackPanel Style="{StaticResource TitleBarDiagnosticMetricPanel}">
-                    <Border Style="{StaticResource TitleBarDiagnosticIconSurface}">
-                        <ui:SymbolIcon Symbol="Wifi124"
-                                       Style="{StaticResource TitleBarDiagnosticIcon}" />
-                    </Border>
-                    <StackPanel VerticalAlignment="Center">
-                        <ui:TextBlock Style="{StaticResource TitleBarDiagnosticCaption}"
-                                      Text="PING" />
-                        <ui:TextBlock Style="{StaticResource TitleBarDiagnosticValue}"
-                                      Text="{Binding PingText}" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <Border Style="{StaticResource TitleBarDiagnosticMetricPillLast}">
-                <StackPanel Style="{StaticResource TitleBarDiagnosticMetricPanel}">
-                    <Border Style="{StaticResource TitleBarDiagnosticIconSurface}">
-                        <ui:SymbolIcon Symbol="DesktopPulse24"
-                                       Style="{StaticResource TitleBarDiagnosticIcon}" />
-                    </Border>
-                    <StackPanel VerticalAlignment="Center">
-                        <ui:TextBlock Style="{StaticResource TitleBarDiagnosticCaption}"
-                                      Text="FPS" />
-                        <ui:TextBlock Style="{StaticResource TitleBarDiagnosticValue}"
-                                      Text="{Binding FpsText}" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
+            <shellControls:TitleBarDiagnosticMetricControl Caption="TICK"
+                                                           Symbol="HeartPulse20"
+                                                           Value="{Binding TickMsText}" />
+            <shellControls:TitleBarDiagnosticMetricControl Caption="RAM"
+                                                           Symbol="Memory16"
+                                                           Value="{Binding MemoryMbText}" />
+            <shellControls:TitleBarDiagnosticMetricControl Caption="PING"
+                                                           Symbol="Wifi120"
+                                                           Value="{Binding PingText}" />
+            <shellControls:TitleBarDiagnosticMetricControl Caption="FPS"
+                                                           Symbol="DesktopPulse16"
+                                                           Value="{Binding FpsText}"
+                                                           IsLast="True" />
         </StackPanel>
     </Border>
 </rxui:ReactiveUserControl>

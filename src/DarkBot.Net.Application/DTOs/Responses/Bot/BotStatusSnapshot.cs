@@ -5,6 +5,10 @@ public sealed record BotStatusSnapshot(
     bool BotRunning,
     long TickCount,
     double LastTickMs,
+    /// <summary>Средний working set процесса бота, МБ.</summary>
+    double MemoryMb,
+    /// <summary>Эффективная частота bot loop, Гц (1000 / LastTickMs).</summary>
+    double LoopHz,
     double Credits,
     double Uridium,
     double Experience,
@@ -23,6 +27,8 @@ public sealed record BotStatusSnapshot(
         BotRunning: false,
         TickCount: 0,
         LastTickMs: 0,
+        MemoryMb: 0,
+        LoopHz: 0,
         Credits: 0,
         Uridium: 0,
         Experience: 0,

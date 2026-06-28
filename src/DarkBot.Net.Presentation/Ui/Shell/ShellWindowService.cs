@@ -9,7 +9,8 @@ namespace DarkBot.Net.Presentation.Ui.Shell;
 
 public sealed class ShellWindowService(
     IServiceProvider serviceProvider,
-    IGameShutdownAppService gameShutdown) : IShellWindowService
+    IGameShutdownAppService gameShutdown,
+    TitleBarDiagnosticsUiCoordinator titleBarDiagnostics) : IShellWindowService
 {
     public void ShowShellWindow()
     {
@@ -19,7 +20,7 @@ public sealed class ShellWindowService(
             "UI shell: opening window, CurrentViewModel={CurrentViewModelType}",
             viewModel.CurrentViewModel?.GetType().Name ?? "null");
 
-        var window = new ShellWindowView(viewModel, gameShutdown);
+        var window = new ShellWindowView(viewModel, gameShutdown, titleBarDiagnostics);
 
         System.Windows.Application.Current.MainWindow = window;
         window.Show();

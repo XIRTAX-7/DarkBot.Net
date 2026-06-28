@@ -119,6 +119,13 @@ public static class UiStrings
     public static string Status_HpFormat => GetString(nameof(Status_HpFormat));
     public static string Status_PositionFormat => GetString(nameof(Status_PositionFormat));
     public static string Status_MapFormat => GetString(nameof(Status_MapFormat));
+    public static string TitleBar_Diagnostics_Bar_Tooltip => GetString(nameof(TitleBar_Diagnostics_Bar_Tooltip));
+    public static string TitleBar_Diagnostics_Tick_Description => GetString(nameof(TitleBar_Diagnostics_Tick_Description));
+    public static string TitleBar_Diagnostics_Ram_Description => GetString(nameof(TitleBar_Diagnostics_Ram_Description));
+    public static string TitleBar_Diagnostics_Ping_Description => GetString(nameof(TitleBar_Diagnostics_Ping_Description));
+    public static string TitleBar_Diagnostics_Fps_Description => GetString(nameof(TitleBar_Diagnostics_Fps_Description));
+    public static string TitleBar_Diagnostics_NoValue => GetString(nameof(TitleBar_Diagnostics_NoValue));
+    public static string TitleBar_Diagnostics_ValueFormat => GetString(nameof(TitleBar_Diagnostics_ValueFormat));
 
     public static string Format(string name, params object[] args) =>
         string.Format(CultureInfo.CurrentCulture, GetString(name), args);

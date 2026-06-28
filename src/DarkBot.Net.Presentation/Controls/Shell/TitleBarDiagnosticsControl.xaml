@@ -7,6 +7,7 @@
              xmlns:rxui="clr-namespace:ReactiveUI;assembly=ReactiveUI.Wpf"
              xmlns:vm="clr-namespace:DarkBot.Net.Presentation.ViewModels.Shell"
              xmlns:shellControls="clr-namespace:DarkBot.Net.Presentation.Controls.Shell"
+             xmlns:loc="clr-namespace:DarkBot.Net.Presentation.Resources"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d"
              VerticalAlignment="Center"
@@ -23,19 +24,23 @@
     </UserControl.Resources>
 
     <Border Style="{StaticResource TitleBarDiagnosticsBorder}"
-            ToolTip="Tick · Память · Ping · FPS">
+            ToolTip="{x:Static loc:UiStrings.TitleBar_Diagnostics_Bar_Tooltip}">
         <StackPanel Orientation="Horizontal"
                     VerticalAlignment="Center">
             <shellControls:TitleBarDiagnosticMetricControl Caption="TICK"
+                                                           Description="{x:Static loc:UiStrings.TitleBar_Diagnostics_Tick_Description}"
                                                            Symbol="HeartPulse20"
                                                            Value="{Binding TickMsText}" />
             <shellControls:TitleBarDiagnosticMetricControl Caption="RAM"
+                                                           Description="{x:Static loc:UiStrings.TitleBar_Diagnostics_Ram_Description}"
                                                            Symbol="Memory16"
                                                            Value="{Binding MemoryMbText}" />
             <shellControls:TitleBarDiagnosticMetricControl Caption="PING"
+                                                           Description="{x:Static loc:UiStrings.TitleBar_Diagnostics_Ping_Description}"
                                                            Symbol="Wifi120"
                                                            Value="{Binding PingText}" />
             <shellControls:TitleBarDiagnosticMetricControl Caption="FPS"
+                                                           Description="{x:Static loc:UiStrings.TitleBar_Diagnostics_Fps_Description}"
                                                            Symbol="DesktopPulse16"
                                                            Value="{Binding FpsText}"
                                                            IsLast="True" />

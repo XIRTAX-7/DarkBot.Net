@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddSingleton<ConfigTreeViewModel>();
         services.AddSingleton<StatsPanelViewModel>();
         services.AddSingleton<TitleBarDiagnosticsViewModel>();
+        services.AddSingleton<TitleBarDiagnosticsUiCoordinator>();
         services.AddSingleton<ShellWindowViewModel>();
 
         services.AddSingleton<IShellWindowService, ShellWindowService>();

@@ -106,7 +106,11 @@ public sealed class StatsManager : IStatsApi, ISessionMetadataProvider
             _pingStat.Track(ping);
 
         _tickStat.Track(tickTimeMs);
+        _memoryStat.Track(GetProcessMemoryMb());
     }
+
+    private static double GetProcessMemoryMb() =>
+        Environment.WorkingSet / (1024d * 1024d);
 
     public IStatsApi.IStat GetStat(IStatsApi.IStatKey key) =>
         _statistics[StatKey.From(key)];

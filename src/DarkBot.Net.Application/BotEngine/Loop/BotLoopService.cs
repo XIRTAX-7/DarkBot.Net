@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using DarkBot.Net.Application.BotEngine.Install;
 using DarkBot.Net.Application.BotEngine.Managers;
 using DarkBot.Net.Application.BotEngine.Runtime;
@@ -18,6 +19,7 @@ public sealed class BotLoopService : BackgroundService, IBotController
     private volatile bool _running;
     private long _tickCount;
     private double _lastTickMs;
+    private double _lastLoopPeriodMs;
 
     public BotLoopService(
         BotRuntime runtime,
@@ -34,6 +36,9 @@ public sealed class BotLoopService : BackgroundService, IBotController
     public bool IsRunning => _running;
     public long TickCount => Interlocked.Read(ref _tickCount);
     public double LastTickMs => _lastTickMs;
+
+    /// <summary>Фактический период итерации loop (работа tick + delay), мс.</summary>
+    public double LastLoopPeriodMs => _lastLoopPeriodMs;
 
     public void Start() => _running = true;
 
@@ -53,7 +58,7 @@ public sealed class BotLoopService : BackgroundService, IBotController
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var started = Environment.TickCount64;
+                var started = Stopwatch.GetTimestamp();
 
                 try
                 {
@@ -67,13 +72,15 @@ public sealed class BotLoopService : BackgroundService, IBotController
                 }
                 finally
                 {
-                    var elapsed = Environment.TickCount64 - started;
-                    _lastTickMs = elapsed;
-                    _stats.TickAverageStats(elapsed);
+                    var elapsedMs = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+                    _lastTickMs = elapsedMs;
+                    _stats.TickAverageStats(elapsedMs);
                 }
 
                 var targetDelay = _installer.GetRecommendedDelayMs();
-                var delay = Math.Max(0, targetDelay - (int)_lastTickMs);
+                var delay = Math.Max(0, targetDelay - (int)Math.Ceiling(_lastTickMs));
+                _lastLoopPeriodMs = _lastTickMs + delay;
+
                 if (delay > 0)
                     await Task.Delay(delay, stoppingToken).ConfigureAwait(false);
             }

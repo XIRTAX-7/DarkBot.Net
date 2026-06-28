@@ -32,6 +32,7 @@
         <StackPanel Style="{StaticResource TitleBarDiagnosticMetricPanel}">
             <Border Style="{StaticResource TitleBarDiagnosticIconSurface}">
                 <ui:SymbolIcon Symbol="{Binding Symbol, ElementName=Root}"
+                               Filled="True"
                                Style="{StaticResource TitleBarDiagnosticIcon}" />
             </Border>
 

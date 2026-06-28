@@ -307,4 +307,25 @@
   <data name="Status_MapFormat" xml:space="preserve">
     <value>{0} — {1}</value>
   </data>
+  <data name="TitleBar_Diagnostics_Bar_Tooltip" xml:space="preserve">
+    <value>Метрики бота в реальном времени</value>
+  </data>
+  <data name="TitleBar_Diagnostics_Tick_Description" xml:space="preserve">
+    <value>Время tick бота, мс</value>
+  </data>
+  <data name="TitleBar_Diagnostics_Ram_Description" xml:space="preserve">
+    <value>Память процесса бота, МБ</value>
+  </data>
+  <data name="TitleBar_Diagnostics_Ping_Description" xml:space="preserve">
+    <value>Ping в игре</value>
+  </data>
+  <data name="TitleBar_Diagnostics_Fps_Description" xml:space="preserve">
+    <value>Частота bot loop, Гц</value>
+  </data>
+  <data name="TitleBar_Diagnostics_NoValue" xml:space="preserve">
+    <value>Нет данных</value>
+  </data>
+  <data name="TitleBar_Diagnostics_ValueFormat" xml:space="preserve">
+    <value>Значение: {0}</value>
+  </data>
 </root>

@@ -103,6 +103,8 @@ public sealed class GameShutdownCoordinatorTests
         public long TickCount => 0;
         public double LastTickMs => 0;
 
+        public double LastLoopPeriodMs => 0;
+
         public void Start() { }
 
         public void Pause() { }
@@ -115,6 +117,8 @@ public sealed class GameShutdownCoordinatorTests
         public bool IsRunning => false;
         public long TickCount => 0;
         public double LastTickMs => 0;
+
+        public double LastLoopPeriodMs => 0;
 
         public void Start() { }
 

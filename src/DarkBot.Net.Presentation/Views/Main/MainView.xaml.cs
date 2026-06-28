@@ -5,7 +5,6 @@ using System.Windows.Threading;
 using DarkBot.Net.Presentation.Controls.Main;
 using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
 using DarkBot.Net.Presentation.ViewModels.Main;
-using DarkBot.Net.Presentation.ViewModels.Shell;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Serilog;
@@ -15,7 +14,6 @@ namespace DarkBot.Net.Presentation.Views.Main;
 public partial class MainView : ReactiveUserControl<MainWindowViewModel>
 {
     private StatsPanelViewModel? _statsViewModel;
-    private TitleBarDiagnosticsViewModel? _titleBarDiagnostics;
     private DispatcherTimer? _refreshTimer;
 
     public MainView()
@@ -41,7 +39,6 @@ public partial class MainView : ReactiveUserControl<MainWindowViewModel>
                 return;
 
             _statsViewModel = Program.AppHost.Services.GetRequiredService<StatsPanelViewModel>();
-            _titleBarDiagnostics = Program.AppHost.Services.GetRequiredService<TitleBarDiagnosticsViewModel>();
             StatsPanel.ViewModel = _statsViewModel;
 
             this.WhenAnyValue(v => v.StatsPanel!.ViewModel)
@@ -71,7 +68,6 @@ public partial class MainView : ReactiveUserControl<MainWindowViewModel>
 
         ViewModel.Refresh();
         _statsViewModel.Apply(ViewModel.Snapshot);
-        _titleBarDiagnostics?.Apply(ViewModel.Snapshot);
         MapCanvas.Snapshot = ViewModel.Snapshot;
     }
 

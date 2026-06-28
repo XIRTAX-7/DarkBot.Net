@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Windows.Threading;
 using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Presentation.Diagnostics;
+using DarkBot.Net.Presentation.Ui.Shell;
 using DarkBot.Net.Presentation.ViewModels.Shell;
 using ReactiveUI;
 using Serilog;
@@ -17,6 +18,7 @@ namespace DarkBot.Net.Presentation.Views.Shell;
 public partial class ShellWindowView : ShellWindowViewBase
 {
     private readonly IGameShutdownAppService? _gameShutdown;
+    private readonly TitleBarDiagnosticsUiCoordinator? _titleBarDiagnostics;
     private bool _shutdownStarted;
 
     /// <summary>Конструктор для XAML designer.</summary>
@@ -25,9 +27,13 @@ public partial class ShellWindowView : ShellWindowViewBase
         InitializeComponent();
     }
 
-    public ShellWindowView(ShellWindowViewModel viewModel, IGameShutdownAppService gameShutdown)
+    public ShellWindowView(
+        ShellWindowViewModel viewModel,
+        IGameShutdownAppService gameShutdown,
+        TitleBarDiagnosticsUiCoordinator titleBarDiagnostics)
     {
         _gameShutdown = gameShutdown;
+        _titleBarDiagnostics = titleBarDiagnostics;
         ViewModel = viewModel;
         DataContext = viewModel;
 
@@ -46,6 +52,7 @@ public partial class ShellWindowView : ShellWindowViewBase
         });
 
         Loaded += OnLoaded;
+        Closed += OnClosed;
         Closing += OnClosing;
     }
 
@@ -95,6 +102,8 @@ public partial class ShellWindowView : ShellWindowViewBase
 
     private void OnLoaded(object sender, System.Windows.RoutedEventArgs e)
     {
+        _titleBarDiagnostics?.Attach(Dispatcher);
+
         if (ViewModel?.CurrentViewModel is not null)
             NavigateToViewModel(ViewModel.CurrentViewModel);
 
@@ -104,6 +113,9 @@ public partial class ShellWindowView : ShellWindowViewBase
             () => PresentationUiDiagnostics.LogPageHostState(PageHost),
             DispatcherPriority.Loaded);
     }
+
+    private void OnClosed(object? sender, EventArgs e) =>
+        _titleBarDiagnostics?.Detach();
 
     private async void OnClosing(object? sender, System.ComponentModel.CancelEventArgs e)
     {

@@ -3,6 +3,7 @@ using DarkBot.Net.Core.Options;
 using DarkBot.Net.Infrastructure;
 using DarkBot.Net.Infrastructure.Logging;
 using DarkBot.Net.Presentation.Ui.Config;
+using DarkBot.Net.Presentation.Ui.Main;
 using DarkBot.Net.Presentation.Ui.Shell;
 using DarkBot.Net.Presentation.ViewModels.Config;
 using DarkBot.Net.Presentation.ViewModels.Login;
@@ -27,6 +28,7 @@ public static class DependencyInjection
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<ConfigTreeViewModel>();
         services.AddSingleton<StatsPanelViewModel>();
+        services.AddSingleton<MainDashboardUiCoordinator>();
         services.AddSingleton<TitleBarDiagnosticsViewModel>();
         services.AddSingleton<TitleBarDiagnosticsUiCoordinator>();
         services.AddSingleton<ShellWindowViewModel>();

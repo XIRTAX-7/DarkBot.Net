@@ -1,5 +1,5 @@
 using DarkBot.Net.Application.BotEngine.Addresses;
-using DarkBot.Net.Application.BotEngine.Loop;
+using DarkBot.Net.Core.Interfaces.Bot;
 using DarkBot.Net.Application.BotEngine.Managers;
 using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Application.DTOs.Responses.Bot;

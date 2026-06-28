@@ -15,6 +15,9 @@ public interface IMovementApi : IApi.ISingleton
     bool CanMove(ILocatable destination) => CanMove(destination.X, destination.Y);
     void MoveTo(double x, double y);
     void MoveTo(ILocatable destination) => MoveTo(destination.X, destination.Y);
+    Task MoveToAsync(double x, double y, CancellationToken cancellationToken = default);
+    Task MoveToAsync(ILocatable destination, CancellationToken cancellationToken = default) =>
+        MoveToAsync(destination.X, destination.Y, cancellationToken);
     void MoveRandom();
     void Stop(bool currentLocation);
     void JumpPortal(IPortal portal);

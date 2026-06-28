@@ -5,6 +5,7 @@ using DarkBot.Net.Application.BotEngine.Managers;
 using DarkBot.Net.Application.BotEngine.Runtime;
 using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Application.Services.Game;
+using DarkBot.Net.Core.Interfaces.Bot;
 using DarkBot.Net.Core.Managers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,6 +19,7 @@ public static class DependencyInjection
         services.AddAppServices();
 
         services.AddSingleton<BotAddressRegistry>();
+        services.AddSingleton<IBotAddressInvalidator>(sp => sp.GetRequiredService<BotAddressRegistry>());
         services.AddSingleton<StarManager>();
         services.AddSingleton<HeroManager>();
         services.AddSingleton<IHeroApi>(sp => sp.GetRequiredService<HeroManager>());
@@ -28,7 +30,6 @@ public static class DependencyInjection
 
         services.AddSingleton<MovementApi>();
         services.AddSingleton<IMovementApi>(sp => sp.GetRequiredService<MovementApi>());
-        services.AddSingleton<GameDirectApi>();
         services.AddSingleton<EntitiesApi>();
         services.AddSingleton<IEntitiesApi>(sp => sp.GetRequiredService<EntitiesApi>());
         services.AddSingleton<RepairApi>();

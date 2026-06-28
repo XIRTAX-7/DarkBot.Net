@@ -9,5 +9,8 @@ public sealed class DisconnectModule(long? pauseTimeMs, string reason)
 
     public string? Status => $"Disconnect: {reason}";
 
-    public void OnTickModule() { }
+    public void OnTickModule()
+    {
+        // Phase 6: countdown + reconnect logic
+    }
 }

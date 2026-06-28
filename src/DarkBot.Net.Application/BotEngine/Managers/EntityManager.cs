@@ -1,6 +1,7 @@
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Game.Entities;
-using DarkBot.Net.Application.BotEngine.State;
+using DarkBot.Net.Core.Entities;
+using EntityInfoStub = DarkBot.Net.Core.Entities.EntityInfoStub;
 using DarkBot.Net.Application.BotEngine.Addresses;
 
 namespace DarkBot.Net.Application.BotEngine.Managers;

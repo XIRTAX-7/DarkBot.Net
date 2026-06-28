@@ -1,9 +1,8 @@
 using System.Reactive.Disposables;
 using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
-using System.Windows.Threading;
-using DarkBot.Net.Presentation.Controls.Main;
 using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
+using DarkBot.Net.Presentation.Ui.Main;
 using DarkBot.Net.Presentation.ViewModels.Main;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
@@ -13,9 +12,6 @@ namespace DarkBot.Net.Presentation.Views.Main;
 
 public partial class MainView : ReactiveUserControl<MainWindowViewModel>
 {
-    private StatsPanelViewModel? _statsViewModel;
-    private DispatcherTimer? _refreshTimer;
-
     public MainView()
     {
         Log.Information("UI view: MainView created");
@@ -35,40 +31,30 @@ public partial class MainView : ReactiveUserControl<MainWindowViewModel>
             this.BindCommand(ViewModel, vm => vm.RestartClientCommand, v => v.RestartClientButton)
                 .DisposeWith(disposables);
 
-            if (Program.AppHost is null)
-                return;
-
-            _statsViewModel = Program.AppHost.Services.GetRequiredService<StatsPanelViewModel>();
-            StatsPanel.ViewModel = _statsViewModel;
-
-            this.WhenAnyValue(v => v.StatsPanel!.ViewModel)
-                .Where(vm => vm is not null)
-                .Subscribe(vm => StatsPanel.DataContext = vm)
-                .DisposeWith(disposables);
-
             MapCanvas.MapClicked += OnMapClicked;
             disposables.Add(Disposable.Create(() => MapCanvas.MapClicked -= OnMapClicked));
 
-            _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
-            _refreshTimer.Tick += (_, _) => RefreshUi();
-            _refreshTimer.Start();
-            RefreshUi();
+            if (Program.AppHost is null)
+                return;
 
-            disposables.Add(Disposable.Create(() => _refreshTimer?.Stop()));
+            var dashboard = Program.AppHost.Services.GetRequiredService<MainDashboardUiCoordinator>();
+            dashboard.Attach(Dispatcher);
+            disposables.Add(Disposable.Create(() => dashboard.Detach()));
         });
     }
 
-    private void OnMapClicked(object? sender, MapClickEventArgs e) =>
-        ViewModel?.MoveShipToMapLocation(e);
-
-    private void RefreshUi()
+    private async void OnMapClicked(object? sender, MapClickEventArgs e)
     {
-        if (ViewModel is null || _statsViewModel is null)
+        if (ViewModel is null)
             return;
 
-        ViewModel.Refresh();
-        _statsViewModel.Apply(ViewModel.Snapshot);
-        MapCanvas.Snapshot = ViewModel.Snapshot;
+        try
+        {
+            await ViewModel.MoveShipToMapLocationAsync(e).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Map click move failed");
+        }
     }
-
 }

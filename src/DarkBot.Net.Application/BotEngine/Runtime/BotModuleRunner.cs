@@ -2,7 +2,7 @@ using DarkBot.Net.Application.BotEngine.Modules;
 
 namespace DarkBot.Net.Application.BotEngine.Runtime;
 
-/// <summary>Встроенные модули бота (без plugin registry).</summary>
+/// <summary>Встроенные модули бота (internal C# classes; plugins — Phase 8, см. docs/adr/001-internal-modules.md).</summary>
 public sealed class BotModuleRunner
 {
     private DisconnectModule? _disconnect;

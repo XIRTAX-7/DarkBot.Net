@@ -25,6 +25,7 @@ public sealed class BotLoopServiceShutdownTests
                 services.AddSingleton<BotAddressRegistry>();
                 services.AddSingleton<FakeGameConnection>();
                 services.AddSingleton<IGameConnection>(sp => sp.GetRequiredService<FakeGameConnection>());
+                services.AddSingleton<IUnityGameBridge>(sp => sp.GetRequiredService<FakeGameConnection>());
                 services.AddSingleton<IGameFridaProbe, NullGameFridaProbe>();
                 services.AddSingleton<BotModuleRunner>();
                 services.AddSingleton<BotInstallerService>();

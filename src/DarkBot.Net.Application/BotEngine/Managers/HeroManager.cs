@@ -1,20 +1,22 @@
 using DarkBot.Net.Core.Config.Types;
+using DarkBot.Net.Core.Entities;
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Game.Entities;
 using DarkBot.Net.Core.Game.Enums;
 using DarkBot.Net.Core.Game.Items;
 using DarkBot.Net.Core.Managers;
-using DarkBot.Net.Application.BotEngine.State;
 using DarkBot.Net.Application.BotEngine.Addresses;
+using Microsoft.Extensions.Logging;
 
 namespace DarkBot.Net.Application.BotEngine.Managers;
 
-/// <summary>Port of HeroManager — hero state from Frida AVM (/status).</summary>
+/// <summary>Port of HeroManager — hero state from Unity bridge snapshot.</summary>
 public sealed class HeroManager : IHeroApi
 {
     private readonly BotAddressRegistry _addresses;
     private readonly IGameFridaProbe _frida;
     private readonly StarManager _starManager;
+    private readonly ILogger<HeroManager> _logger;
     private readonly TrackedHealth _health = new();
     private readonly MutableLocationInfo _locationInfo = new();
     private readonly EntityInfoStub _entityInfo = new();
@@ -29,11 +31,16 @@ public sealed class HeroManager : IHeroApi
     /// <summary>Целевой режим бота (OFFENSIVE/RUN/ROAM), не перезаписывает игровой слот.</summary>
     private IShipMode? _desiredShipMode;
 
-    public HeroManager(BotAddressRegistry addresses, IGameFridaProbe frida, StarManager starManager)
+    public HeroManager(
+        BotAddressRegistry addresses,
+        IGameFridaProbe frida,
+        StarManager starManager,
+        ILogger<HeroManager> logger)
     {
         _addresses = addresses;
         _frida = frida;
         _starManager = starManager;
+        _logger = logger;
         _map = starManager.ById(-1);
     }
 
@@ -99,11 +106,35 @@ public sealed class HeroManager : IHeroApi
         return IsInMode(mode);
     }
 
-    public bool SetAttackMode(INpc? target) => false;
-    public bool SetRoamMode() => false;
-    public bool SetRunMode() => false;
-    public bool TriggerLaserAttack() => false;
-    public bool LaunchRocket() => false;
+    public bool SetAttackMode(INpc? target)
+    {
+        _logger.LogDebug("SetAttackMode not implemented until bridge Phase 1 (target={TargetId})", target?.Id);
+        return false;
+    }
+
+    public bool SetRoamMode()
+    {
+        _logger.LogDebug("SetRoamMode not implemented until bridge Phase 1");
+        return false;
+    }
+
+    public bool SetRunMode()
+    {
+        _logger.LogDebug("SetRunMode not implemented until bridge Phase 1");
+        return false;
+    }
+
+    public bool TriggerLaserAttack()
+    {
+        _logger.LogDebug("TriggerLaserAttack not implemented until bridge Phase 1");
+        return false;
+    }
+
+    public bool LaunchRocket()
+    {
+        _logger.LogDebug("LaunchRocket not implemented until bridge Phase 1");
+        return false;
+    }
     public ISelectableItem.ILaser Laser => EmptyLaser.Instance;
     public ISelectableItem.IRocket Rocket => EmptyRocket.Instance;
 
@@ -136,7 +167,11 @@ public sealed class HeroManager : IHeroApi
     public int Id => HeroId;
     public bool IsValid => HeroId > 0 && (_health.MaxHp > 0 || HasMapPosition);
     public bool IsSelectable => false;
-    public bool TrySelect(bool tryAttack) => false;
+    public bool TrySelect(bool tryAttack)
+    {
+        _logger.LogDebug("TrySelect not implemented until bridge Phase 1 (tryAttack={TryAttack})", tryAttack);
+        return false;
+    }
     public ILocationInfo LocationInfo => _locationInfo;
     public IReadOnlyCollection<int> Effects => Array.Empty<int>();
 

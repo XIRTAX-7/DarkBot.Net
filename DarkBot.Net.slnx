@@ -4,6 +4,7 @@
     <File Path="README.md" />
     <File Path="ARCHITECTURE.md" />
     <File Path="PARITY_STATUS.md" />
+    <File Path="MIGRATION_LOG.md" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/DarkBot.Net.Core/DarkBot.Net.Core.csproj" />
@@ -12,9 +13,7 @@
     <Project Path="src/DarkBot.Net.Presentation/DarkBot.Net.Presentation.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/DarkBot.Net.Api.Tests/DarkBot.Net.Api.Tests.csproj" />
     <Project Path="tests/DarkBot.Net.Core.Tests/DarkBot.Net.Core.Tests.csproj" />
-    <Project Path="tests/DarkBot.Net.Agent.Windows.Tests/DarkBot.Net.Agent.Windows.Tests.csproj" />
     <Project Path="tests/DarkBot.Net.Config.Tests/DarkBot.Net.Config.Tests.csproj" />
     <Project Path="tests/DarkBot.Net.Presentation.Tests/DarkBot.Net.Presentation.Tests.csproj" />
   </Folder>

@@ -1,7 +1,9 @@
+using DarkBot.Net.Core.Interfaces.Bot;
+
 namespace DarkBot.Net.Application.BotEngine.Addresses;
 
-/// <summary>Port of BotInstaller address hooks.</summary>
-public sealed class BotAddressRegistry
+/// <summary>Port of BotInstaller address hooks. HasScreenManager = bridge readiness (не Flash pointer).</summary>
+public sealed class BotAddressRegistry : IBotAddressInvalidator
 {
     private long _mainApplicationAddress;
     private long _mainAddress;

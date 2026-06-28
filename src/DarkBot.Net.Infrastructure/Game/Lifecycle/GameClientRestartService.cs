@@ -1,5 +1,5 @@
 using DarkBot.Net.Application.Contracts;
-using DarkBot.Net.Application.BotEngine.Addresses;
+using DarkBot.Net.Core.Interfaces.Bot;
 using DarkBot.Net.Core.Interfaces.Game;
 using DarkBot.Net.Core.Options;
 using DarkBot.Net.Infrastructure.Game.Session;
@@ -14,7 +14,7 @@ public sealed class GameClientRestartService : IGameClientRestartAppService
 {
     private readonly IGameLauncherService _launcher;
     private readonly GameLaunchSessionResolver _sessionResolver;
-    private readonly BotAddressRegistry _addresses;
+    private readonly IBotAddressInvalidator _addressInvalidator;
     private readonly GameClientLifecycle _lifecycle;
     private readonly IHostApplicationLifetime _hostLifetime;
     private readonly GameApiOptions _options;
@@ -26,7 +26,7 @@ public sealed class GameClientRestartService : IGameClientRestartAppService
     public GameClientRestartService(
         IGameLauncherService launcher,
         GameLaunchSessionResolver sessionResolver,
-        BotAddressRegistry addresses,
+        IBotAddressInvalidator addressInvalidator,
         GameClientLifecycle lifecycle,
         IHostApplicationLifetime hostLifetime,
         IOptions<GameApiOptions> options,
@@ -34,7 +34,7 @@ public sealed class GameClientRestartService : IGameClientRestartAppService
     {
         _launcher = launcher;
         _sessionResolver = sessionResolver;
-        _addresses = addresses;
+        _addressInvalidator = addressInvalidator;
         _lifecycle = lifecycle;
         _hostLifetime = hostLifetime;
         _options = options.Value;
@@ -92,7 +92,7 @@ public sealed class GameClientRestartService : IGameClientRestartAppService
                 "Restarting Unity game{Reason}",
                 reason is null ? string.Empty : $" ({reason})");
 
-            _addresses.MarkInvalid();
+            _addressInvalidator.MarkInvalid();
             var result = await _launcher.RestartClientAsync(launch, cancellationToken).ConfigureAwait(false);
             _lastRestartMs = Environment.TickCount64;
 

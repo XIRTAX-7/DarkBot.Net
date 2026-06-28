@@ -1,5 +1,6 @@
 using System.Windows.Threading;
 using DarkBot.Net.Application.Contracts;
+using DarkBot.Net.Presentation.Ui;
 using DarkBot.Net.Presentation.ViewModels.Shell;
 
 namespace DarkBot.Net.Presentation.Ui.Shell;
@@ -12,7 +13,7 @@ public sealed class TitleBarDiagnosticsUiCoordinator(
     IBotDiagnosticsAppService botDiagnostics,
     TitleBarDiagnosticsViewModel viewModel)
 {
-    private static readonly TimeSpan RefreshInterval = TimeSpan.FromMilliseconds(250);
+    private static readonly TimeSpan RefreshInterval = UiRefreshIntervals.Dashboard;
 
     private DispatcherTimer? _timer;
 

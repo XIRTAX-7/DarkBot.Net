@@ -1,4 +1,4 @@
-using DarkBot.Net.Application.BotEngine.Loop;
+using DarkBot.Net.Core.Interfaces.Bot;
 using DarkBot.Net.Application.Services.Bot;
 using DarkBot.Net.Core.Managers;
 

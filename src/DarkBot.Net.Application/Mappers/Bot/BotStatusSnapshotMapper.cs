@@ -1,4 +1,4 @@
-using DarkBot.Net.Application.BotEngine.Loop;
+using DarkBot.Net.Core.Interfaces.Bot;
 using DarkBot.Net.Application.BotEngine.Managers;
 using DarkBot.Net.Application.DTOs.Responses.Bot;
 using DarkBot.Net.Core.Config.Types;
@@ -22,8 +22,8 @@ internal static class BotStatusSnapshotMapper
             BotRunning: bot.IsRunning,
             TickCount: bot.TickCount,
             LastTickMs: bot.LastTickMs,
-            MemoryMb: ResolveMemoryMb(stats),
-            LoopHz: bot.LastTickMs > 0 ? 1000d / bot.LastTickMs : 0d,
+            MemoryMb: BotMetricsResolver.ResolveMemoryMb(stats),
+            LoopHz: BotMetricsResolver.ResolveLoopHz(bot),
             Credits: stats.GetStatValue(Stats.General.Credits),
             Uridium: stats.GetStatValue(Stats.General.Uridium),
             Experience: stats.GetStatValue(Stats.General.Experience),
@@ -37,14 +37,6 @@ internal static class BotStatusSnapshotMapper
             Cargo: stats.Cargo,
             MaxCargo: stats.MaxCargo,
             Map: CreateMapStatusSnapshot(hero, map, entities, frida, stats, bot, movement));
-
-    private static double ResolveMemoryMb(IStatsApi stats)
-    {
-        var tracked = stats.GetStatValue(Stats.Bot.Memory);
-        return tracked > 0
-            ? tracked
-            : Environment.WorkingSet / (1024d * 1024d);
-    }
 
     private static MapStatusSnapshot CreateMapStatusSnapshot(
         HeroManager hero,

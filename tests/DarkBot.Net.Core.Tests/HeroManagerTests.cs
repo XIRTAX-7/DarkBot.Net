@@ -3,6 +3,7 @@ using DarkBot.Net.Application.BotEngine.Managers;
 using DarkBot.Net.Application.Tests.Fakes;
 using DarkBot.Net.Core.Config.Types;
 using DarkBot.Net.Core.Game.Items;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DarkBot.Net.Application.Tests;
 
@@ -20,7 +21,7 @@ public class HeroManagerTests
             HeroX = 193,
             HeroY = 113
         };
-        var hero = new HeroManager(addresses, frida, new StarManager());
+        var hero = new HeroManager(addresses, frida, new StarManager(), NullLogger<HeroManager>.Instance);
 
         addresses.SetScreenManagerAddress(0x1000);
         hero.Tick();
@@ -45,7 +46,7 @@ public class HeroManagerTests
             HeroMaxHp = 1000,
             HeroConfigId = 1,
         };
-        var hero = new HeroManager(addresses, frida, new StarManager());
+        var hero = new HeroManager(addresses, frida, new StarManager(), NullLogger<HeroManager>.Instance);
         addresses.SetScreenManagerAddress(0x1000);
         hero.Tick();
 

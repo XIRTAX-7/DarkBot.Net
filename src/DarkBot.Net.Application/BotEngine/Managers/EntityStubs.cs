@@ -1,9 +1,14 @@
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Game.Entities;
-using DarkBot.Net.Application.BotEngine.State;
+using DarkBot.Net.Core.Entities;
+using EntityInfoStub = DarkBot.Net.Core.Entities.EntityInfoStub;
 
 namespace DarkBot.Net.Application.BotEngine.Managers;
 
+/// <summary>
+/// TECH DEBT Phase 4: заменить на NpcEntity, BoxEntity, PortalEntity.
+/// Сейчас npc/box/portal/player используют один stub-тип.
+/// </summary>
 public sealed class ShipStub : IShip
 {
     public required int Id { get; init; }

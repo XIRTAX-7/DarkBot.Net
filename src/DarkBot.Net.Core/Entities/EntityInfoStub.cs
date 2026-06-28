@@ -2,6 +2,7 @@ using DarkBot.Net.Core.Game;
 
 namespace DarkBot.Net.Core.Entities;
 
+/// <summary>Placeholder для entity info до typed entities (Phase 4).</summary>
 public sealed class EntityInfoStub : IEntityInfo
 {
     public bool IsEnemy => false;

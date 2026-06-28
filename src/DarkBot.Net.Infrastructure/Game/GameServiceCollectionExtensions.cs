@@ -23,6 +23,7 @@ public static class GameServiceCollectionExtensions
         services.AddSingleton<UnityGameLauncher>();
 
         services.AddSingleton<IGameConnection>(sp => sp.GetRequiredService<UnityFridaGameApi>());
+        services.AddSingleton<IUnityGameBridge>(sp => sp.GetRequiredService<UnityFridaGameApi>());
         services.AddSingleton<IGameBridgeStatusSource>(sp => sp.GetRequiredService<UnityFridaGameApi>());
         services.AddSingleton<IGameBridgePhaseSource>(sp => sp.GetRequiredService<UnityFridaGameApi>());
         services.AddSingleton<IGameInstallerProbe>(sp => sp.GetRequiredService<UnityFridaGameApi>());

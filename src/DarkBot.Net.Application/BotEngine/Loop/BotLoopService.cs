@@ -2,6 +2,7 @@ using System.Diagnostics;
 using DarkBot.Net.Application.BotEngine.Install;
 using DarkBot.Net.Application.BotEngine.Managers;
 using DarkBot.Net.Application.BotEngine.Runtime;
+using DarkBot.Net.Core.Interfaces.Bot;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 

@@ -148,7 +148,7 @@
             <ui:Card Padding="16,14"
                      Visibility="{Binding IsMapDashboardReady, Converter={StaticResource BooleanToVisibilityConverter}}">
             <StackPanel>
-                <mainControls:StatsPanelControl x:Name="StatsPanel" />
+                <mainControls:StatsPanelControl DataContext="{Binding Stats}" />
 
                 <Separator Style="{StaticResource WpfUiDivider}" Margin="0,14,0,14" />
 

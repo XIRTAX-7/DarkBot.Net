@@ -1,6 +1,6 @@
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Managers;
-using DarkBot.Net.Application.BotEngine.State;
+using DarkBot.Net.Core.Entities;
 
 namespace DarkBot.Net.Application.BotEngine.Managers;
 

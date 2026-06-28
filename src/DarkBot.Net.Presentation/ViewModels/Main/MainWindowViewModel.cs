@@ -20,6 +20,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly IGameConnectionStatusAppService _gameStatus;
     private readonly IGameClientRestartAppService _clientRestart;
     private readonly IConfigWindowService _configWindow;
+    private readonly StatsPanelViewModel _statsPanel;
     private readonly ILogger<MainWindowViewModel>? _logger;
     private readonly IObservable<bool> _canRestartClientGate;
 
@@ -43,6 +44,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         IGameConnectionStatusAppService gameStatus,
         IGameClientRestartAppService clientRestart,
         IConfigWindowService configWindow,
+        StatsPanelViewModel statsPanel,
         ILogger<MainWindowViewModel> logger)
     {
         _bot = bot;
@@ -51,6 +53,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _gameStatus = gameStatus;
         _clientRestart = clientRestart;
         _configWindow = configWindow;
+        _statsPanel = statsPanel;
         _logger = logger;
         _canRestartClientGate = this.WhenAnyValue(x => x.CanRestartClient);
         _gameStatus.StatusChanged += RefreshGameStatus;
@@ -68,6 +71,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _gameStatus = null!;
         _clientRestart = null!;
         _configWindow = null!;
+        _statsPanel = new StatsPanelViewModel();
         _canRestartClientGate = Observable.Return(false);
         Title = UiStrings.App_Title;
         StatusLine = UiStrings.Main_ReadyDesignMode;
@@ -79,6 +83,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         IsMapDashboardReady = true;
     }
 
+    public StatsPanelViewModel Stats => _statsPanel;
+
     public void Refresh()
     {
         Snapshot = _botStatus.Capture();
@@ -86,6 +92,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         CanRestartClient = _clientRestart?.CanRestart ?? false;
         UpdateOptionalSectionsVisibility();
         RefreshGameStatus();
+        _statsPanel.Apply(Snapshot);
         Title = BotRunning ? UiStrings.App_TitleRunning : UiStrings.App_TitlePaused;
     }
 
@@ -106,28 +113,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private void RefreshGameStatus()
     {
-        var map = Snapshot.Map;
         var connectionStatus = _gameStatus.GetStatus();
         GameStatusLine = GameConnectionStatusFormatter.Format(connectionStatus);
-        StatusLine = map.Hero.Valid
-            ? UiStrings.Format(
-                nameof(UiStrings.Status_HpFormat),
-                map.MapName,
-                map.Hero.Hp,
-                map.Hero.MaxHp)
-            : map.Hero.OnMap
-                ? UiStrings.Format(
-                    nameof(UiStrings.Status_PositionFormat),
-                    map.MapName,
-                    map.Hero.X,
-                    map.Hero.Y,
-                    GameStatusLine)
-                : map.MapId == -1
-                    ? GameStatusLine
-                    : UiStrings.Format(
-                        nameof(UiStrings.Status_MapFormat),
-                        map.MapName,
-                        GameStatusLine);
+        StatusLine = MainStatusLineFormatter.Format(Snapshot.Map, connectionStatus);
     }
 
     [ReactiveCommand]
@@ -148,7 +136,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _configWindow.Show();
     }
 
-    public void MoveShipToMapLocation(MapClickEventArgs click)
+    public async Task MoveShipToMapLocationAsync(MapClickEventArgs click, CancellationToken cancellationToken = default)
     {
         _logger?.LogInformation(
             "Map click screen=({ScreenX:F1},{ScreenY:F1}) game=({GameX:F1},{GameY:F1}) " +
@@ -162,7 +150,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             click.MapHeight > 0 ? click.HeroY / click.MapHeight : 0,
             click.GameX / 10.0, click.GameY / 10.0,
             click.MapWidth, click.MapHeight);
-        _movement.MoveTo(click.GameX, click.GameY);
+        await _movement.MoveToAsync(click.GameX, click.GameY, cancellationToken).ConfigureAwait(true);
     }
 
     [ReactiveCommand(CanExecute = nameof(_canRestartClientGate))]

@@ -1,4 +1,4 @@
-using DarkBot.Net.Application.BotEngine.Loop;
+using DarkBot.Net.Core.Interfaces.Bot;
 using DarkBot.Net.Application.Extensions;
 using DarkBot.Net.Infrastructure;
 using DarkBot.Net.Infrastructure.Game.Lifecycle;

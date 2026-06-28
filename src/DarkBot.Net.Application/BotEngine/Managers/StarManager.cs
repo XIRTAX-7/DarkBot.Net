@@ -1,5 +1,5 @@
 using System.Collections.Concurrent;
-using DarkBot.Net.Application.BotEngine.State;
+using DarkBot.Net.Core.Entities;
 
 namespace DarkBot.Net.Application.BotEngine.Managers;
 

@@ -2,7 +2,7 @@ using DarkBot.Net.Core.Interfaces.Game;
 
 namespace DarkBot.Net.Application.Tests.Fakes;
 
-public sealed class FakeGameConnection : IGameConnection
+public sealed class FakeGameConnection : IGameConnection, IUnityGameBridge
 {
     public GameConnectionPhase Phase { get; set; } = GameConnectionPhase.NotStarted;
     public bool IsLaunched { get; set; }
@@ -34,4 +34,19 @@ public sealed class FakeGameConnection : IGameConnection
     }
 
     public void ClearCache(string pattern) { }
+
+    public Task MoveToAsync(int x, int y, CancellationToken cancellationToken = default) =>
+        Task.CompletedTask;
+
+    public Task<bool> SelectEntityAsync(int entityId, int mapX, int mapY, CancellationToken cancellationToken = default) =>
+        Task.FromResult(false);
+
+    public Task<bool> CollectBoxAsync(CancellationToken cancellationToken = default) =>
+        Task.FromResult(false);
+
+    public Task<bool> AttackAsync(CancellationToken cancellationToken = default) =>
+        Task.FromResult(false);
+
+    public Task<bool> UseItemAsync(string itemId, CancellationToken cancellationToken = default) =>
+        Task.FromResult(false);
 }

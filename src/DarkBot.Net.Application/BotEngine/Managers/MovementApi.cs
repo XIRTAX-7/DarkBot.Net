@@ -2,17 +2,17 @@ using DarkBot.Net.Core.Interfaces.Game;
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Game.Entities;
 using DarkBot.Net.Core.Managers;
-using DarkBot.Net.Application.BotEngine.State;
+using DarkBot.Net.Core.Entities;
 using DarkBot.Net.Application.BotEngine.Addresses;
 using Microsoft.Extensions.Logging;
 
 namespace DarkBot.Net.Application.BotEngine.Managers;
 
-/// <summary>Movement via Frida game API (Darkorbit-client).</summary>
+/// <summary>Movement via Unity Frida bridge.</summary>
 public sealed class MovementApi : IMovementApi
 {
     private readonly BotAddressRegistry _addresses;
-    private readonly IGameConnection _game;
+    private readonly IUnityGameBridge _unityBridge;
     private readonly MapManager _map;
     private readonly HeroManager _hero;
     private readonly ILogger<MovementApi> _logger;
@@ -22,13 +22,13 @@ public sealed class MovementApi : IMovementApi
 
     public MovementApi(
         BotAddressRegistry addresses,
-        IGameConnection game,
+        IUnityGameBridge unityBridge,
         MapManager map,
         HeroManager hero,
         ILogger<MovementApi> logger)
     {
         _addresses = addresses;
-        _game = game;
+        _unityBridge = unityBridge;
         _map = map;
         _hero = hero;
         _logger = logger;
@@ -51,40 +51,19 @@ public sealed class MovementApi : IMovementApi
 
     public void MoveTo(double x, double y)
     {
-        if (x < 0 || y < 0)
-        {
-            _logger.LogWarning(
-                "MoveTo rejected — negative coordinates ({X:F1},{Y:F1}) would fly into radiation",
-                x, y);
+        if (!TryPrepareMove(x, y, out var clampedX, out var clampedY))
             return;
-        }
 
-        var (clampedX, clampedY) = MapCoordinateBounds.SafeClamp(x, y, _map.InternalWidth, _map.InternalHeight);
-        _destination = GameLocation.Of(clampedX, clampedY);
-        _location.Update(_hero.X, _hero.Y, isMoving: true);
+        // Sync path — только bot loop (10 Hz background). UI использует MoveToAsync.
+        _unityBridge.MoveToAsync((int)clampedX, (int)clampedY).GetAwaiter().GetResult();
+    }
 
-        _logger.LogInformation(
-            "MoveTo requested=({RequestX:F1},{RequestY:F1}) safe=({ClampedX:F1},{ClampedY:F1}) " +
-            "map={MapW}x{MapH} hero=({HeroX:F0},{HeroY:F0}) screenManager=0x{ScreenManager:X}",
-            x, y, clampedX, clampedY,
-            _map.InternalWidth, _map.InternalHeight,
-            _hero.X, _hero.Y,
-            _addresses.ScreenManagerAddress);
-
-        if (!_addresses.HasScreenManager)
-        {
-            _logger.LogWarning("MoveTo skipped — screenManager address not available");
+    public async Task MoveToAsync(double x, double y, CancellationToken cancellationToken = default)
+    {
+        if (!TryPrepareMove(x, y, out var clampedX, out var clampedY))
             return;
-        }
 
-        if (MapCoordinateBounds.IsOutOfBounds(_hero.X, _hero.Y, _map.InternalWidth, _map.InternalHeight))
-        {
-            _logger.LogWarning(
-                "MoveTo while hero is out of map at ({HeroX:F0},{HeroY:F0}) — command still sent to return",
-                _hero.X, _hero.Y);
-        }
-
-        _game.MoveShip(_addresses.ScreenManagerAddress, (long)clampedX, (long)clampedY);
+        await _unityBridge.MoveToAsync((int)clampedX, (int)clampedY, cancellationToken).ConfigureAwait(false);
     }
 
     public void MoveRandom()
@@ -119,4 +98,45 @@ public sealed class MovementApi : IMovementApi
         Math.Sqrt(Math.Pow(x - ox, 2) + Math.Pow(y - oy, 2));
 
     public bool IsInPreferredZone(ILocatable location) => true;
+
+    private bool TryPrepareMove(double x, double y, out double clampedX, out double clampedY)
+    {
+        clampedX = 0;
+        clampedY = 0;
+
+        if (x < 0 || y < 0)
+        {
+            _logger.LogWarning(
+                "MoveTo rejected — negative coordinates ({X:F1},{Y:F1}) would fly into radiation",
+                x, y);
+            return false;
+        }
+
+        (clampedX, clampedY) = MapCoordinateBounds.SafeClamp(x, y, _map.InternalWidth, _map.InternalHeight);
+        _destination = GameLocation.Of(clampedX, clampedY);
+        _location.Update(_hero.X, _hero.Y, isMoving: true);
+
+        _logger.LogInformation(
+            "MoveTo requested=({RequestX:F1},{RequestY:F1}) safe=({ClampedX:F1},{ClampedY:F1}) " +
+            "map={MapW}x{MapH} hero=({HeroX:F0},{HeroY:F0}) bridgeReady={BridgeReady}",
+            x, y, clampedX, clampedY,
+            _map.InternalWidth, _map.InternalHeight,
+            _hero.X, _hero.Y,
+            _addresses.HasScreenManager);
+
+        if (!_addresses.HasScreenManager)
+        {
+            _logger.LogWarning("MoveTo skipped — bridge not ready");
+            return false;
+        }
+
+        if (MapCoordinateBounds.IsOutOfBounds(_hero.X, _hero.Y, _map.InternalWidth, _map.InternalHeight))
+        {
+            _logger.LogWarning(
+                "MoveTo while hero is out of map at ({HeroX:F0},{HeroY:F0}) — command still sent to return",
+                _hero.X, _hero.Y);
+        }
+
+        return true;
+    }
 }

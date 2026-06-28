@@ -1,25 +1,25 @@
-# DarkBot.Net — статус Frida-only (v1)
+# DarkBot.Net — статус parity (Unity/WPF)
 
-Обновлено: 2026-06-21
+Обновлено: 2026-06-28
 
-**Единственный поддерживаемый путь игры:** Darkorbit-client (Electron) → Frida `avm_bridge` → .NET через WS/HTTP.  
-**Отключено полностью:** DarkMem, JNI (`DarkBotBridge.dll`), Java JVM, KekkaPlayer, внешние `ReadProcessMemory`.
+**Единственный поддерживаемый путь игры:** `DarkOrbit.exe` (Unity v1.1.102) → FridaCLR + `darkorbit-unity-bridge/agent.js` → .NET через RPC snapshot.
 
-Архив native-кода: `archive/darkmem-native/` (локально, в git не входит).
+**Отключено:** Electron client, Flash AVM bridge, DarkMem, KekkaPlayer, Backpage runtime, C# Plugins.
 
 ---
 
 ## Архитектура
 
 ```
-Darkorbit-client (Electron PPAPI)
-    → game_bridge_agent.js (Frida agent in Pepper Flash)
-    → game_bridge.py + avm_bridge (WS :44570/ws + HTTP :44570)
-    → FridaBridgeHostedService + FridaGameApi
-    → MapManager / HeroManager / EntityManager / StatsManager (C#)
+DarkOrbit.exe (Unity IL2CPP)
+    → unity_bridge_agent.js (Frida agent)
+    → UnityFridaGameApi (C# Infrastructure)
+    → MapManager / HeroManager / EntityManager / StatsManager (Application)
+    → BotLoopService @ 10 Hz
+    → WPF MapCanvas + StatsPanel
 ```
 
-C# **не читает память процесса** — только typed snapshot из Frida.
+C# **не читает память процесса** — только typed snapshot из Frida RPC.
 
 ---
 
@@ -27,48 +27,42 @@ C# **не читает память процесса** — только typed sn
 
 | Слой | Компонент | Статус |
 |------|-----------|--------|
-| Client | Darkorbit-client Electron | ✅ |
-| Bridge | avm_bridge + agent.js schema v2 | ✅ entities, stats, map, hero |
-| Bot | C# managers from Frida probe | 🟡 EntityManager базовый |
-| DarkMem | — | ❌ удалён из runtime |
+| Client | Unity DarkOrbit.exe | ✅ пользователь запускает вручную |
+| Bridge | `darkorbit-unity-bridge` schema v2 | 🟡 snapshot + moveTo; select/collect/attack — Phase 1 |
+| Bot | C# managers from bridge probe | 🟡 ~35% Java parity |
+| UI | WPF + SkiaSharp map | ✅ shell, map click move (async) |
+| Config | `StubConfigApi` | ❌ MVP Phase 3 |
+| Modules | `BotModuleRunner` + `DisconnectModule` | ❌ Collector Phase 2 |
 
 ---
 
-## Проверка
+## Bridge RPC (Phase 1 blockers)
 
-```bash
-curl http://127.0.0.1:44570/status
-# ready, mapId, heroHp, entities[], credits, schemaVersion: 2
-```
+| RPC | Java analog | Статус |
+|-----|-------------|--------|
+| `getStatus` / entity snapshot | entity list | ✅ |
+| `moveTo` | MovementAPI | ✅ |
+| `selectEntity` | GameAPI.selectEntity | ❌ Phase 1 |
+| `collectBox` | DIRECT_COLLECT_BOX | ❌ Phase 1 |
+| `attack` | triggerLaserAttack | ❌ Phase 1 |
 
-Перезагрузите страницу клиента после обновления `game_bridge_agent.js`.
-
----
-
-## Сделано (2026-06-21)
-
-- [x] DarkMem/JNI/Kekka — архив + удаление из репо
-- [x] Frida-only `FridaGameApi` (без `OpenProcess` / `ReadInt`)
-- [x] `BotInstaller` только из `/status`
-- [x] `StatsManager` из Frida snapshot
-- [x] `EntityManager` из `entities[]` в snapshot
-- [x] agent.js: heroHp fix (atom pointers), entities, stats, schemaVersion 2
-- [x] CI без `build-bridge.ps1`
-- [x] Packet bridge `:44569` и `packet_dumper` удалены из prod-пути
+Контракт C#: `IUnityGameBridge` (ADR-002).
 
 ---
 
-## Каналы клиента
+## Миграция Java → .NET
 
-| Порт | Назначение | Статус |
-|------|------------|--------|
-| `:44570` | Game API (HTTP + WS status/events) | ✅ |
-| `:44568` | Control (reload, pid, window) | ✅ |
+План: [`.cursor/plans/java→.net_миграция_68f48221.plan.md`](../.cursor/plans/java→.net_миграция_68f48221.plan.md)
+
+| Milestone | Критерий |
+|-----------|----------|
+| M1 Bridge complete | select + collect + attack RPC + tests |
+| M2 Collector works | 10 min автосбор на 1-1 |
+| M3 Config wired | profile save/load влияет на поведение |
+| M4 Kill & Collect | NPC + boxes одновременно |
 
 ---
 
-## Дальше
+## Исторический контекст
 
-- [ ] Полная классификация entity (NPC/box/portal) + UI MapCanvas
-- [ ] Модули Loot / Map / Gate
-- [ ] Бой (select + attacker)
+Старые документы (Avalonia, Electron, DarkMem) — см. архив в `MIGRATION_LOG.md` (секция Archive).

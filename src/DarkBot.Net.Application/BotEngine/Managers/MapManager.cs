@@ -1,5 +1,5 @@
 using DarkBot.Net.Core.Game;
-using DarkBot.Net.Application.BotEngine.State;
+using DarkBot.Net.Core.Entities;
 using DarkBot.Net.Application.BotEngine.Addresses;
 using Microsoft.Extensions.Logging;
 

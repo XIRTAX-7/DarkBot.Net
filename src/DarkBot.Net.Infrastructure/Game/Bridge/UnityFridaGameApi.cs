@@ -15,6 +15,7 @@ namespace DarkBot.Net.Infrastructure.Game.Bridge;
 /// </summary>
 public sealed class UnityFridaGameApi :
     IGameConnection,
+    IUnityGameBridge,
     IGameInstallerProbe,
     IGameBridgeStatusSource,
     IDisposable
@@ -125,6 +126,7 @@ public sealed class UnityFridaGameApi :
         SetPhase(GameConnectionPhase.Connected);
     }
 
+    /// <summary>Sync attach — вызывать только вне UI thread.</summary>
     public void AttachProcess(long pid) =>
         AttachProcessAsync((int)pid).GetAwaiter().GetResult();
 
@@ -146,6 +148,7 @@ public sealed class UnityFridaGameApi :
         return CurrentStatus?.Ready == true && IsBridgeLive;
     }
 
+    /// <summary>Sync status poll — bot loop / installer; UI использует async probes.</summary>
     public bool RefreshStatus()
     {
         try
@@ -197,17 +200,23 @@ public sealed class UnityFridaGameApi :
         StatusChanged?.Invoke();
     }
 
+    /// <summary>Legacy sync MoveShip — только bot loop (10 Hz background). UI: <see cref="MoveToAsync"/>.</summary>
     public void MoveShip(long screenManager, long x, long y, long collectableAddress = 0)
     {
         _ = screenManager;
 
         if (collectableAddress != 0)
         {
-            _logger.LogWarning("Unity collect move not implemented (collectable=0x{Collectable:X})", collectableAddress);
+            _logger.LogWarning("Unity collect move not implemented until Phase 1 (collectable=0x{Collectable:X})", collectableAddress);
             return;
         }
 
-        _logger.LogInformation("Unity MoveShip target=({X},{Y})", x, y);
+        MoveToAsync((int)x, (int)y).GetAwaiter().GetResult();
+    }
+
+    public async Task MoveToAsync(int x, int y, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Unity MoveToAsync target=({X},{Y})", x, y);
 
         if (!IsBridgeLive)
         {
@@ -217,7 +226,7 @@ public sealed class UnityFridaGameApi :
 
         try
         {
-            var resultJson = _session.MoveToAsync((int)x, (int)y).GetAwaiter().GetResult();
+            var resultJson = await _session.MoveToAsync(x, y, cancellationToken).ConfigureAwait(false);
             _logger.LogInformation("Unity moveTo RPC response: {Response}", resultJson);
         }
         catch (Exception ex)
@@ -226,14 +235,38 @@ public sealed class UnityFridaGameApi :
         }
     }
 
+    public Task<bool> SelectEntityAsync(int entityId, int mapX, int mapY, CancellationToken cancellationToken = default)
+    {
+        _logger.LogWarning("Unity SelectEntityAsync not implemented until Phase 1 (id={EntityId})", entityId);
+        return Task.FromResult(false);
+    }
+
+    public Task<bool> CollectBoxAsync(CancellationToken cancellationToken = default)
+    {
+        _logger.LogWarning("Unity CollectBoxAsync not implemented until Phase 1");
+        return Task.FromResult(false);
+    }
+
+    public Task<bool> AttackAsync(CancellationToken cancellationToken = default)
+    {
+        _logger.LogWarning("Unity AttackAsync not implemented until Phase 1");
+        return Task.FromResult(false);
+    }
+
+    public Task<bool> UseItemAsync(string itemId, CancellationToken cancellationToken = default)
+    {
+        _logger.LogWarning("Unity UseItemAsync not implemented until Phase 1 ({ItemId})", itemId);
+        return Task.FromResult(false);
+    }
+
     public void SelectEntity(ReadOnlySpan<int> taggedArgs) =>
-        _logger.LogDebug("Unity SelectEntity not implemented (args={Count})", taggedArgs.Length);
+        _logger.LogWarning("Unity SelectEntity (legacy) not implemented until Phase 1 (args={Count})", taggedArgs.Length);
 
     public void UseItem(long screenManager, string itemId, int methodIndex, params long[] args) =>
-        _logger.LogDebug("Unity UseItem not implemented ({ItemId})", itemId);
+        _logger.LogWarning("Unity UseItem (legacy) not implemented until Phase 1 ({ItemId})", itemId);
 
     public void Refine(long refineUtilAddress, int oreId, int amount, int methodIndex = -1) =>
-        _logger.LogDebug("Unity Refine not implemented (ore={OreId})", oreId);
+        _logger.LogDebug("Unity Refine not supported in Unity path (ore={OreId})", oreId);
 
     public bool InvokeMethod(long objectPtr, int methodIndex, params long[] args)
     {

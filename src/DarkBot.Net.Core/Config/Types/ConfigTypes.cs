@@ -37,6 +37,7 @@ public static class HeroConfigurationExtensions
 }
 
 public sealed record ShipMode(HeroConfiguration Configuration, Game.Items.ISelectableItem.Formation Formation)
+    : IShipMode
 {
     public static ShipMode Of(HeroConfiguration configuration, Game.Items.ISelectableItem.Formation formation) =>
         new(configuration, formation);

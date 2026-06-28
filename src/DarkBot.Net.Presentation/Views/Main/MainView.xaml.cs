@@ -1,5 +1,6 @@
 using System.Reactive.Disposables;
 using System.Reactive.Disposables.Fluent;
+using System.Reactive.Linq;
 using System.Windows.Threading;
 using DarkBot.Net.Presentation.Controls.Main;
 using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
@@ -42,6 +43,11 @@ public partial class MainView : ReactiveUserControl<MainWindowViewModel>
             _statsViewModel = Program.AppHost.Services.GetRequiredService<StatsPanelViewModel>();
             _titleBarDiagnostics = Program.AppHost.Services.GetRequiredService<TitleBarDiagnosticsViewModel>();
             StatsPanel.ViewModel = _statsViewModel;
+
+            this.WhenAnyValue(v => v.StatsPanel!.ViewModel)
+                .Where(vm => vm is not null)
+                .Subscribe(vm => StatsPanel.DataContext = vm)
+                .DisposeWith(disposables);
 
             MapCanvas.MapClicked += OnMapClicked;
             disposables.Add(Disposable.Create(() => MapCanvas.MapClicked -= OnMapClicked));

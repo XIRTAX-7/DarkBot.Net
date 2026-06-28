@@ -150,4 +150,94 @@ public sealed class UnityBridgeStatusMapperTests
         Assert.Equal(42, updated.HeroX);
         Assert.Equal(84, updated.HeroY);
     }
+
+    [Fact]
+    public void ApplyAgentEvent_UpdatesHeroHealthFromHeroHealthEvent()
+    {
+        using var doc = JsonDocument.Parse(
+            """
+            {
+              "type":"hero_health",
+              "hp":120000,
+              "maxHp":180000,
+              "shield":50000,
+              "maxShield":90000,
+              "nano":1000,
+              "maxNano":2000,
+              "shipType":"ship_venom",
+              "playerName":"Pilot",
+              "configId":2
+            }
+            """);
+        UnityBridgeStatusMapper.ApplyAgentEvent(null, doc.RootElement, out var updated);
+
+        Assert.NotNull(updated);
+        Assert.Equal(120000, updated!.HeroHp);
+        Assert.Equal(180000, updated.HeroMaxHp);
+        Assert.Equal(50000, updated.HeroShield);
+        Assert.Equal(90000, updated.HeroMaxShield);
+        Assert.Equal(1000, updated.HeroNano);
+        Assert.Equal(2000, updated.HeroMaxNano);
+        Assert.Equal("ship_venom", updated.HeroShipType);
+        Assert.Equal("Pilot", updated.HeroPlayerName);
+        Assert.Equal(2, updated.HeroConfigId);
+    }
+
+    [Fact]
+    public void ToFridaStatus_MapsHeroHealthFields()
+    {
+        var agentStatus = new UnityBridgeAgentStatus
+        {
+            SchemaVersion = 1,
+            MovementHooksReady = true,
+            HeroPos = new UnityHeroPosition { X = 100, Y = -200, ServerY = 200 },
+            HeroHp = 12000,
+            HeroMaxHp = 15000,
+            HeroShield = 8000,
+            HeroMaxShield = 10000,
+            HeroNano = 500,
+            HeroMaxNano = 1000,
+            HeroShipType = "ship_goliath",
+            HeroPlayerName = "Tester",
+            HeroConfigId = 1
+        };
+
+        var frida = UnityBridgeStatusMapper.ToFridaStatus(agentStatus);
+
+        Assert.Equal(8000, frida.HeroShield);
+        Assert.Equal(10000, frida.HeroMaxShield);
+        Assert.Equal(500, frida.HeroNano);
+        Assert.Equal(1000, frida.HeroMaxNano);
+        Assert.Equal("ship_goliath", frida.HeroShipType);
+        Assert.Equal("Tester", frida.HeroPlayerName);
+        Assert.Equal(1, frida.HeroConfigId);
+    }
+
+    [Fact]
+    public void ToFridaStatus_MapsHeroHealthWithoutHeroPosition()
+    {
+        var agentStatus = new UnityBridgeAgentStatus
+        {
+            SchemaVersion = 1,
+            Ready = true,
+            MovementHooksReady = true,
+            HeroUserId = 42,
+            HeroPos = null,
+            HeroHp = 12000,
+            HeroMaxHp = 15000,
+            HeroShield = 8000,
+            HeroMaxShield = 10000,
+            HeroShipType = "ship_goliath",
+            HeroPlayerName = "Tester"
+        };
+
+        var frida = UnityBridgeStatusMapper.ToFridaStatus(agentStatus);
+
+        Assert.True(frida.Ready);
+        Assert.Equal(42, frida.HeroId);
+        Assert.Equal("0x1", frida.HeroStatic);
+        Assert.Equal(12000, frida.HeroHp);
+        Assert.Equal(15000, frida.HeroMaxHp);
+        Assert.Equal("Tester", frida.HeroPlayerName);
+    }
 }

@@ -22,24 +22,6 @@
   </UserControl.Resources>
 
   <DockPanel LastChildFill="True" VerticalAlignment="Center">
-    <StackPanel DockPanel.Dock="Right"
-                Orientation="Horizontal"
-                VerticalAlignment="Center">
-      <Rectangle Style="{StaticResource MainStatsInlineSeparator}" />
-      <ui:TextBlock Style="{StaticResource MainStatsInlineCaption}"
-                    Text="{x:Static loc:UiStrings.Main_Stats_Cargo}"
-                    VerticalAlignment="Center" />
-      <ui:TextBlock Style="{StaticResource MainStatsInlineValue}"
-                    Text="{Binding Cargo, StringFormat=N0}"
-                    VerticalAlignment="Center" />
-      <ui:TextBlock Style="{StaticResource MainStatsInlineDivider}"
-                    Text="/"
-                    VerticalAlignment="Center" />
-      <ui:TextBlock Style="{StaticResource MainStatsInlineValueMuted}"
-                    Text="{Binding MaxCargo, StringFormat=N0}"
-                    VerticalAlignment="Center" />
-    </StackPanel>
-
     <StackPanel DockPanel.Dock="Left"
                 Orientation="Horizontal"
                 VerticalAlignment="Center"

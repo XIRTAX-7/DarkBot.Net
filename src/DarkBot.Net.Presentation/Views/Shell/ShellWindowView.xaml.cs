@@ -76,6 +76,9 @@ public partial class ShellWindowView : ShellWindowViewBase
             if (view is IViewFor viewFor)
                 viewFor.ViewModel = viewModel;
 
+            if (view is System.Windows.FrameworkElement element)
+                element.DataContext = viewModel;
+
             PageHost.Content = view;
             Log.Information(
                 "UI navigation: PageHost.Content set to {ViewType}",

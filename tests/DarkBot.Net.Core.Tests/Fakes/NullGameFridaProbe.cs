@@ -26,12 +26,27 @@ internal sealed class NullGameFridaProbe : IGameFridaProbe
         return false;
     }
 
-    public bool TryGetHeroSnapshot(out int heroId, out double x, out double y, out int hp, out int maxHp)
+    public bool TryGetHeroSnapshot(
+        out int heroId,
+        out double x,
+        out double y,
+        out int hp,
+        out int maxHp,
+        out int shield,
+        out int maxShield,
+        out int nano,
+        out int maxNano)
     {
-        heroId = hp = maxHp = 0;
+        heroId = hp = maxHp = shield = maxShield = nano = maxNano = 0;
         x = y = 0;
         return false;
     }
+
+    public string? HeroShipType => null;
+
+    public string? HeroPlayerName => null;
+
+    public int HeroConfigId => 0;
 
     public bool TryGetStatsSnapshot(out FridaStatsSnapshot stats)
     {
@@ -72,6 +87,20 @@ internal sealed class FakeGameFridaProbe : IGameFridaProbe
 
     public int HeroMaxHp { get; set; } = 1000;
 
+    public int HeroShield { get; set; }
+
+    public int HeroMaxShield { get; set; }
+
+    public int HeroNano { get; set; }
+
+    public int HeroMaxNano { get; set; }
+
+    public string? HeroShipType { get; set; }
+
+    public string? HeroPlayerName { get; set; }
+
+    public int HeroConfigId { get; set; }
+
     public long Credits { get; set; }
 
     public void Refresh() { }
@@ -88,13 +117,26 @@ internal sealed class FakeGameFridaProbe : IGameFridaProbe
         return width == 21000 && height is 13500 or 13100 or 26200 or 27000;
     }
 
-    public bool TryGetHeroSnapshot(out int heroId, out double x, out double y, out int hp, out int maxHp)
+    public bool TryGetHeroSnapshot(
+        out int heroId,
+        out double x,
+        out double y,
+        out int hp,
+        out int maxHp,
+        out int shield,
+        out int maxShield,
+        out int nano,
+        out int maxNano)
     {
         heroId = HeroId;
         x = HeroX;
         y = HeroY;
         hp = HeroHp;
         maxHp = HeroMaxHp;
+        shield = HeroShield;
+        maxShield = HeroMaxShield;
+        nano = HeroNano;
+        maxNano = HeroMaxNano;
         return IsReady && heroId > 0;
     }
 

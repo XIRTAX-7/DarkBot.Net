@@ -29,6 +29,7 @@ public sealed class StatsManager : IStatsApi, ISessionMetadataProvider
     private readonly AverageStatImpl _cpuStat;
 
     private bool _updateStats = true;
+    private bool _botRunning;
 
     public StatsManager(BotAddressRegistry addresses, IGameFridaProbe frida)
     {
@@ -75,8 +76,9 @@ public sealed class StatsManager : IStatsApi, ISessionMetadataProvider
 
     public void SetUpdateStatsWhilePaused(bool enabled) => _updateStats = enabled;
 
-    public void Tick()
+    public void Tick(bool botRunning)
     {
+        _botRunning = botRunning;
         UpdateNonZero(_runtime, Environment.TickCount64);
 
         if (!_frida.IsReady || !_frida.TryGetStatsSnapshot(out var stats))
@@ -133,7 +135,9 @@ public sealed class StatsManager : IStatsApi, ISessionMetadataProvider
             stat.Reset();
     }
 
-    private StatImpl CreateStat() => new(() => _updateStats);
+    private StatImpl CreateStat() => new(ShouldTrackSessionStats);
+
+    private bool ShouldTrackSessionStats() => _updateStats && _botRunning;
 
     private void Register(IStatsApi.IStatKey key, StatImpl stat) =>
         _statistics[StatKey.From(key)] = stat;

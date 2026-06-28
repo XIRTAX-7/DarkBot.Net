@@ -6,6 +6,7 @@ public sealed record MapPolygonZoneSnapshot(string Kind, IReadOnlyList<MapPointS
 
 public sealed record MapSafetyZoneSnapshot(double X, double Y, double DiameterGame);
 
+/// <param name="Configuration">Активный слот корабля в игре (1/2). Не путать с конфигом настроек бота в тулбаре.</param>
 public sealed record MapHeroSnapshot(
     bool Valid,
     bool OnMap,
@@ -18,6 +19,8 @@ public sealed record MapHeroSnapshot(
     int MaxShield,
     int Nano,
     int MaxNano,
+    int Cargo,
+    int MaxCargo,
     string Configuration,
     string? Name,
     IReadOnlyList<MapPointSnapshot> PathSegments,
@@ -112,7 +115,7 @@ public sealed record MapStatusSnapshot(
         MapWidth: 21000,
         MapHeight: 13500,
         Hero: new MapHeroSnapshot(
-            false, false, 0, 0, 0, 0, 0, 0, 0, 0, 0, "?", null, [], null, []),
+            false, false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "?", null, [], null, []),
         Pet: null,
         Target: null,
         Entities: MapEntityCollections.Empty,

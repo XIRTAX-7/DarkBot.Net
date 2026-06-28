@@ -41,7 +41,7 @@ public sealed class BotRuntime
 
         _frida.Refresh();
 
-        Stats.Tick();
+        Stats.Tick(isRunning);
         Hero.Tick();
         Map.Tick();
         Entities.Tick();

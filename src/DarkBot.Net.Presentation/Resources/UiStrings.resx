@@ -193,6 +193,9 @@
   <data name="Main_ShipSection" xml:space="preserve">
     <value>Корабль</value>
   </data>
+  <data name="Main_ShipConfigLabel" xml:space="preserve">
+    <value>Конфиг</value>
+  </data>
   <data name="Main_Hp" xml:space="preserve">
     <value>Прочность</value>
   </data>

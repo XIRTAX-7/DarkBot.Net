@@ -128,97 +128,11 @@
 
                 <Separator Style="{StaticResource WpfUiDivider}" Margin="0,14,0,14" />
 
-                <Grid MinHeight="120">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" MinWidth="240" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" MinWidth="220" MaxWidth="300" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" MinWidth="220" MaxWidth="300" />
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
-                        <Grid Margin="0,0,0,6">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <ui:SymbolIcon Symbol="Shield24" FontSize="16" Margin="0,0,8,0" />
-                                <ui:TextBlock Style="{StaticResource MainDashboardSectionTitle}"
-                                              Text="{x:Static loc:UiStrings.Main_ShipSection}" />
-                            </StackPanel>
-                            <ui:TextBlock HorizontalAlignment="Right"
-                                          Style="{StaticResource MainDashboardMetricLabel}"
-                                          Text="{Binding Snapshot.Map.Hero.Configuration}"
-                                          TextTrimming="CharacterEllipsis" />
-                        </Grid>
-
-                        <mainControls:HealthMetricRow Label="{x:Static loc:UiStrings.Main_Hp}"
-                                                      Value="{Binding Snapshot.Map.Hero.Hp}"
-                                                      Maximum="{Binding Snapshot.Map.Hero.MaxHp}"
-                                                      OverflowValue="{Binding Snapshot.Map.Hero.Nano}"
-                                                      OverflowMaximum="{Binding Snapshot.Map.Hero.MaxNano}"
-                                                      FillBrush="{StaticResource MainDashboardHealthBrush}" />
-                        <mainControls:HealthMetricRow Label="{x:Static loc:UiStrings.Main_Shield}"
-                                                      Value="{Binding Snapshot.Map.Hero.Shield}"
-                                                      Maximum="{Binding Snapshot.Map.Hero.MaxShield}"
-                                                      FillBrush="{StaticResource MainDashboardShieldBrush}"
-                                                      Margin="0,0,0,6" />
-
-                        <StackPanel Orientation="Horizontal">
-                            <ui:TextBlock Style="{StaticResource MainDashboardMetricLabel}"
-                                          Text="{x:Static loc:UiStrings.Main_Position}" />
-                            <ui:TextBlock Style="{StaticResource MainDashboardMetricValue}"
-                                          Margin="8,0,0,0"
-                                          Text="{Binding Snapshot.Map.Hero.X, StringFormat=N0}" />
-                            <ui:TextBlock Style="{StaticResource MainDashboardMetricDivider}" Text="," />
-                            <ui:TextBlock Style="{StaticResource MainDashboardMetricValue}"
-                                          Text="{Binding Snapshot.Map.Hero.Y, StringFormat=N0}" />
-                        </StackPanel>
-                    </StackPanel>
-
-                    <Rectangle Grid.Column="1"
-                               x:Name="TargetSectionSeparator"
-                               Style="{StaticResource MainDashboardColumnSeparator}"
-                               Visibility="{Binding HasTargetSection, Converter={StaticResource BooleanToVisibilityConverter}}" />
-
-                    <StackPanel Grid.Column="2"
-                                x:Name="TargetSection"
-                                Visibility="{Binding HasTargetSection, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <ui:SymbolIcon Symbol="Target24" FontSize="16" Margin="0,0,8,0" />
-                            <ui:TextBlock Style="{StaticResource MainDashboardSectionTitle}"
-                                          Text="{x:Static loc:UiStrings.Main_TargetSection}" />
-                        </StackPanel>
-
-                        <ui:TextBlock Margin="0,0,0,8"
-                                      Text="{Binding Snapshot.Map.Target.Name, FallbackValue=—, TargetNullValue=—}"
-                                      TextTrimming="CharacterEllipsis">
-                            <ui:TextBlock.Style>
-                                <Style TargetType="{x:Type ui:TextBlock}" BasedOn="{StaticResource MainDashboardMetricLabel}">
-                                    <Setter Property="FontWeight" Value="SemiBold" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Snapshot.Map.Target.IsEnemy}" Value="True">
-                                            <Setter Property="Foreground" Value="{StaticResource MainDashboardEnemyBrush}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Snapshot.Map.Target.IsEnemy}" Value="False">
-                                            <Setter Property="Foreground" Value="{StaticResource MainDashboardAllyBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ui:TextBlock.Style>
-                        </ui:TextBlock>
-
-                        <mainControls:HealthMetricRow Label="{x:Static loc:UiStrings.Main_Hp}"
-                                                      Value="{Binding Snapshot.Map.Target.Hp, TargetNullValue=0}"
-                                                      Maximum="{Binding Snapshot.Map.Target.MaxHp, TargetNullValue=1}"
-                                                      FillBrush="{StaticResource MainDashboardHealthBrush}" />
-                    </StackPanel>
-
-                    <Rectangle Grid.Column="3"
-                               x:Name="PetSectionSeparator"
-                               Style="{StaticResource MainDashboardColumnSeparator}"
-                               Visibility="{Binding HasPetSection, Converter={StaticResource BooleanToVisibilityConverter}}" />
-
-                    <StackPanel Grid.Column="4"
-                                x:Name="PetSection"
+                <DockPanel MinHeight="120" LastChildFill="True">
+                    <StackPanel x:Name="PetSection"
+                                DockPanel.Dock="Right"
+                                MinWidth="220"
+                                MaxWidth="300"
                                 Visibility="{Binding HasPetSection, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Grid Margin="0,0,0,10">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -283,7 +197,122 @@
                                                           Margin="0" />
                         </StackPanel>
                     </StackPanel>
-                </Grid>
+
+                    <Rectangle x:Name="PetSectionSeparator"
+                               DockPanel.Dock="Right"
+                               Style="{StaticResource MainDashboardColumnSeparator}"
+                               Visibility="{Binding HasPetSection, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <StackPanel x:Name="TargetSection"
+                                DockPanel.Dock="Right"
+                                MinWidth="220"
+                                MaxWidth="300"
+                                Visibility="{Binding HasTargetSection, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <ui:SymbolIcon Symbol="Target24" FontSize="16" Margin="0,0,8,0" />
+                            <ui:TextBlock Style="{StaticResource MainDashboardSectionTitle}"
+                                          Text="{x:Static loc:UiStrings.Main_TargetSection}" />
+                        </StackPanel>
+
+                        <ui:TextBlock Margin="0,0,0,8"
+                                      Text="{Binding Snapshot.Map.Target.Name, FallbackValue=—, TargetNullValue=—}"
+                                      TextTrimming="CharacterEllipsis">
+                            <ui:TextBlock.Style>
+                                <Style TargetType="{x:Type ui:TextBlock}" BasedOn="{StaticResource MainDashboardMetricLabel}">
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Snapshot.Map.Target.IsEnemy}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource MainDashboardEnemyBrush}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Snapshot.Map.Target.IsEnemy}" Value="False">
+                                            <Setter Property="Foreground" Value="{StaticResource MainDashboardAllyBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:TextBlock.Style>
+                        </ui:TextBlock>
+
+                        <mainControls:HealthMetricRow Label="{x:Static loc:UiStrings.Main_Hp}"
+                                                      Value="{Binding Snapshot.Map.Target.Hp, TargetNullValue=0}"
+                                                      Maximum="{Binding Snapshot.Map.Target.MaxHp, TargetNullValue=1}"
+                                                      FillBrush="{StaticResource MainDashboardHealthBrush}" />
+                    </StackPanel>
+
+                    <Rectangle x:Name="TargetSectionSeparator"
+                               DockPanel.Dock="Right"
+                               Style="{StaticResource MainDashboardColumnSeparator}"
+                               Visibility="{Binding HasTargetSection, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <StackPanel MinWidth="240">
+                        <Grid Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <ui:SymbolIcon Symbol="Shield24" FontSize="16" Margin="0,0,8,0" />
+                                <ui:TextBlock Style="{StaticResource MainDashboardSectionTitle}"
+                                              Text="{Binding Snapshot.Map.Hero.Name, FallbackValue=—, TargetNullValue=—}"
+                                              TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+
+                            <Border Style="{StaticResource MainDashboardStatChipBorder}"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <StackPanel Width="52">
+                                        <ui:TextBlock Style="{StaticResource MainDashboardStatChipLabel}"
+                                                      Text="{x:Static loc:UiStrings.Main_ShipConfigLabel}" />
+                                        <ui:TextBlock Style="{StaticResource MainDashboardStatChipValue}"
+                                                      Text="{Binding Snapshot.Map.Hero.Configuration, Converter={StaticResource ShipConfigurationLabelConverter}, FallbackValue=—, TargetNullValue=—}" />
+                                    </StackPanel>
+
+                                    <Rectangle Style="{StaticResource MainToolbarDivider}"
+                                               Height="28"
+                                               Margin="8,0" />
+
+                                    <StackPanel MinWidth="72">
+                                        <ui:TextBlock Style="{StaticResource MainDashboardStatChipLabel}"
+                                                      Text="{x:Static loc:UiStrings.Main_Position}" />
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Center">
+                                            <ui:TextBlock Style="{StaticResource MainDashboardStatChipValue}"
+                                                          Text="{Binding Snapshot.Map.Hero.X, Converter={StaticResource GameCoordinateScaleConverter}, FallbackValue=—, TargetNullValue=—}" />
+                                            <ui:TextBlock Style="{StaticResource MainDashboardMetricDivider}" Text="," />
+                                            <ui:TextBlock Style="{StaticResource MainDashboardStatChipValue}"
+                                                          Text="{Binding Snapshot.Map.Hero.Y, Converter={StaticResource GameCoordinateScaleConverter}, FallbackValue=—, TargetNullValue=—}" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <Rectangle Style="{StaticResource MainToolbarDivider}"
+                                               Height="28"
+                                               Margin="8,0"
+                                               Visibility="{Binding Snapshot.Map.Hero.MaxCargo, Converter={StaticResource PositiveToVisibilityConverter}}" />
+
+                                    <StackPanel MinWidth="56"
+                                                Visibility="{Binding Snapshot.Map.Hero.MaxCargo, Converter={StaticResource PositiveToVisibilityConverter}}">
+                                        <ui:TextBlock Style="{StaticResource MainDashboardStatChipLabel}"
+                                                      Text="{x:Static loc:UiStrings.Main_Stats_Cargo}" />
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Center">
+                                            <ui:TextBlock Style="{StaticResource MainDashboardStatChipValue}"
+                                                          Text="{Binding Snapshot.Map.Hero.Cargo, StringFormat=N0, FallbackValue=—, TargetNullValue=—}" />
+                                            <ui:TextBlock Style="{StaticResource MainDashboardMetricDivider}" Text="/" />
+                                            <ui:TextBlock Style="{StaticResource MainDashboardStatChipValue}"
+                                                          Text="{Binding Snapshot.Map.Hero.MaxCargo, StringFormat=N0, FallbackValue=—, TargetNullValue=—}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <mainControls:HealthMetricRow Label="{x:Static loc:UiStrings.Main_Hp}"
+                                                      Value="{Binding Snapshot.Map.Hero.Hp}"
+                                                      Maximum="{Binding Snapshot.Map.Hero.MaxHp}"
+                                                      FillBrush="{StaticResource MainDashboardHealthBrush}" />
+                        <mainControls:HealthMetricRow Label="{x:Static loc:UiStrings.Main_Shield}"
+                                                      Value="{Binding Snapshot.Map.Hero.Shield}"
+                                                      Maximum="{Binding Snapshot.Map.Hero.MaxShield}"
+                                                      FillBrush="{StaticResource MainDashboardShieldBrush}"
+                                                      Visibility="{Binding Snapshot.Map.Hero.MaxShield, Converter={StaticResource PositiveToVisibilityConverter}}" />
+                    </StackPanel>
+                </DockPanel>
 
                 <Separator Style="{StaticResource WpfUiDivider}"
                            Margin="0,14,0,14"

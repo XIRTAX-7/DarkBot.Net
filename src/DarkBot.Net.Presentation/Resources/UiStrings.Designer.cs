@@ -81,6 +81,7 @@ public static class UiStrings
     public static string Main_ConfigSlot1 => GetString(nameof(Main_ConfigSlot1));
     public static string Main_ConfigSlot2 => GetString(nameof(Main_ConfigSlot2));
     public static string Main_ShipSection => GetString(nameof(Main_ShipSection));
+    public static string Main_ShipConfigLabel => GetString(nameof(Main_ShipConfigLabel));
     public static string Main_Hp => GetString(nameof(Main_Hp));
     public static string Main_Shield => GetString(nameof(Main_Shield));
     public static string Main_Nano => GetString(nameof(Main_Nano));

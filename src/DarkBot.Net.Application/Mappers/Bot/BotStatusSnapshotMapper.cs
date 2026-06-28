@@ -1,6 +1,7 @@
 using DarkBot.Net.Application.BotEngine.Loop;
 using DarkBot.Net.Application.BotEngine.Managers;
 using DarkBot.Net.Application.DTOs.Responses.Bot;
+using DarkBot.Net.Core.Config.Types;
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Game.Stats;
 using DarkBot.Net.Core.Managers;
@@ -58,12 +59,14 @@ internal static class BotStatusSnapshotMapper
             Y: hero.Y,
             Hp: health.Hp,
             MaxHp: health.MaxHp,
-            Shield: 0,
-            MaxShield: 0,
-            Nano: 0,
-            MaxNano: 0,
-            Configuration: hero.ActiveConfiguration.ToString(),
-            Name: null,
+            Shield: health.Shield,
+            MaxShield: health.MaxShield,
+            Nano: health.Hull,
+            MaxNano: health.MaxHull,
+            Cargo: stats.Cargo,
+            MaxCargo: stats.MaxCargo,
+            Configuration: FormatShipActiveConfiguration((int)hero.ActiveConfiguration),
+            Name: FormatHeroName(hero, frida),
             PathSegments: movement.Path
                 .Select(p => new MapPointSnapshot(p.X, p.Y))
                 .ToArray(),
@@ -103,6 +106,26 @@ internal static class BotStatusSnapshotMapper
                 SafetyCircles: []),
             overlay);
     }
+
+    private static string? FormatHeroName(HeroManager hero, IGameFridaProbe frida)
+    {
+        if (!string.IsNullOrWhiteSpace(frida.HeroPlayerName))
+            return frida.HeroPlayerName;
+
+        if (!string.IsNullOrWhiteSpace(hero.ShipType))
+            return hero.ShipType;
+
+        return null;
+    }
+
+    /// <summary>Активный слот корабля в игре (1/2), не конфигурация настроек бота.</summary>
+    private static string FormatShipActiveConfiguration(int configId) =>
+        HeroConfigurationExtensions.Of(configId) switch
+        {
+            HeroConfiguration.First => "1",
+            HeroConfiguration.Second => "2",
+            _ => "—"
+        };
 
     private static MapEntityCollections CreateEntityCollections(
         EntityManager entities,

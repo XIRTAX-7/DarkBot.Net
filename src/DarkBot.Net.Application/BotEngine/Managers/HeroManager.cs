@@ -23,7 +23,11 @@ public sealed class HeroManager : IHeroApi
     private long _address;
     private ILockable? _localTarget;
     private GameMapModel _map;
-    private HeroConfiguration _configuration = HeroConfiguration.Unknown;
+    /// <summary>Активный слот корабля в игре (1/2), только из Frida.</summary>
+    private HeroConfiguration _activeConfiguration = HeroConfiguration.Unknown;
+
+    /// <summary>Целевой режим бота (OFFENSIVE/RUN/ROAM), не перезаписывает игровой слот.</summary>
+    private IShipMode? _desiredShipMode;
 
     public HeroManager(BotAddressRegistry addresses, IGameFridaProbe frida, StarManager starManager)
     {
@@ -43,16 +47,32 @@ public sealed class HeroManager : IHeroApi
         if (!_addresses.HasScreenManager || !_frida.IsReady)
             return;
 
-        if (!_frida.TryGetHeroSnapshot(out var heroId, out var x, out var y, out var hp, out var maxHp))
+        if (!_frida.TryGetHeroSnapshot(
+                out var heroId,
+                out var x,
+                out var y,
+                out var hp,
+                out var maxHp,
+                out var shield,
+                out var maxShield,
+                out var nano,
+                out var maxNano))
         {
             _address = 0;
             HeroId = 0;
+            ShipType = string.Empty;
             return;
         }
 
         _address = _frida.HeroPointer;
         HeroId = heroId;
-        _health.Update(hp, maxHp > 0 ? maxHp : hp);
+        _health.Update(hp, maxHp > 0 ? maxHp : hp, nano, maxNano > 0 ? maxNano : nano, shield, maxShield > 0 ? maxShield : shield);
+
+        if (!string.IsNullOrWhiteSpace(_frida.HeroShipType))
+            ShipType = _frida.HeroShipType!;
+
+        if (_frida.HeroConfigId is 1 or 2)
+            _activeConfiguration = HeroConfigurationExtensions.Of(_frida.HeroConfigId);
 
         if (MapLoadValidator.IsSaneCoordinate(x, y))
             _locationInfo.Update(x, y);
@@ -68,14 +88,14 @@ public sealed class HeroManager : IHeroApi
 
     public void SetLocalTarget(ILockable? target) => _localTarget = target;
 
-    public HeroConfiguration ActiveConfiguration => _configuration;
+    public HeroConfiguration ActiveConfiguration => _activeConfiguration;
 
     public bool IsInMode(IShipMode mode) =>
-        mode.Configuration == _configuration;
+        mode.Configuration == _activeConfiguration && mode.Formation == Formation;
 
     public bool SetMode(IShipMode mode)
     {
-        _configuration = mode.Configuration;
+        _desiredShipMode = mode;
         return IsInMode(mode);
     }
 

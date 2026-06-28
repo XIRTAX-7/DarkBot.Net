@@ -19,7 +19,22 @@ public interface IGameFridaProbe
 
     bool TryGetMapSnapshot(out int mapId, out int width, out int height);
 
-    bool TryGetHeroSnapshot(out int heroId, out double x, out double y, out int hp, out int maxHp);
+    bool TryGetHeroSnapshot(
+        out int heroId,
+        out double x,
+        out double y,
+        out int hp,
+        out int maxHp,
+        out int shield,
+        out int maxShield,
+        out int nano,
+        out int maxNano);
+
+    string? HeroShipType { get; }
+
+    string? HeroPlayerName { get; }
+
+    int HeroConfigId { get; }
 
     bool TryGetStatsSnapshot(out FridaStatsSnapshot stats);
 }

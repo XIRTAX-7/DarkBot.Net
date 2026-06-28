@@ -29,6 +29,12 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
 
     public IReadOnlyList<FridaBridgeZoneSnapshot> Zones => _zones;
 
+    public string? HeroShipType { get; private set; }
+
+    public string? HeroPlayerName { get; private set; }
+
+    public int HeroConfigId { get; private set; }
+
     public void Refresh()
     {
         if (!_bridge.RefreshStatus())
@@ -43,12 +49,18 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
             _entityCount = 0;
             _entities = EmptyEntities;
             _zones = EmptyZones;
+            HeroShipType = null;
+            HeroPlayerName = null;
+            HeroConfigId = 0;
             return;
         }
 
         IsReady = true;
         _mapPointer = FridaBridgeStatus.ParsePtr(status.MapAddress);
         _heroPointer = FridaBridgeStatus.ParsePtr(status.HeroStatic);
+        HeroShipType = status.HeroShipType;
+        HeroPlayerName = status.HeroPlayerName;
+        HeroConfigId = status.HeroConfigId is 1 or 2 ? status.HeroConfigId : 0;
         _entityCount = status.EntityCount >= 0 && status.EntityCount < 10_000
             ? status.EntityCount
             : 0;
@@ -123,9 +135,18 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
         return width > 0 && height > 0;
     }
 
-    public bool TryGetHeroSnapshot(out int heroId, out double x, out double y, out int hp, out int maxHp)
+    public bool TryGetHeroSnapshot(
+        out int heroId,
+        out double x,
+        out double y,
+        out int hp,
+        out int maxHp,
+        out int shield,
+        out int maxShield,
+        out int nano,
+        out int maxNano)
     {
-        heroId = hp = maxHp = 0;
+        heroId = hp = maxHp = shield = maxShield = nano = maxNano = 0;
         x = y = 0;
 
         if (!IsReady)
@@ -140,6 +161,10 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
         y = status.HeroY;
         hp = status.HeroHp;
         maxHp = status.HeroMaxHp;
+        shield = status.HeroShield;
+        maxShield = status.HeroMaxShield;
+        nano = status.HeroNano;
+        maxNano = status.HeroMaxNano;
         return true;
     }
 
@@ -165,6 +190,10 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
             status.MaxCargo,
             status.NovaEnergy);
 
-        return userId > 0 || status.Credits > 0 || status.Uridium > 0;
+        return userId > 0
+            || status.Credits > 0
+            || status.Uridium > 0
+            || status.MaxCargo > 0
+            || status.Cargo > 0;
     }
 }

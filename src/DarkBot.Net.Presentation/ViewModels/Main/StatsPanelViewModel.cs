@@ -15,8 +15,6 @@ public sealed partial class StatsPanelViewModel : ViewModelBase
     [Reactive] private double _earnedUridiumPerHour;
     [Reactive] private double _earnedExperiencePerHour;
     [Reactive] private double _earnedHonorPerHour;
-    [Reactive] private int _cargo;
-    [Reactive] private int _maxCargo;
 
     /// <summary>Конструктор для design mode / XAML previewer.</summary>
     public StatsPanelViewModel()
@@ -27,8 +25,6 @@ public sealed partial class StatsPanelViewModel : ViewModelBase
         EarnedUridiumPerHour = 42_500;
         EarnedExperiencePerHour = 987_654;
         EarnedHonorPerHour = 12_345;
-        Cargo = 120;
-        MaxCargo = 500;
     }
 
     public void Apply(BotStatusSnapshot snapshot)
@@ -41,7 +37,5 @@ public sealed partial class StatsPanelViewModel : ViewModelBase
         EarnedUridiumPerHour = snapshot.EarnedUridiumPerHour;
         EarnedExperiencePerHour = snapshot.EarnedExperiencePerHour;
         EarnedHonorPerHour = snapshot.EarnedHonorPerHour;
-        Cargo = snapshot.Cargo;
-        MaxCargo = snapshot.MaxCargo;
     }
 }

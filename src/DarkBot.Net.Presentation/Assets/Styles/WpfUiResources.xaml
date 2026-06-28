@@ -11,6 +11,9 @@
   <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
   <converters:BooleanAndConverter x:Key="BooleanAndConverter" />
   <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+  <converters:ShipConfigurationLabelConverter x:Key="ShipConfigurationLabelConverter" />
+  <converters:GameCoordinateScaleConverter x:Key="GameCoordinateScaleConverter" />
+  <converters:PositiveToVisibilityConverter x:Key="PositiveToVisibilityConverter" />
 
   <LinearGradientBrush x:Key="WpfUiPremiumBrandBrush" StartPoint="0,0" EndPoint="1,1">
     <GradientStop Color="#3B82F6" Offset="0" />
@@ -379,6 +382,26 @@
   <Style x:Key="MainDashboardSectionTitle" TargetType="{x:Type ui:TextBlock}">
     <Setter Property="FontTypography" Value="BodyStrong" />
     <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style x:Key="MainDashboardStatChipBorder"
+         TargetType="{x:Type Border}"
+         BasedOn="{StaticResource MainStatusPillBorder}">
+    <Setter Property="Padding" Value="10,5" />
+    <Setter Property="MinHeight" Value="0" />
+  </Style>
+
+  <Style x:Key="MainDashboardStatChipLabel"
+         TargetType="{x:Type ui:TextBlock}"
+         BasedOn="{StaticResource MainDashboardMetricLabel}">
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="Margin" Value="0,0,0,2" />
+  </Style>
+
+  <Style x:Key="MainDashboardStatChipValue"
+         TargetType="{x:Type ui:TextBlock}"
+         BasedOn="{StaticResource MainDashboardMetricValue}">
+    <Setter Property="HorizontalAlignment" Value="Center" />
   </Style>
 
   <Style x:Key="MainDashboardColumnSeparator" TargetType="{x:Type Rectangle}">

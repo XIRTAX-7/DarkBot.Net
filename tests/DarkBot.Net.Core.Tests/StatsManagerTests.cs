@@ -19,7 +19,7 @@ public class StatsManagerTests
         };
         var stats = new StatsManager(addresses, frida);
 
-        stats.Tick();
+        stats.Tick(botRunning: true);
 
         Assert.Equal(1000, stats.GetStat(Stats.General.Credits).Current);
         Assert.Equal(42, stats.UserId);

@@ -71,6 +71,27 @@ public sealed class FridaBridgeStatus
     [JsonPropertyName("heroMaxHp")]
     public int HeroMaxHp { get; init; }
 
+    [JsonPropertyName("heroShield")]
+    public int HeroShield { get; init; }
+
+    [JsonPropertyName("heroMaxShield")]
+    public int HeroMaxShield { get; init; }
+
+    [JsonPropertyName("heroNano")]
+    public int HeroNano { get; init; }
+
+    [JsonPropertyName("heroMaxNano")]
+    public int HeroMaxNano { get; init; }
+
+    [JsonPropertyName("heroShipType")]
+    public string? HeroShipType { get; init; }
+
+    [JsonPropertyName("heroPlayerName")]
+    public string? HeroPlayerName { get; init; }
+
+    [JsonPropertyName("heroConfigId")]
+    public int HeroConfigId { get; init; }
+
     [JsonPropertyName("entityCount")]
     public int EntityCount { get; init; }
 

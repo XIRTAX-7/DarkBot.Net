@@ -18,7 +18,7 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <PackageReference Include="Meziantou.Framework.Win32.CredentialManager" Version="2.0.1" />
+    <PackageReference Include="Meziantou.Framework.Win32.CredentialManager" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DarkBot.Net.Core\DarkBot.Net.Core.csproj" />

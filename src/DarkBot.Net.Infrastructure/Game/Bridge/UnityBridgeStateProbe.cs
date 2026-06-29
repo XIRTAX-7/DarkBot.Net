@@ -133,6 +133,7 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
         var name = entity?.Label ?? status.TargetShipType;
         var isEnemy = entity?.IsEnemy
             ?? !string.Equals(entity?.Kind, "player", StringComparison.OrdinalIgnoreCase);
+        var isOnMap = entity is not null;
 
         return new FridaSelectedTargetSnapshot(
             status.TargetUserId,
@@ -143,7 +144,8 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
             name,
             isEnemy,
             entity?.X ?? 0,
-            entity?.Y ?? 0);
+            entity?.Y ?? 0,
+            isOnMap);
     }
 
     public bool TryGetMapSnapshot(out int mapId, out int width, out int height)

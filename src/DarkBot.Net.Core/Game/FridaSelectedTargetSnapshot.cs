@@ -10,4 +10,5 @@ public sealed record FridaSelectedTargetSnapshot(
     string? Name,
     bool IsEnemy,
     double X,
-    double Y);
+    double Y,
+    bool IsOnMap = true);

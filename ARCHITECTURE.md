@@ -20,7 +20,7 @@ DarkBot.Net.Infrastructure Unity Frida bridge, credentials, config persistence
 |--------|------------|
 | `DarkBot.Net.Core` | `I*Api`, `IGameConnection`, `IUnityGameBridge`, domain models |
 | `DarkBot.Net.Application` | `BotLoopService`, managers, AppServices |
-| `DarkBot.Net.Infrastructure` | `UnityFridaGameApi`, login, `StubConfigApi` |
+| `DarkBot.Net.Infrastructure` | `UnityFridaGameApi`, login, `JsonConfigApi` |
 | `DarkBot.Net.Presentation` | Views, ViewModels, `Program.cs` |
 
 ## AppService-фасады (UI → Application)
@@ -55,7 +55,9 @@ C# **не читает память процесса** — только typed sn
 ## Bridge contracts
 
 - **Legacy:** `IGameConnection` — Flash pointer API (sync, bot loop only). См. [ADR-002](docs/adr/002-igameconnection-unity.md).
-- **Current:** `IUnityGameBridge` — Unity RPC actions (async-first).
+- **Current:** `IUnityGameBridge` — Unity RPC: `moveTo`, `selectEntity`, `collectTo`, `attackLaser` (Ф1 ✅). `UseItemAsync` — stub до Collector.
+
+Manual smoke: [docs/phase1-smoke-checklist.md](docs/phase1-smoke-checklist.md).
 
 ## Bot modules
 

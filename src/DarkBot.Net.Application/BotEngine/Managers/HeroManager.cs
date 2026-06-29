@@ -129,13 +129,13 @@ public sealed class HeroManager : IHeroApi
 
     public bool SetRoamMode()
     {
-        _logger.LogDebug("SetRoamMode not implemented until bridge Phase 1");
+        _logger.LogDebug("SetRoamMode stub — ship-mode RPC not in bridge Phase 1 (Collector Phase 2+)");
         return false;
     }
 
     public bool SetRunMode()
     {
-        _logger.LogDebug("SetRunMode not implemented until bridge Phase 1");
+        _logger.LogDebug("SetRunMode stub — ship-mode RPC not in bridge Phase 1 (Safety Phase 6+)");
         return false;
     }
 
@@ -152,7 +152,7 @@ public sealed class HeroManager : IHeroApi
 
     public bool LaunchRocket()
     {
-        _logger.LogDebug("LaunchRocket not implemented until bridge Phase 1");
+        _logger.LogDebug("LaunchRocket stub — not in bridge Phase 1 (Loot/Kill Phase 4+)");
         return false;
     }
     public ISelectableItem.ILaser Laser => EmptyLaser.Instance;

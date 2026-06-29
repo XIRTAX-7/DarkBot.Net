@@ -313,15 +313,21 @@ public sealed class UnityFridaGameApi :
 
     public Task<bool> UseItemAsync(string itemId, CancellationToken cancellationToken = default)
     {
-        _logger.LogWarning("Unity UseItemAsync not implemented until Phase 1 ({ItemId})", itemId);
+        _logger.LogWarning(
+            "Unity UseItemAsync stub — planned for Collector + collect.auto_cloak (Phase 2), not bridge Phase 1 ({ItemId})",
+            itemId);
         return Task.FromResult(false);
     }
 
     public void SelectEntity(ReadOnlySpan<int> taggedArgs) =>
-        _logger.LogWarning("Unity SelectEntity (legacy) not implemented until Phase 1 (args={Count})", taggedArgs.Length);
+        _logger.LogWarning(
+            "Unity SelectEntity (legacy IGameConnection) — use IUnityGameBridge.SelectEntityAsync (args={Count})",
+            taggedArgs.Length);
 
     public void UseItem(long screenManager, string itemId, int methodIndex, params long[] args) =>
-        _logger.LogWarning("Unity UseItem (legacy) not implemented until Phase 1 ({ItemId})", itemId);
+        _logger.LogWarning(
+            "Unity UseItem (legacy IGameConnection) — use IUnityGameBridge.UseItemAsync when implemented ({ItemId})",
+            itemId);
 
     public void Refine(long refineUtilAddress, int oreId, int amount, int methodIndex = -1) =>
         _logger.LogDebug("Unity Refine not supported in Unity path (ore={OreId})", oreId);

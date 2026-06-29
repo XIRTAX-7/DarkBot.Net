@@ -100,13 +100,32 @@ internal static class BotStatusSnapshotMapper
             map.InternalHeight,
             heroSnapshot,
             Pet: null,
-            Target: null,
+            Target: CreateMapTarget(frida, entities),
             entityCollections,
             new MapZonesSnapshot(
                 Barriers: CreateAgentZones(frida.Zones, "barrier"),
                 Mists: CreateAgentZones(frida.Zones, "mist"),
                 SafetyCircles: []),
             overlay);
+    }
+
+    private static MapTargetSnapshot? CreateMapTarget(IGameFridaProbe frida, EntityManager entities)
+    {
+        var selected = frida.SelectedTarget;
+        if (selected is null || selected.UserId <= 0 || selected.MaxHp <= 0)
+            return null;
+
+        return new MapTargetSnapshot(
+            selected.UserId,
+            selected.X,
+            selected.Y,
+            selected.Hp,
+            selected.MaxHp,
+            selected.Shield,
+            selected.MaxShield,
+            selected.Name,
+            selected.IsEnemy,
+            Destination: null);
     }
 
     private static string? FormatHeroName(HeroManager hero, IGameFridaProbe frida)

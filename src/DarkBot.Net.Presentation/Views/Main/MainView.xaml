@@ -260,6 +260,11 @@
                                                       Value="{Binding Snapshot.Map.Target.Hp, TargetNullValue=0}"
                                                       Maximum="{Binding Snapshot.Map.Target.MaxHp, TargetNullValue=1}"
                                                       FillBrush="{StaticResource MainDashboardHealthBrush}" />
+                        <mainControls:HealthMetricRow Label="{x:Static loc:UiStrings.Main_Shield}"
+                                                      Value="{Binding Snapshot.Map.Target.Shield, TargetNullValue=0}"
+                                                      Maximum="{Binding Snapshot.Map.Target.MaxShield, TargetNullValue=1}"
+                                                      FillBrush="{StaticResource MainDashboardShieldBrush}"
+                                                      Visibility="{Binding Snapshot.Map.Target.MaxShield, Converter={StaticResource PositiveToVisibilityConverter}}" />
                     </StackPanel>
 
                     <Rectangle x:Name="TargetSectionSeparator"

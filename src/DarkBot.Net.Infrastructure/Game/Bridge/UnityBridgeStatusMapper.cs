@@ -149,6 +149,24 @@ public sealed class UnityBridgeAgentStatus
 
     [JsonPropertyName("maxCargo")]
     public int MaxCargo { get; init; }
+
+    [JsonPropertyName("targetUserId")]
+    public int TargetUserId { get; init; }
+
+    [JsonPropertyName("targetHp")]
+    public int TargetHp { get; init; }
+
+    [JsonPropertyName("targetMaxHp")]
+    public int TargetMaxHp { get; init; }
+
+    [JsonPropertyName("targetShield")]
+    public int TargetShield { get; init; }
+
+    [JsonPropertyName("targetMaxShield")]
+    public int TargetMaxShield { get; init; }
+
+    [JsonPropertyName("targetShipType")]
+    public string? TargetShipType { get; init; }
 }
 
 public sealed class UnityBridgeEntity
@@ -320,6 +338,12 @@ public static class UnityBridgeStatusMapper
             Honor = status.Honor,
             Cargo = status.Cargo,
             MaxCargo = status.MaxCargo,
+            TargetUserId = status.TargetUserId,
+            TargetHp = status.TargetHp,
+            TargetMaxHp = status.TargetMaxHp,
+            TargetShield = status.TargetShield,
+            TargetMaxShield = status.TargetMaxShield,
+            TargetShipType = status.TargetShipType,
             UserId = status.HeroUserId,
             LastPacketActivityMs = Environment.TickCount64
         };

@@ -36,5 +36,7 @@ public interface IGameFridaProbe
 
     int HeroConfigId { get; }
 
+    FridaSelectedTargetSnapshot? SelectedTarget { get; }
+
     bool TryGetStatsSnapshot(out FridaStatsSnapshot stats);
 }

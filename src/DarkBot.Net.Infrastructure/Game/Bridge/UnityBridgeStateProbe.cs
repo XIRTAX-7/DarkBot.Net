@@ -35,6 +35,8 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
 
     public int HeroConfigId { get; private set; }
 
+    public FridaSelectedTargetSnapshot? SelectedTarget { get; private set; }
+
     public void Refresh()
     {
         if (!_bridge.RefreshStatus())
@@ -52,6 +54,7 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
             HeroShipType = null;
             HeroPlayerName = null;
             HeroConfigId = 0;
+            SelectedTarget = null;
             return;
         }
 
@@ -112,6 +115,35 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
         {
             _zones = EmptyZones;
         }
+
+        SelectedTarget = BuildSelectedTarget(status, _entities);
+    }
+
+    private static FridaSelectedTargetSnapshot? BuildSelectedTarget(
+        FridaBridgeStatus status,
+        IReadOnlyList<FridaEntitySnapshot> entities)
+    {
+        if (status.TargetUserId <= 0 || status.TargetMaxHp <= 0)
+            return null;
+
+        if (status.HeroId > 0 && status.TargetUserId == status.HeroId)
+            return null;
+
+        var entity = entities.FirstOrDefault(e => e.Id == status.TargetUserId);
+        var name = entity?.Label ?? status.TargetShipType;
+        var isEnemy = entity?.IsEnemy
+            ?? !string.Equals(entity?.Kind, "player", StringComparison.OrdinalIgnoreCase);
+
+        return new FridaSelectedTargetSnapshot(
+            status.TargetUserId,
+            status.TargetHp,
+            status.TargetMaxHp,
+            status.TargetShield,
+            status.TargetMaxShield,
+            name,
+            isEnemy,
+            entity?.X ?? 0,
+            entity?.Y ?? 0);
     }
 
     public bool TryGetMapSnapshot(out int mapId, out int width, out int height)

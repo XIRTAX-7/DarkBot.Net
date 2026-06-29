@@ -45,6 +45,8 @@ public sealed record MapTargetSnapshot(
     double Y,
     int Hp,
     int MaxHp,
+    int Shield,
+    int MaxShield,
     string? Name,
     bool IsEnemy,
     MapPointSnapshot? Destination);

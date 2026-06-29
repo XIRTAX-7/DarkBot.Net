@@ -48,6 +48,8 @@ internal sealed class NullGameFridaProbe : IGameFridaProbe
 
     public int HeroConfigId => 0;
 
+    public FridaSelectedTargetSnapshot? SelectedTarget => null;
+
     public bool TryGetStatsSnapshot(out FridaStatsSnapshot stats)
     {
         stats = default;
@@ -100,6 +102,8 @@ internal sealed class FakeGameFridaProbe : IGameFridaProbe
     public string? HeroPlayerName { get; set; }
 
     public int HeroConfigId { get; set; }
+
+    public FridaSelectedTargetSnapshot? SelectedTarget { get; set; }
 
     public long Credits { get; set; }
 

@@ -119,6 +119,24 @@ public sealed class FridaBridgeStatus
     [JsonPropertyName("maxCargo")]
     public int MaxCargo { get; init; }
 
+    [JsonPropertyName("targetUserId")]
+    public int TargetUserId { get; init; }
+
+    [JsonPropertyName("targetHp")]
+    public int TargetHp { get; init; }
+
+    [JsonPropertyName("targetMaxHp")]
+    public int TargetMaxHp { get; init; }
+
+    [JsonPropertyName("targetShield")]
+    public int TargetShield { get; init; }
+
+    [JsonPropertyName("targetMaxShield")]
+    public int TargetMaxShield { get; init; }
+
+    [JsonPropertyName("targetShipType")]
+    public string? TargetShipType { get; init; }
+
     [JsonPropertyName("novaEnergy")]
     public int NovaEnergy { get; init; }
 

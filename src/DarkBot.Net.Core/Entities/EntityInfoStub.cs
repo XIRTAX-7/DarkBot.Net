@@ -5,7 +5,7 @@ namespace DarkBot.Net.Core.Entities;
 /// <summary>Placeholder для entity info до typed entities (Phase 4).</summary>
 public sealed class EntityInfoStub : IEntityInfo
 {
-    public bool IsEnemy => false;
+    public bool IsEnemy { get; init; }
     public IEntityInfo.Faction EntityFaction => IEntityInfo.Faction.None;
     public string Username { get; init; } = string.Empty;
     public string ClanTag { get; init; } = string.Empty;

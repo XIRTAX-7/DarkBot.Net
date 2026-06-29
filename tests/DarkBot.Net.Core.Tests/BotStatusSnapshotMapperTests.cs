@@ -1,5 +1,8 @@
 using DarkBot.Net.Application.BotEngine.Addresses;
 using DarkBot.Net.Application.BotEngine.Managers;
+using DarkBot.Net.Application.BotEngine.Modules;
+using DarkBot.Net.Application.BotEngine.Runtime;
+using DarkBot.Net.Application.BotEngine.Safety;
 using DarkBot.Net.Application.DTOs.Responses.Bot;
 using DarkBot.Net.Application.Mappers.Bot;
 using DarkBot.Net.Application.Tests.Fakes;
@@ -18,9 +21,11 @@ public sealed class BotStatusSnapshotMapperTests
         EntityManager Entities,
         FakeGameFridaProbe Frida,
         StatsManager Stats,
-        MovementApi Movement) CreateStack(Action<FakeGameFridaProbe>? configure = null)
+        MovementApi Movement,
+        BotModuleRunner Modules) CreateStack(Action<FakeGameFridaProbe>? configure = null)
     {
         var addresses = new BotAddressRegistry();
+        var config = FakeConfigApi.WithCollectorDefaults();
         var frida = new FakeGameFridaProbe
         {
             MapId = 16,
@@ -39,9 +44,15 @@ public sealed class BotStatusSnapshotMapperTests
         var hero = new HeroManager(addresses, frida, bridge, star, NullLogger<HeroManager>.Instance);
         var map = new MapManager(addresses, frida, star, hero, NullLogger<MapManager>.Instance);
         var entitiesApi = new EntitiesApi();
-        var entities = new EntityManager(addresses, map, frida, bridge, entitiesApi);
+        var entities = new EntityManager(addresses, map, frida, bridge, entitiesApi, config);
         var stats = new StatsManager(addresses, frida);
         var movement = new MovementApi(addresses, bridge, map, hero, NullLogger<MovementApi>.Instance);
+        var context = new ModuleContext(hero, movement, entitiesApi, stats, config, map);
+        var modules = new BotModuleRunner(
+            context,
+            config,
+            new SafetyFinder(context),
+            NullLogger<BotModuleRunner>.Instance);
 
         addresses.SetScreenManagerAddress(0x1000);
         hero.Tick();
@@ -49,16 +60,16 @@ public sealed class BotStatusSnapshotMapperTests
         entities.Tick();
         stats.Tick(false);
 
-        return (hero, map, entities, frida, stats, movement);
+        return (hero, map, entities, frida, stats, movement, modules);
     }
 
     [Fact]
     public void Create_TargetNull_WhenNoSelectedTarget()
     {
-        var (hero, map, entities, frida, stats, movement) = CreateStack();
+        var (hero, map, entities, frida, stats, movement, modules) = CreateStack();
         var bot = new StubBotController();
 
-        var snapshot = BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement);
+        var snapshot = BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement, modules);
 
         Assert.Null(snapshot.Map.Target);
     }
@@ -66,7 +77,7 @@ public sealed class BotStatusSnapshotMapperTests
     [Fact]
     public void Create_MapTarget_FromSelectedTargetWithShield()
     {
-        var (hero, map, entities, frida, stats, movement) = CreateStack(f =>
+        var (hero, map, entities, frida, stats, movement, modules) = CreateStack(f =>
         {
             f.SelectedTarget = new FridaSelectedTargetSnapshot(
                 999,
@@ -88,7 +99,7 @@ public sealed class BotStatusSnapshotMapperTests
         entities.Tick();
         var bot = new StubBotController();
 
-        var snapshot = BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement);
+        var snapshot = BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement, modules);
         var target = snapshot.Map.Target;
 
         Assert.NotNull(target);
@@ -102,7 +113,7 @@ public sealed class BotStatusSnapshotMapperTests
     [Fact]
     public void Create_OffMapTarget_StillShowsTargetSectionWithoutNpcOnMap()
     {
-        var (hero, map, entities, frida, stats, movement) = CreateStack(f =>
+        var (hero, map, entities, frida, stats, movement, modules) = CreateStack(f =>
         {
             f.SelectedTarget = new FridaSelectedTargetSnapshot(
                 999,
@@ -121,7 +132,7 @@ public sealed class BotStatusSnapshotMapperTests
         entities.Tick();
         var bot = new StubBotController();
 
-        var snapshot = BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement);
+        var snapshot = BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement, modules);
 
         Assert.NotNull(snapshot.Map.Target);
         Assert.Equal(999, snapshot.Map.Target!.Id);
@@ -131,7 +142,7 @@ public sealed class BotStatusSnapshotMapperTests
     [Fact]
     public void Create_MapTarget_WhenOnlyShieldKnown()
     {
-        var (hero, map, entities, frida, stats, movement) = CreateStack(f =>
+        var (hero, map, entities, frida, stats, movement, modules) = CreateStack(f =>
         {
             f.SelectedTarget = new FridaSelectedTargetSnapshot(
                 999,
@@ -153,7 +164,7 @@ public sealed class BotStatusSnapshotMapperTests
         entities.Tick();
         var bot = new StubBotController();
 
-        var snapshot = BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement);
+        var snapshot = BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement, modules);
 
         Assert.NotNull(snapshot.Map.Target);
         Assert.Equal(400, snapshot.Map.Target!.Shield);

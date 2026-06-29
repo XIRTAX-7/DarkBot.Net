@@ -8,7 +8,7 @@ using EntityInfoStub = DarkBot.Net.Core.Entities.EntityInfoStub;
 namespace DarkBot.Net.Application.BotEngine.Managers;
 
 /// <summary>Box из Frida snapshot — сбор через bridge RPC collectTo.</summary>
-public sealed class BoxEntity(IUnityGameBridge bridge) : IBox
+public sealed class BoxEntity(IUnityGameBridge bridge, IBoxInfo info) : IBox
 {
     private readonly EntityInfoStub _entityInfo = new();
     private readonly TrackedHealth _health = new();
@@ -18,7 +18,7 @@ public sealed class BoxEntity(IUnityGameBridge bridge) : IBox
     public required MutableLocationInfo Location { get; init; }
     public string Hash { get; init; } = string.Empty;
     public string TypeName { get; init; } = string.Empty;
-    public IBoxInfo Info { get; } = new DefaultBoxInfo();
+    public IBoxInfo Info { get; } = info;
     public bool IsCollected => _isCollected;
     public int Retries { get; private set; }
     public DateTimeOffset? CollectedUntil { get; private set; }
@@ -55,11 +55,4 @@ public sealed class BoxEntity(IUnityGameBridge bridge) : IBox
 
     public void SetMetadata(string key, object? value) { }
     public object? GetMetadata(string key) => null;
-
-    private sealed class DefaultBoxInfo : IBoxInfo
-    {
-        public bool ShouldCollect { get; set; } = true;
-        public int WaitTime { get; set; }
-        public int Priority { get; set; }
-    }
 }

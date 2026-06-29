@@ -8,8 +8,10 @@ public partial class ConfigCollectPage : Page
     public ConfigCollectPage(ConfigTreeViewModel viewModel)
     {
         ViewModel = viewModel;
+        DataContext = viewModel;
         InitializeComponent();
         CollectSection.ViewModel = viewModel;
+        CollectSection.DataContext = viewModel;
     }
 
     public ConfigTreeViewModel ViewModel { get; }

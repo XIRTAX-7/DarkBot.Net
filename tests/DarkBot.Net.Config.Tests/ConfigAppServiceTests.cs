@@ -1,3 +1,4 @@
+using DarkBot.Net.Application.BotEngine.Managers;
 using DarkBot.Net.Application.Services.Config;
 using DarkBot.Net.Core.Config;
 using DarkBot.Net.Infrastructure.Config;
@@ -22,7 +23,7 @@ public class ConfigAppServiceTests : IDisposable
         _configApi = new JsonConfigApi(_persistence, _writePolicy, NullLogger<JsonConfigApi>.Instance);
         _session = new ConfigSession(_persistence, _configApi);
         _session.Initialize();
-        _appService = new ConfigAppService(_configApi, _session, _persistence, _writePolicy);
+        _appService = new ConfigAppService(_configApi, _session, _persistence, _writePolicy, new StarManager());
     }
 
     public void Dispose()

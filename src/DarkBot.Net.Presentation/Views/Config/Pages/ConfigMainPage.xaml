@@ -22,9 +22,10 @@
         <ui:CardControl.Header>
           <ui:TextBlock FontTypography="Body" Text="{x:Static loc:UiStrings.ConfigMain_Module}" />
         </ui:CardControl.Header>
-        <ComboBox MinWidth="200" SelectedIndex="0">
-          <ComboBoxItem Content="{x:Static loc:UiStrings.ConfigMain_ModuleKillCollect}" />
-        </ComboBox>
+        <ComboBox MinWidth="200"
+                  ItemsSource="{Binding AvailableModules}"
+                  SelectedItem="{Binding SelectedModule, Mode=TwoWay}"
+                  DisplayMemberPath="DisplayName" />
       </ui:CardControl>
 
       <ui:CardControl Margin="0,0,0,8"
@@ -32,9 +33,10 @@
         <ui:CardControl.Header>
           <ui:TextBlock FontTypography="Body" Text="{x:Static loc:UiStrings.ConfigMain_WorkingMap}" />
         </ui:CardControl.Header>
-        <ComboBox MinWidth="200" SelectedIndex="0">
-          <ComboBoxItem Content="2-5" />
-        </ComboBox>
+        <ComboBox MinWidth="200"
+                  ItemsSource="{Binding WorkingMaps}"
+                  SelectedItem="{Binding SelectedWorkingMap, Mode=TwoWay}"
+                  DisplayMemberPath="DisplayName" />
       </ui:CardControl>
 
       <ui:CardExpander Header="{x:Static loc:UiStrings.ConfigMain_Security}"
@@ -80,7 +82,7 @@
                           TextWrapping="Wrap" />
           </StackPanel>
         </ui:CardControl.Header>
-        <ui:NumberBox Value="5" Minimum="5" Maximum="60" Width="72" />
+        <ui:NumberBox Value="{Binding SafetyWaitMs, Mode=TwoWay}" Minimum="0" Maximum="120000" Width="96" />
       </ui:CardControl>
     </StackPanel>
   </ScrollViewer>

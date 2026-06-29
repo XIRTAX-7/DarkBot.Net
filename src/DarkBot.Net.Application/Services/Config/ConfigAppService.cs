@@ -1,18 +1,23 @@
+using DarkBot.Net.Application.BotEngine.Managers;
+using DarkBot.Net.Application.BotEngine.Modules;
+using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Core.Config;
 using DarkBot.Net.Core.Managers;
-using DarkBot.Net.Application.Contracts;
+
 namespace DarkBot.Net.Application.Services.Config;
 
 public sealed class ConfigAppService(
     IConfigApi configApi,
     IConfigSession session,
     IConfigPersistence persistence,
-    IConfigWritePolicy writePolicy) : IConfigAppService
+    IConfigWritePolicy writePolicy,
+    StarManager starManager) : IConfigAppService
 {
     private readonly IConfigApi _configApi = configApi;
     private readonly IConfigSession _session = session;
     private readonly IConfigPersistence _persistence = persistence;
     private readonly IConfigWritePolicy _writePolicy = writePolicy;
+    private readonly StarManager _starManager = starManager;
 
     public ProfileOwner ActiveOwner => _session.ActiveOwner;
     public string ActiveProfile => _session.ActiveProfile;
@@ -139,6 +144,39 @@ public sealed class ConfigAppService(
         if (!IsEditable)
             throw new InvalidOperationException("Collect settings are read-only while AI controls the bot.");
 
+        PushSetting(path, value);
+        RaiseChanged();
+    }
+
+    public ConfigMainStateDto LoadMainState()
+    {
+        var document = _configApi.CurrentDocument;
+        var maps = _starManager.EnumerateKnownMaps()
+            .Select(pair => new MapOptionDto(pair.Id, pair.Name))
+            .ToList();
+
+        return new ConfigMainStateDto(
+            document.General.CurrentModule,
+            document.General.WorkingMap,
+            document.General.SafetyWait,
+            ModuleCatalog.Options,
+            maps);
+    }
+
+    public void UpdateGeneralSetting(string path, object value)
+    {
+        if (!IsEditable)
+            throw new InvalidOperationException("General settings are read-only while AI controls the bot.");
+
+        PushSetting(path, value);
+        RaiseChanged();
+    }
+
+    public Task SaveAsync(CancellationToken cancellationToken = default) =>
+        _configApi.SaveAsync(ConfigActor.User, cancellationToken);
+
+    private void PushSetting(string path, object value)
+    {
         switch (value)
         {
             case bool boolValue:
@@ -150,15 +188,13 @@ public sealed class ConfigAppService(
             case double doubleValue:
                 _configApi.SetValue(path, (int)doubleValue, ConfigActor.User);
                 break;
+            case string stringValue:
+                _configApi.SetValue(path, stringValue, ConfigActor.User);
+                break;
             default:
                 throw new ArgumentException($"Unsupported value type: {value.GetType().Name}", nameof(value));
         }
-
-        RaiseChanged();
     }
-
-    public Task SaveAsync(CancellationToken cancellationToken = default) =>
-        _configApi.SaveAsync(ConfigActor.User, cancellationToken);
 
     private ConfigProfileSummaryDto ToSummary(string name, ProfileOwner owner)
     {

@@ -1,4 +1,5 @@
 using DarkBot.Net.Core.Game;
+using DarkBot.Net.Core.Managers;
 using DarkBot.Net.Core.Entities;
 using DarkBot.Net.Application.BotEngine.Addresses;
 using Microsoft.Extensions.Logging;
@@ -6,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace DarkBot.Net.Application.BotEngine.Managers;
 
 /// <summary>Port of MapManager — map state from Frida AVM (/status).</summary>
-public sealed class MapManager
+public sealed class MapManager : IBotMapApi
 {
     private readonly BotAddressRegistry _addresses;
     private readonly IGameFridaProbe _frida;

@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using DarkBot.Net.Application.Contracts;
+using DarkBot.Net.Application.BotEngine.Modules;
 using DarkBot.Net.Core.Config;
 using DarkBot.Net.Presentation.Resources;
 using DarkBot.Net.Presentation.ViewModels.Shared;
@@ -94,7 +95,12 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
     [Reactive] private bool _ignoreContestedBoxes = true;
     [Reactive] private string _boxSearchFilter = string.Empty;
     [Reactive] private string _newProfileName = string.Empty;
+    [Reactive] private ModuleOption? _selectedModule;
+    [Reactive] private MapOptionDto? _selectedWorkingMap;
+    [Reactive] private double _safetyWaitMs = 5000;
 
+    public ObservableCollection<ModuleOption> AvailableModules { get; } = [];
+    public ObservableCollection<MapOptionDto> WorkingMaps { get; } = [];
     public ObservableCollection<BoxInfoRowViewModel> Boxes { get; } = [];
     public ObservableCollection<BoxInfoRowViewModel> FilteredBoxes { get; } = [];
     public ObservableCollection<ConfigProfileSummaryDto> UserProfiles { get; } = [];
@@ -179,6 +185,26 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
             .Skip(1)
             .Subscribe(value => PushCollectSetting("collect.ignore_contested_boxes", value));
 
+        this.WhenAnyValue(x => x.SelectedModule)
+            .Skip(1)
+            .Subscribe(module =>
+            {
+                if (module is not null)
+                    PushGeneralSetting("general.current_module", module.ModuleId);
+            });
+
+        this.WhenAnyValue(x => x.SelectedWorkingMap)
+            .Skip(1)
+            .Subscribe(map =>
+            {
+                if (map is not null)
+                    PushGeneralSetting("general.working_map", map.MapId);
+            });
+
+        this.WhenAnyValue(x => x.SafetyWaitMs)
+            .Skip(1)
+            .Subscribe(value => PushGeneralSetting("general.safety_wait", (int)value));
+
         RefreshFilteredBoxes();
     }
 
@@ -202,6 +228,24 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
         AutoCloak = collect.AutoCloak;
         CollectRadius = collect.CollectRadius;
         IgnoreContestedBoxes = collect.IgnoreContestedBoxes;
+
+        var main = _config.LoadMainState();
+        AvailableModules.Clear();
+        foreach (var module in main.Modules)
+            AvailableModules.Add(module);
+
+        WorkingMaps.Clear();
+        foreach (var map in main.WorkingMaps)
+            WorkingMaps.Add(map);
+
+        SelectedModule = AvailableModules.FirstOrDefault(m =>
+            m.ModuleId.Equals(main.CurrentModule, StringComparison.OrdinalIgnoreCase))
+            ?? AvailableModules.FirstOrDefault();
+
+        SelectedWorkingMap = WorkingMaps.FirstOrDefault(m => m.MapId == main.WorkingMap)
+            ?? WorkingMaps.FirstOrDefault();
+
+        SafetyWaitMs = main.SafetyWait;
 
         Boxes.Clear();
         foreach (var box in collect.Boxes)
@@ -246,6 +290,14 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
         _config.UpdateCollectSetting(path, value);
     }
 
+    private void PushGeneralSetting(string path, object value)
+    {
+        if (_suppressPush || _config is null || !IsEditable)
+            return;
+
+        _config.UpdateGeneralSetting(path, value);
+    }
+
     private void OnConfigChanged(object? sender, EventArgs e) =>
         LoadFromService();
 
@@ -255,7 +307,10 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
             return;
 
         foreach (var box in CreateSampleBoxes())
+        {
+            WireBoxRow(box);
             Boxes.Add(box);
+        }
     }
 
     private static IEnumerable<BoxInfoRowViewModel> CreateSampleBoxes() =>

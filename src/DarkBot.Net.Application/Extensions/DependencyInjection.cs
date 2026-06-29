@@ -2,6 +2,8 @@ using DarkBot.Net.Application.BotEngine.Addresses;
 using DarkBot.Net.Application.BotEngine.Install;
 using DarkBot.Net.Application.BotEngine.Loop;
 using DarkBot.Net.Application.BotEngine.Managers;
+using DarkBot.Net.Application.BotEngine.Modules;
+using DarkBot.Net.Application.BotEngine.Safety;
 using DarkBot.Net.Application.BotEngine.Runtime;
 using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Application.Services.Game;
@@ -24,6 +26,7 @@ public static class DependencyInjection
         services.AddSingleton<HeroManager>();
         services.AddSingleton<IHeroApi>(sp => sp.GetRequiredService<HeroManager>());
         services.AddSingleton<MapManager>();
+        services.AddSingleton<IBotMapApi>(sp => sp.GetRequiredService<MapManager>());
         services.AddSingleton<EntityManager>();
         services.AddSingleton<StatsManager>();
         services.AddSingleton<IStatsApi>(sp => sp.GetRequiredService<StatsManager>());
@@ -41,6 +44,8 @@ public static class DependencyInjection
         services.AddSingleton<StarSystemApi>();
         services.AddSingleton<IStarSystemApi>(sp => sp.GetRequiredService<StarSystemApi>());
 
+        services.AddSingleton<ModuleContext>();
+        services.AddSingleton<SafetyFinder>();
         services.AddSingleton<BotModuleRunner>();
         services.AddSingleton<BotRuntime>();
         services.AddSingleton<BotInstallerService>();

@@ -1,5 +1,6 @@
 using DarkBot.Net.Core.Interfaces.Bot;
 using DarkBot.Net.Application.BotEngine.Managers;
+using DarkBot.Net.Application.BotEngine.Runtime;
 using DarkBot.Net.Application.DTOs.Responses.Bot;
 using DarkBot.Net.Core.Config.Types;
 using DarkBot.Net.Core.Game;
@@ -17,7 +18,8 @@ internal static class BotStatusSnapshotMapper
         IGameFridaProbe frida,
         IStatsApi stats,
         IBotController bot,
-        IMovementApi movement) =>
+        IMovementApi movement,
+        BotModuleRunner modules) =>
         new(
             BotRunning: bot.IsRunning,
             TickCount: bot.TickCount,
@@ -36,7 +38,7 @@ internal static class BotStatusSnapshotMapper
             EarnedHonorPerHour: StatsDisplayMapper.ToEarnedPerHour(stats.EarnedHonor, stats.RunningTime),
             Cargo: stats.Cargo,
             MaxCargo: stats.MaxCargo,
-            Map: CreateMapStatusSnapshot(hero, map, entities, frida, stats, bot, movement));
+            Map: CreateMapStatusSnapshot(hero, map, entities, frida, stats, bot, movement, modules));
 
     private static MapStatusSnapshot CreateMapStatusSnapshot(
         HeroManager hero,
@@ -45,7 +47,8 @@ internal static class BotStatusSnapshotMapper
         IGameFridaProbe frida,
         IStatsApi stats,
         IBotController bot,
-        IMovementApi movement)
+        IMovementApi movement,
+        BotModuleRunner modules)
     {
         var health = hero.Health;
         var mapId = map.MapId;
@@ -79,13 +82,18 @@ internal static class BotStatusSnapshotMapper
 
         var entityCollections = CreateEntityCollections(entities, map, mapName);
 
+        var moduleStatus = modules.ActiveModuleStatus;
+        var moduleLines = string.IsNullOrWhiteSpace(moduleStatus)
+            ? Array.Empty<string>()
+            : new[] { moduleStatus };
+
         var overlay = new MapOverlaySnapshot(
             MapName: mapName,
             NextMapName: null,
             StatusLine: running
                 ? $"RUNNING {runtime:hh\\:mm\\:ss}"
                 : $"WAITING {runtime:hh\\:mm\\:ss}",
-            ModuleStatusLines: [],
+            ModuleStatusLines: moduleLines,
             Sid: null,
             GroupMembers: [],
             Boosters: []);

@@ -1,5 +1,6 @@
 using DarkBot.Net.Core.Interfaces.Bot;
 using DarkBot.Net.Application.BotEngine.Managers;
+using DarkBot.Net.Application.BotEngine.Runtime;
 using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Application.DTOs.Responses.Bot;
 using DarkBot.Net.Application.Mappers.Bot;
@@ -16,7 +17,8 @@ public sealed class BotStatusAppService(
     StatsManager stats,
     IGameFridaProbe frida,
     IBotController bot,
-    IMovementApi movement) : IBotStatusAppService
+    IMovementApi movement,
+    BotModuleRunner modules) : IBotStatusAppService
 {
     public BotStatusSnapshot Capture()
     {
@@ -30,6 +32,6 @@ public sealed class BotStatusAppService(
             stats.Tick(bot.IsRunning);
         }
 
-        return BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement);
+        return BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement, modules);
     }
 }

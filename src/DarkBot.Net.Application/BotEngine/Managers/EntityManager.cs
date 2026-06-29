@@ -1,7 +1,10 @@
+using DarkBot.Net.Application.Mappers;
+using DarkBot.Net.Core.Config.Types;
 using DarkBot.Net.Core.Entities;
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Game.Entities;
 using DarkBot.Net.Core.Interfaces.Game;
+using DarkBot.Net.Core.Managers;
 using DarkBot.Net.Application.BotEngine.Addresses;
 using EntityInfoStub = DarkBot.Net.Core.Entities.EntityInfoStub;
 
@@ -15,6 +18,7 @@ public sealed class EntityManager
     private readonly IGameFridaProbe _frida;
     private readonly IUnityGameBridge _unityBridge;
     private readonly EntitiesApi _entitiesApi;
+    private readonly IConfigApi _config;
 
     private ShipStub[] _ships = [];
     private NpcEntity[] _npcs = [];
@@ -28,13 +32,15 @@ public sealed class EntityManager
         MapManager map,
         IGameFridaProbe frida,
         IUnityGameBridge unityBridge,
-        EntitiesApi entitiesApi)
+        EntitiesApi entitiesApi,
+        IConfigApi config)
     {
         _addresses = addresses;
         _map = map;
         _frida = frida;
         _unityBridge = unityBridge;
         _entitiesApi = entitiesApi;
+        _config = config;
         _addresses.Invalidated += OnInvalidated;
     }
 
@@ -93,13 +99,18 @@ public sealed class EntityManager
                     });
                     break;
                 case "box":
-                    boxes.Add(new BoxEntity(_unityBridge)
                     {
-                        Id = entity.Id,
-                        Location = location,
-                        TypeName = entity.Label ?? string.Empty,
-                        Hash = entity.Label ?? string.Empty,
-                    });
+                        var rawLabel = entity.Label ?? string.Empty;
+                        var typeName = BoxTypeNormalizer.Normalize(rawLabel);
+                        boxes.Add(new BoxEntity(_unityBridge, ResolveBoxInfo(typeName))
+                        {
+                            Id = entity.Id,
+                            Location = location,
+                            TypeName = typeName,
+                            Hash = rawLabel,
+                        });
+                    }
+
                     break;
                 case "portal":
                     portals.Add(new PortalEntity
@@ -117,7 +128,7 @@ public sealed class EntityManager
                     break;
                 case "player":
                 case "ship":
-                    ships.Add(CreateShipStub(entity.Id, location));
+                    ships.Add(CreateShipStub(entity.Id, location, entity.IsEnemy));
                     break;
                 case "pet":
                 case "relay":
@@ -128,7 +139,7 @@ public sealed class EntityManager
                 case "station_turret":
                 case "base_spot":
                 default:
-                    ships.Add(CreateShipStub(entity.Id, location));
+                    ships.Add(CreateShipStub(entity.Id, location, entity.IsEnemy));
                     break;
             }
         }
@@ -143,11 +154,26 @@ public sealed class EntityManager
         _entitiesApi.ReplaceSnapshot(_ships, _npcs, _boxes, _mines, _portals);
     }
 
-    private static ShipStub CreateShipStub(int id, MutableLocationInfo location) =>
+    private IBoxInfo ResolveBoxInfo(string typeName)
+    {
+        if (string.IsNullOrWhiteSpace(typeName))
+            return ResolvedBoxInfo.Disabled;
+
+        var boxInfos = _config.CurrentDocument.Collect.BoxInfos;
+        foreach (var (name, record) in boxInfos)
+        {
+            if (name.Equals(typeName, StringComparison.OrdinalIgnoreCase))
+                return ResolvedBoxInfo.FromRecord(record);
+        }
+
+        return ResolvedBoxInfo.Disabled;
+    }
+
+    private static ShipStub CreateShipStub(int id, MutableLocationInfo location, bool isEnemy) =>
         new()
         {
             Id = id,
-            EntityInfoData = new EntityInfoStub(),
+            EntityInfoData = new EntityInfoStub { IsEnemy = isEnemy },
             Location = location,
         };
 

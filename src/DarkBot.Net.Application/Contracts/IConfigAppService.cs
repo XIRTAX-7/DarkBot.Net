@@ -1,3 +1,5 @@
+using DarkBot.Net.Application.BotEngine.Managers;
+using DarkBot.Net.Application.BotEngine.Modules;
 using DarkBot.Net.Core.Config;
 
 namespace DarkBot.Net.Application.Contracts;
@@ -21,6 +23,10 @@ public interface IConfigAppService
 
     ConfigCollectStateDto LoadCollectState();
     void UpdateCollectSetting(string path, object value);
+
+    ConfigMainStateDto LoadMainState();
+    void UpdateGeneralSetting(string path, object value);
+
     Task SaveAsync(CancellationToken cancellationToken = default);
 
     event EventHandler? ConfigChanged;
@@ -42,3 +48,12 @@ public sealed record ConfigBoxInfoRowDto(
     bool Collect,
     int WaitTime,
     int Priority);
+
+public sealed record ConfigMainStateDto(
+    string CurrentModule,
+    int WorkingMap,
+    int SafetyWait,
+    IReadOnlyList<ModuleOption> Modules,
+    IReadOnlyList<MapOptionDto> WorkingMaps);
+
+public sealed record MapOptionDto(int MapId, string DisplayName);

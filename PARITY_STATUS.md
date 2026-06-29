@@ -31,8 +31,8 @@ C# **не читает память процесса** — только typed sn
 | Bridge | `darkorbit-unity-bridge` schema v2 | ✅ snapshot + moveTo + select/collect/attack (Ф1) |
 | Bot | C# managers from bridge probe | 🟡 ~40% Java parity |
 | UI | WPF + SkiaSharp map | ✅ shell, map click move (async) |
-| Config | `JsonConfigApi` + persistence | 🟡 Collect UI ✅; бот не читает config (Ф3 tail) |
-| Modules | `BotModuleRunner` + `DisconnectModule` | ❌ Collector Phase 2 |
+| Config | `JsonConfigApi` + persistence | 🟡 Collect UI ✅; Main page binding ✅; бот читает config через `ModuleContext` |
+| Modules | `BotModuleRunner` + `CollectorModule` + `SafetyFinder` | 🟡 code ✅; **M2 manual smoke** pending |
 
 ---
 
@@ -49,7 +49,7 @@ C# **не читает память процесса** — только typed sn
 
 Контракт C#: `IUnityGameBridge` (ADR-002). Manual smoke: [docs/phase1-smoke-checklist.md](docs/phase1-smoke-checklist.md).
 
-**Тесты:** 225 Vitest (agent) + 109 .NET — все зелёные (2026-06-29).
+**Тесты:** 225 Vitest (agent) + 114 .NET — все зелёные (2026-06-29).
 
 ---
 
@@ -60,11 +60,11 @@ C# **не читает память процесса** — только typed sn
 | Milestone | Критерий | Статус |
 |-----------|----------|--------|
 | M1 Bridge complete | select + collect + attack RPC + tests | ✅ code; manual smoke — checklist |
-| M2 Collector works | 10 min автосбор на 1-1 | ❌ Ф2 |
-| M3 Config wired | profile save/load влияет на поведение | 🟡 backend + Collect UI |
+| M2 Collector works | 10 min автосбор на 1-1 | 🟡 code ✅ (`CollectorModule` + 5 unit tests); **manual smoke** |
+| M3 Config wired | profile save/load влияет на поведение | 🟡 `IConfigApi` → `ModuleContext` + Collect/Main UI |
 | M4 Kill & Collect | NPC + boxes одновременно | ❌ Ф4 |
 
-**Следующий критический путь:** Ф2 `CollectorModule` + `IModule`.
+**Следующий критический путь:** manual smoke M2 (≥10 мин автосбор на 1-1) → Ф4 Loot+KC.
 
 ---
 

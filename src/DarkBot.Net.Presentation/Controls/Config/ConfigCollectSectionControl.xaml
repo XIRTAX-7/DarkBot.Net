@@ -93,8 +93,7 @@
       </ui:CardControl>
 
       <ui:Card Margin="0,16,0,0"
-              Padding="16"
-              Visibility="{Binding ShowAdvancedSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
+              Padding="16">
         <StackPanel>
           <ui:TextBlock FontTypography="Subtitle" Text="Ресурсы" Margin="0,0,0,4" />
           <ui:TextBlock FontTypography="Caption"
@@ -107,16 +106,16 @@
                       Icon="{ui:SymbolIcon Search24}"
                       Text="{Binding BoxSearchFilter, UpdateSourceTrigger=PropertyChanged}" />
 
-          <ui:DataGrid ItemsSource="{Binding FilteredBoxes}"
-                       AutoGenerateColumns="False"
-                       CanUserAddRows="False"
-                       CanUserDeleteRows="False"
-                       CanUserReorderColumns="False"
-                       CanUserResizeRows="False"
-                       HeadersVisibility="Column"
-                       GridLinesVisibility="Horizontal"
-                       MinHeight="240">
-            <ui:DataGrid.Columns>
+          <DataGrid ItemsSource="{Binding FilteredBoxes}"
+                    AutoGenerateColumns="False"
+                    CanUserAddRows="False"
+                    CanUserDeleteRows="False"
+                    CanUserReorderColumns="False"
+                    CanUserResizeRows="False"
+                    HeadersVisibility="Column"
+                    GridLinesVisibility="Horizontal"
+                    MinHeight="240">
+            <DataGrid.Columns>
               <DataGridTextColumn Header="Ресурс"
                                   Binding="{Binding Name}"
                                   IsReadOnly="True"
@@ -130,8 +129,8 @@
               <DataGridTextColumn Header="Приоритет"
                                   Binding="{Binding Priority, UpdateSourceTrigger=PropertyChanged}"
                                   Width="90" />
-            </ui:DataGrid.Columns>
-          </ui:DataGrid>
+            </DataGrid.Columns>
+          </DataGrid>
         </StackPanel>
       </ui:Card>
     </StackPanel>

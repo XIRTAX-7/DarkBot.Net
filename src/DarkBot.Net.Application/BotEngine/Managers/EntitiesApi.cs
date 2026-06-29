@@ -39,14 +39,23 @@ public sealed class EntitiesApi : IEntitiesApi
         _boxes = nextBoxes;
         _mines = nextMines;
         _portals = nextPortals;
-        _all =
-        [
-            ..nextShips.Cast<IEntity>(),
-            ..nextNpcs,
-            ..nextBoxes,
-            ..nextMines,
-            ..nextPortals,
-        ];
+        _all = BuildAllSnapshot(nextShips, nextNpcs, nextBoxes, nextMines, nextPortals);
+    }
+
+    private static IEntity[] BuildAllSnapshot(
+        IShip[] ships,
+        INpc[] npcs,
+        IBox[] boxes,
+        IMine[] mines,
+        IPortal[] portals)
+    {
+        var all = new List<IEntity>(ships.Length + npcs.Length + boxes.Length + mines.Length + portals.Length);
+        all.AddRange(ships);
+        all.AddRange(npcs);
+        all.AddRange(boxes);
+        all.AddRange(mines);
+        all.AddRange(portals);
+        return all.ToArray();
     }
 
     public void ClearSnapshot() => ReplaceSnapshot([], [], [], [], []);

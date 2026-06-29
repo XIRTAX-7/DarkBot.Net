@@ -1,4 +1,5 @@
 using DarkBot.Net.Application.BotEngine.Managers;
+using DarkBot.Net.Core.Config.Types;
 using DarkBot.Net.Application.Tests.Fakes;
 using DarkBot.Net.Core.Entities;
 
@@ -6,11 +7,18 @@ namespace DarkBot.Net.Application.Tests;
 
 public class BoxEntityTests
 {
+    private sealed class TestBoxInfo : IBoxInfo
+    {
+        public bool ShouldCollect { get; set; } = true;
+        public int WaitTime { get; set; }
+        public int Priority { get; set; }
+    }
+
     [Fact]
     public void TryCollect_calls_collect_box_async_on_bridge()
     {
         var bridge = new FakeGameConnection();
-        var box = new BoxEntity(bridge)
+        var box = new BoxEntity(bridge, new TestBoxInfo())
         {
             Id = 42,
             Location = new MutableLocationInfo(),

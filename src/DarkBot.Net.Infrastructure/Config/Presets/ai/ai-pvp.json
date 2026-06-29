@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "displayName": "AI PVP (stub)",
+    "owner": "ai",
+    "schemaVersion": 1
+  },
+  "general": {
+    "currentModule": "DarkBot.Net.Application.BotEngine.Modules.PvpModule",
+    "workingMap": 26,
+    "safetyWait": 5000
+  },
+  "collect": {
+    "radius": 400,
+    "stayAwayFromEnemies": true,
+    "autoCloak": false,
+    "ignoreContestedBoxes": true,
+    "boxInfos": {}
+  }
+}

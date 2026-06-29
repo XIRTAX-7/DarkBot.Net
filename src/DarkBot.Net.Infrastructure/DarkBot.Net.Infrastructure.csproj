@@ -25,6 +25,10 @@
     <ProjectReference Include="..\DarkBot.Net.Application\DarkBot.Net.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Config\Presets\**\*" />
+  </ItemGroup>
+  <ItemGroup>
     <InternalsVisibleTo Include="DarkBot.Net.Core.Tests" />
+    <InternalsVisibleTo Include="DarkBot.Net.Config.Tests" />
   </ItemGroup>
 </Project>

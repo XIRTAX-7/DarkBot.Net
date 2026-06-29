@@ -8,6 +8,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\DarkBot.Net.Application\DarkBot.Net.Application.csproj" />
     <ProjectReference Include="..\..\src\DarkBot.Net.Infrastructure\DarkBot.Net.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

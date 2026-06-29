@@ -95,12 +95,10 @@
                         <Rectangle Style="{StaticResource MainToolbarDivider}" />
 
                         <StackPanel Style="{StaticResource MainToolbarConfigGroup}">
-                            <ComboBox Style="{StaticResource MainToolbarComboBox}"
-                                      SelectedIndex="0"
-                                      ToolTip="{x:Static loc:UiStrings.Main_ConfigSlotTooltip}">
-                                <ComboBoxItem Content="{x:Static loc:UiStrings.Main_ConfigSlot1}" />
-                                <ComboBoxItem Content="{x:Static loc:UiStrings.Main_ConfigSlot2}" />
-                            </ComboBox>
+                            <ComboBox x:Name="BotProfileComboBox"
+                                      Style="{StaticResource MainToolbarComboBox}"
+                                      DisplayMemberPath="Name"
+                                      ToolTip="{x:Static loc:UiStrings.Main_BotProfileTooltip}" />
 
                             <ui:Button x:Name="OpenConfigButton"
                                        Style="{StaticResource MainCommandButtonLast}"

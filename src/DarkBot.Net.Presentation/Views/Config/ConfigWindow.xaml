@@ -43,22 +43,77 @@
 
       <ui:Card Grid.Row="0" Margin="0,0,0,16" Padding="16">
         <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-          </Grid.ColumnDefinitions>
-          <StackPanel>
-            <ui:TextBlock FontTypography="Title"
-                          Text="{x:Static loc:UiStrings.ConfigWindow_Header}"
-                          Margin="0,0,0,4" />
-            <ui:TextBlock FontTypography="Body"
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+              <ui:TextBlock FontTypography="Title"
+                            Text="{x:Static loc:UiStrings.ConfigWindow_Header}"
+                            Margin="0,0,0,4" />
+              <ui:TextBlock FontTypography="Body"
+                            Appearance="Secondary"
+                            Text="{x:Static loc:UiStrings.ConfigWindow_Subtitle}" />
+            </StackPanel>
+            <ui:InfoBadge Grid.Column="1"
+                          Value="{x:Static loc:UiStrings.ConfigWindow_Badge}"
+                          Severity="Attention"
+                          VerticalAlignment="Center"
+                          Visibility="Collapsed" />
+          </Grid>
+          <StackPanel x:Name="ProfilePanel" Grid.Row="1" Margin="0,12,0,0">
+            <ui:TextBlock FontTypography="Caption"
                           Appearance="Secondary"
-                          Text="{x:Static loc:UiStrings.ConfigWindow_Subtitle}" />
+                          Text="Профиль пользователя"
+                          Margin="0,0,0,4" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <ComboBox ItemsSource="{Binding UserProfiles}"
+                        SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
+                        DisplayMemberPath="Name"
+                        MinWidth="220"
+                        IsEnabled="{Binding IsEditable}" />
+              <ui:Button Grid.Column="1"
+                         Margin="8,0,0,0"
+                         Content="Применить"
+                         Command="{Binding SwitchProfileCommand}"
+                         IsEnabled="{Binding IsEditable}" />
+              <ui:Button Grid.Column="2"
+                         Margin="8,0,0,0"
+                         Content="Удалить"
+                         Command="{Binding DeleteProfileCommand}"
+                         IsEnabled="{Binding IsEditable}" />
+              <ui:TextBox Grid.Column="3"
+                          Margin="8,0,0,0"
+                          MinWidth="140"
+                          PlaceholderText="Новый профиль"
+                          Text="{Binding NewProfileName, UpdateSourceTrigger=PropertyChanged}"
+                          IsEnabled="{Binding IsEditable}" />
+            </Grid>
+            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+              <ui:Button Content="Создать"
+                         Command="{Binding CreateProfileCommand}"
+                         IsEnabled="{Binding IsEditable}" />
+              <ui:Button Margin="8,0,0,0"
+                         Content="Дублировать"
+                         Command="{Binding DuplicateProfileCommand}"
+                         IsEnabled="{Binding IsEditable}" />
+              <ui:InfoBadge Margin="16,0,0,0"
+                            Value="{Binding AiControlBadge}"
+                            Severity="Informational"
+                            Visibility="{Binding ShowAiControlBadge, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </StackPanel>
           </StackPanel>
-          <ui:InfoBadge Grid.Column="1"
-                        Value="{x:Static loc:UiStrings.ConfigWindow_Badge}"
-                        Severity="Attention"
-                        VerticalAlignment="Center" />
         </Grid>
       </ui:Card>
 

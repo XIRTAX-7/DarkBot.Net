@@ -5,20 +5,20 @@ namespace DarkBot.Net.Infrastructure.Config.Tests;
 public class StubConfigApiTests
 {
     [Fact]
-    public void ConfigRoot_HasBotSettings()
+    public void ConfigRoot_HasGeneralSection()
     {
         var api = new StubConfigApi();
-        var children = api.GetChildren("BOT_SETTINGS");
+        var children = api.GetChildren("general");
         Assert.NotNull(children);
-        Assert.Contains("MAP_DISPLAY", children);
+        Assert.Contains("working_map", children);
     }
 
     [Fact]
     public void GetConfigValue_ReadsLeaf()
     {
         var api = new StubConfigApi();
-        var value = api.GetConfigValue<bool>("BOT_SETTINGS.MAP_START_STOP");
-        Assert.True(value);
+        var value = api.GetConfigValue<int>("collect.radius");
+        Assert.Equal(400, value);
     }
 
     [Fact]

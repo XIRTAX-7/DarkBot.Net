@@ -181,14 +181,8 @@
   <data name="Main_ReadyDesignMode" xml:space="preserve">
     <value>Готов — режим конструктора</value>
   </data>
-  <data name="Main_ConfigSlotTooltip" xml:space="preserve">
-    <value>Переключение конфигурации</value>
-  </data>
-  <data name="Main_ConfigSlot1" xml:space="preserve">
-    <value>Конфиг 1</value>
-  </data>
-  <data name="Main_ConfigSlot2" xml:space="preserve">
-    <value>Конфиг 2</value>
+  <data name="Main_BotProfileTooltip" xml:space="preserve">
+    <value>Профиль бота</value>
   </data>
   <data name="Main_ShipSection" xml:space="preserve">
     <value>Корабль</value>

@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "displayName": "Default",
+    "owner": "user",
+    "schemaVersion": 1
+  },
+  "general": {
+    "currentModule": "DarkBot.Net.Application.BotEngine.Modules.CollectorModule",
+    "workingMap": 26,
+    "safetyWait": 5000
+  },
+  "collect": {
+    "radius": 400,
+    "stayAwayFromEnemies": false,
+    "autoCloak": false,
+    "ignoreContestedBoxes": true,
+    "boxInfos": {
+      "BONUS_BOX": {
+        "shouldCollect": true,
+        "priority": 1,
+        "waitTime": 0
+      },
+      "PROMETID": {
+        "shouldCollect": true,
+        "priority": 2,
+        "waitTime": 0
+      },
+      "ENDURIUM": {
+        "shouldCollect": true,
+        "priority": 3,
+        "waitTime": 0
+      },
+      "TERBIUM": {
+        "shouldCollect": true,
+        "priority": 4,
+        "waitTime": 0
+      }
+    }
+  }
+}

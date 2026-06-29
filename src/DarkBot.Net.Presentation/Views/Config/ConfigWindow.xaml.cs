@@ -18,6 +18,7 @@ public partial class ConfigWindow : FluentWindow
         InitializeComponent();
         ApplicationThemeManager.Apply(ApplicationTheme.Dark, WindowBackdropType.Mica, updateAccent: false);
         ConfigTree.AttachViewModel(viewModel ?? new ConfigTreeViewModel());
+        ProfilePanel.DataContext = ConfigTree.ViewModel;
         Closed += (_, _) => Log.Debug("UI config: ConfigWindow closed");
         Log.Debug("UI config: ConfigWindow ctor complete");
     }

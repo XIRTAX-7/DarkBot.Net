@@ -1,14 +1,19 @@
 using System.Collections.ObjectModel;
+using DarkBot.Net.Application.Contracts;
 using DarkBot.Net.Core.Config;
 using DarkBot.Net.Presentation.Resources;
 using DarkBot.Net.Presentation.ViewModels.Shared;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using System.Reactive.Linq;
 
 namespace DarkBot.Net.Presentation.ViewModels.Config;
 
 public sealed partial class ConfigTreeViewModel : ViewModelBase
 {
+    private readonly IConfigAppService? _config;
+    private bool _suppressPush;
+
     public static IReadOnlyList<ConfigSidebarItem> SidebarItems { get; } =
     [
         new("Главная", ConfigSidebarSection.Main),
@@ -32,6 +37,16 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
         new(ConfigSettingVisibility.Developer, UiStrings.Config_VisibilityLevel_Developer),
     ];
 
+    public ConfigTreeViewModel(IConfigAppService config)
+    {
+        _config = config;
+        SelectedVisibilityLevel = DefaultVisibilityLevel;
+        InitializeReactiveState();
+        LoadFromService();
+        _config.ConfigChanged += OnConfigChanged;
+    }
+
+    /// <summary>Design-time / preview без backend.</summary>
     public ConfigTreeViewModel()
     {
         SeedSampleBoxes();
@@ -53,11 +68,24 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
     public bool ShowAdvancedSettings =>
         IsSettingVisible(ConfigSettingVisibility.Advanced);
 
+    public bool IsEditable => _config?.IsEditable ?? true;
+
+    public string ActiveProfileName => _config?.ActiveProfile ?? ConfigProfileNames.DefaultUser;
+
+    public string AiControlBadge =>
+        _config?.ActiveOwner is ProfileOwner.Ai
+            ? $"AI: {_config.GetAiProfileSummary()?.Name ?? "ai-pve"}"
+            : string.Empty;
+
+    public bool ShowAiControlBadge =>
+        _config?.ActiveOwner is ProfileOwner.Ai;
+
     public bool IsSettingVisible(ConfigSettingVisibility required) =>
         required.IsVisibleAt(SelectedVisibilityLevel?.Level ?? ConfigSettingVisibilityDefaults.Level);
 
     [Reactive] private ConfigSidebarItem? _selectedSidebarItem = SidebarItems[0];
     [Reactive] private ConfigVisibilityLevelItem? _selectedVisibilityLevel = DefaultVisibilityLevel;
+    [Reactive] private ConfigProfileSummaryDto? _selectedProfile;
 
     [Reactive] private bool _stayAwayFromEnemies;
     [Reactive] private bool _autoCloak;
@@ -65,9 +93,53 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
     [Reactive] private double _collectRadius = 400;
     [Reactive] private bool _ignoreContestedBoxes = true;
     [Reactive] private string _boxSearchFilter = string.Empty;
+    [Reactive] private string _newProfileName = string.Empty;
 
     public ObservableCollection<BoxInfoRowViewModel> Boxes { get; } = [];
     public ObservableCollection<BoxInfoRowViewModel> FilteredBoxes { get; } = [];
+    public ObservableCollection<ConfigProfileSummaryDto> UserProfiles { get; } = [];
+
+    [ReactiveCommand]
+    private void SwitchProfile()
+    {
+        if (_config is null || SelectedProfile is null)
+            return;
+
+        _config.SwitchProfile(SelectedProfile.Name);
+        LoadFromService();
+    }
+
+    [ReactiveCommand]
+    private void CreateProfile()
+    {
+        if (_config is null || string.IsNullOrWhiteSpace(NewProfileName))
+            return;
+
+        _config.CreateProfile(NewProfileName.Trim());
+        NewProfileName = string.Empty;
+        LoadFromService();
+    }
+
+    [ReactiveCommand]
+    private void DeleteProfile()
+    {
+        if (_config is null || SelectedProfile is null)
+            return;
+
+        _config.DeleteProfile(SelectedProfile.Name);
+        LoadFromService();
+    }
+
+    [ReactiveCommand]
+    private void DuplicateProfile()
+    {
+        if (_config is null || SelectedProfile is null || string.IsNullOrWhiteSpace(NewProfileName))
+            return;
+
+        _config.DuplicateProfile(SelectedProfile.Name, NewProfileName.Trim());
+        NewProfileName = string.Empty;
+        LoadFromService();
+    }
 
     private void InitializeReactiveState()
     {
@@ -91,8 +163,91 @@ public sealed partial class ConfigTreeViewModel : ViewModelBase
                 this.RaisePropertyChanged(nameof(ShowAdvancedSettings));
             });
 
+        this.WhenAnyValue(x => x.StayAwayFromEnemies)
+            .Skip(1)
+            .Subscribe(value => PushCollectSetting("collect.stay_away_from_enemies", value));
+
+        this.WhenAnyValue(x => x.AutoCloak)
+            .Skip(1)
+            .Subscribe(value => PushCollectSetting("collect.auto_cloak", value));
+
+        this.WhenAnyValue(x => x.CollectRadius)
+            .Skip(1)
+            .Subscribe(value => PushCollectSetting("collect.radius", value));
+
+        this.WhenAnyValue(x => x.IgnoreContestedBoxes)
+            .Skip(1)
+            .Subscribe(value => PushCollectSetting("collect.ignore_contested_boxes", value));
+
         RefreshFilteredBoxes();
     }
+
+    private void LoadFromService()
+    {
+        if (_config is null)
+            return;
+
+        _suppressPush = true;
+
+        UserProfiles.Clear();
+        foreach (var profile in _config.ListUserProfiles())
+            UserProfiles.Add(profile);
+
+        SelectedProfile = UserProfiles.FirstOrDefault(p =>
+            p.Name.Equals(_config.ActiveProfile, StringComparison.OrdinalIgnoreCase))
+            ?? UserProfiles.FirstOrDefault();
+
+        var collect = _config.LoadCollectState();
+        StayAwayFromEnemies = collect.StayAwayFromEnemies;
+        AutoCloak = collect.AutoCloak;
+        CollectRadius = collect.CollectRadius;
+        IgnoreContestedBoxes = collect.IgnoreContestedBoxes;
+
+        Boxes.Clear();
+        foreach (var box in collect.Boxes)
+        {
+            var row = new BoxInfoRowViewModel(box.Name, box.Collect, box.WaitTime, box.Priority);
+            WireBoxRow(row);
+            Boxes.Add(row);
+        }
+
+        if (Boxes.Count == 0)
+            SeedSampleBoxes();
+
+        RefreshFilteredBoxes();
+        _suppressPush = false;
+
+        this.RaisePropertyChanged(nameof(IsEditable));
+        this.RaisePropertyChanged(nameof(ActiveProfileName));
+        this.RaisePropertyChanged(nameof(AiControlBadge));
+        this.RaisePropertyChanged(nameof(ShowAiControlBadge));
+    }
+
+    private void WireBoxRow(BoxInfoRowViewModel row)
+    {
+        row.WhenAnyValue(x => x.Collect)
+            .Skip(1)
+            .Subscribe(value => PushCollectSetting($"collect.box_infos.{row.Name}.should_collect", value));
+
+        row.WhenAnyValue(x => x.WaitTime)
+            .Skip(1)
+            .Subscribe(value => PushCollectSetting($"collect.box_infos.{row.Name}.wait_time", value));
+
+        row.WhenAnyValue(x => x.Priority)
+            .Skip(1)
+            .Subscribe(value => PushCollectSetting($"collect.box_infos.{row.Name}.priority", value));
+    }
+
+    private void PushCollectSetting(string path, object value)
+    {
+        if (_suppressPush || _config is null || !IsEditable)
+            return;
+
+        _config.UpdateCollectSetting(path, value);
+    }
+
+    private void OnConfigChanged(object? sender, EventArgs e) =>
+        LoadFromService();
 
     private void SeedSampleBoxes()
     {

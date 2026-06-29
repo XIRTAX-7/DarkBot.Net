@@ -1,5 +1,7 @@
+using System.Collections.ObjectModel;
 using System.Reactive.Linq;
 using DarkBot.Net.Application.Contracts;
+using DarkBot.Net.Core.Config;
 using DarkBot.Net.Application.DTOs.Responses.Bot;
 using DarkBot.Net.Presentation.Controls.Main.MapCanvas;
 using DarkBot.Net.Presentation.Formatting;
@@ -20,6 +22,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly IGameConnectionStatusAppService _gameStatus;
     private readonly IGameClientRestartAppService _clientRestart;
     private readonly IConfigWindowService _configWindow;
+    private readonly IConfigAppService _configApp;
     private readonly StatsPanelViewModel _statsPanel;
     private readonly ILogger<MainWindowViewModel>? _logger;
     private readonly IObservable<bool> _canRestartClientGate;
@@ -36,6 +39,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [Reactive] private bool _isPetSectionExpanded = true;
     [Reactive] private bool _isGroupSectionExpanded = true;
     [Reactive] private bool _isMapDashboardReady;
+    [Reactive] private ConfigProfileSummaryDto? _selectedBotProfile;
+
+    private bool _suppressProfileSwitch;
 
     public MainWindowViewModel(
         IBotControlAppService bot,
@@ -44,6 +50,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         IGameConnectionStatusAppService gameStatus,
         IGameClientRestartAppService clientRestart,
         IConfigWindowService configWindow,
+        IConfigAppService configApp,
         StatsPanelViewModel statsPanel,
         ILogger<MainWindowViewModel> logger)
     {
@@ -53,12 +60,20 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _gameStatus = gameStatus;
         _clientRestart = clientRestart;
         _configWindow = configWindow;
+        _configApp = configApp;
         _statsPanel = statsPanel;
         _logger = logger;
         _canRestartClientGate = this.WhenAnyValue(x => x.CanRestartClient);
         _gameStatus.StatusChanged += RefreshGameStatus;
+        _configApp.ConfigChanged += OnBotConfigChanged;
         OpenConfigCommand.ThrownExceptions.Subscribe(ex =>
             _logger?.LogError(ex, "UI config: OpenConfigCommand failed"));
+
+        this.WhenAnyValue(x => x.SelectedBotProfile)
+            .Skip(1)
+            .Subscribe(OnSelectedBotProfileChanged);
+
+        LoadBotProfiles();
         Refresh();
     }
 
@@ -71,7 +86,13 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _gameStatus = null!;
         _clientRestart = null!;
         _configWindow = null!;
+        _configApp = null!;
         _statsPanel = new StatsPanelViewModel();
+        BotProfiles =
+        [
+            new ConfigProfileSummaryDto(ConfigProfileNames.DefaultUser, "Default"),
+        ];
+        SelectedBotProfile = BotProfiles[0];
         _canRestartClientGate = Observable.Return(false);
         Title = UiStrings.App_Title;
         StatusLine = UiStrings.Main_ReadyDesignMode;
@@ -84,6 +105,40 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     }
 
     public StatsPanelViewModel Stats => _statsPanel;
+
+    public ObservableCollection<ConfigProfileSummaryDto> BotProfiles { get; } = [];
+
+    private void LoadBotProfiles()
+    {
+        if (_configApp is null)
+            return;
+
+        _suppressProfileSwitch = true;
+
+        BotProfiles.Clear();
+        foreach (var profile in _configApp.ListUserProfiles())
+            BotProfiles.Add(profile);
+
+        SelectedBotProfile = BotProfiles.FirstOrDefault(p =>
+            p.Name.Equals(_configApp.ActiveProfile, StringComparison.OrdinalIgnoreCase))
+            ?? BotProfiles.FirstOrDefault();
+
+        _suppressProfileSwitch = false;
+    }
+
+    private void OnSelectedBotProfileChanged(ConfigProfileSummaryDto? profile)
+    {
+        if (_suppressProfileSwitch || profile is null || _configApp is null)
+            return;
+
+        if (profile.Name.Equals(_configApp.ActiveProfile, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        _configApp.SwitchProfile(profile.Name);
+    }
+
+    private void OnBotConfigChanged(object? sender, EventArgs e) =>
+        LoadBotProfiles();
 
     public void Refresh()
     {

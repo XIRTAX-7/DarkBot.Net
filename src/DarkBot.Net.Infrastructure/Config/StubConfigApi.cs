@@ -3,21 +3,26 @@ using DarkBot.Net.Core.Managers;
 
 namespace DarkBot.Net.Infrastructure.Config;
 
-/// <summary>Phase 3 stub — minimal config tree until full Config port.</summary>
+/// <summary>Legacy stub for unit tests — production uses JsonConfigApi.</summary>
 public sealed class StubConfigApi : IConfigApi
 {
     private readonly ConfigSettingNode _root;
-    private readonly List<string> _profiles = ["default"];
-    private string _currentProfile = "default";
+    private readonly List<string> _profiles = [ConfigProfileNames.DefaultUser];
+    private string _currentProfile = ConfigProfileNames.DefaultUser;
+    private readonly BotProfileDocument _document = ConfigPresetProvider.LoadUserProfilePreset();
 
     public StubConfigApi()
     {
-        _root = BuildDefaultTree();
+        _root = ConfigTreeBuilder.Build(_document);
     }
 
     public IConfigSetting<object> ConfigRoot => _root;
+    public BotProfileDocument CurrentDocument => _document;
+    public ProfileOwner CurrentOwner => ProfileOwner.User;
     public IReadOnlyList<string> ConfigProfiles => _profiles;
     public string CurrentProfile => _currentProfile;
+
+    public event EventHandler<ConfigProfileChangedEventArgs>? ProfileChanged;
 
     public void SetConfigProfile(string profile)
     {
@@ -25,7 +30,19 @@ public sealed class StubConfigApi : IConfigApi
             _profiles.Add(profile);
 
         _currentProfile = profile;
+        ProfileChanged?.Invoke(this, new ConfigProfileChangedEventArgs(profile, ProfileOwner.User));
     }
+
+    public void ReloadProfile()
+    {
+    }
+
+    public void SetValue<T>(string path, T value, ConfigActor actor)
+    {
+    }
+
+    public Task SaveAsync(ConfigActor actor, CancellationToken cancellationToken = default) =>
+        Task.CompletedTask;
 
     public IConfigSetting<T>? GetConfig<T>(string path)
     {
@@ -74,24 +91,5 @@ public sealed class StubConfigApi : IConfigApi
         }
 
         return current;
-    }
-
-    private static ConfigSettingNode BuildDefaultTree()
-    {
-        var root = new ConfigSettingNode("config", "Configuration");
-
-        var botSettings = root.AddChild(new ConfigSettingNode("BOT_SETTINGS", "Bot settings"));
-        botSettings.AddLeaf("ALWAYS_ON_TOP", "Always on top", false);
-        botSettings.AddLeaf("MAP_START_STOP", "Click map to start/stop", true);
-
-        var mapDisplay = botSettings.AddChild(new ConfigSettingNode("MAP_DISPLAY", "Map display"));
-        mapDisplay.AddLeaf("SHOW_GRID", "Show grid", true);
-        mapDisplay.AddLeaf("SHOW_HERO", "Show hero", true);
-
-        var general = root.AddChild(new ConfigSettingNode("GENERAL", "General"));
-        general.AddLeaf("WORKING_MAP", "Working map", "1-1");
-        general.AddLeaf("SAFETY_WAIT", "Safety wait (ms)", 5000);
-
-        return root;
     }
 }

@@ -13,13 +13,16 @@ public sealed class BoxEntity(IUnityGameBridge bridge, IBoxInfo info) : IBox
     private readonly EntityInfoStub _entityInfo = new();
     private readonly TrackedHealth _health = new();
     private bool _isCollected;
+    private IBoxInfo _info = info;
 
     public required int Id { get; init; }
     public required MutableLocationInfo Location { get; init; }
-    public string Hash { get; init; } = string.Empty;
-    public string TypeName { get; init; } = string.Empty;
-    public IBoxInfo Info { get; } = info;
-    public bool IsCollected => _isCollected;
+    public string TypeName { get; internal set; } = string.Empty;
+    public string Hash { get; internal set; } = string.Empty;
+    public IBoxInfo Info => _info;
+    public bool IsCollected =>
+        _isCollected
+        || CollectedUntil is { } until && until > DateTimeOffset.UtcNow;
     public int Retries { get; private set; }
     public DateTimeOffset? CollectedUntil { get; private set; }
     public IReadOnlyCollection<int> Effects { get; init; } = [];
@@ -51,6 +54,13 @@ public sealed class BoxEntity(IUnityGameBridge bridge, IBoxInfo info) : IBox
     {
         _isCollected = true;
         CollectedUntil = DateTimeOffset.UtcNow.AddSeconds(3);
+    }
+
+    internal void RefreshFromSnapshot(string typeName, string rawLabel, IBoxInfo boxInfo)
+    {
+        TypeName = typeName;
+        Hash = rawLabel;
+        _info = boxInfo;
     }
 
     public void SetMetadata(string key, object? value) { }

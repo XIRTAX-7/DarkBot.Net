@@ -4,10 +4,12 @@ using DarkBot.Net.Core.Game.Entities;
 
 namespace DarkBot.Net.Application.BotEngine.Modules;
 
-/// <summary>MVP сбор ресурсов — порт CollectorModule.java (без cloak, MapModule, contested).</summary>
+/// <summary>MVP сбор ресурсов — порт eu.darkbot.shared.modules.CollectorModule.</summary>
 public sealed class CollectorModule(ModuleContext context, SafetyFinder safetyFinder) : IModule
 {
+    private const int FindBoxReachabilityDistance = 200;
     private const int CollectDistance = 250;
+    private const int ArrivedAtDestinationDistance = 20;
 
     private IBox? _currentBox;
     private long _waitingUntil;
@@ -33,8 +35,12 @@ public sealed class CollectorModule(ModuleContext context, SafetyFinder safetyFi
         context.Hero.SetRoamMode();
         FindBox();
 
-        if (!TryCollectNearestBox() && IsStuck())
+        if (!TryCollectNearestBox()
+            && (context.Hero.DistanceTo(context.Movement.Destination) < ArrivedAtDestinationDistance
+                || context.Movement.IsOutOfMap))
+        {
             context.Movement.MoveRandom();
+        }
     }
 
     private bool CheckMapAndSafety()
@@ -72,14 +78,8 @@ public sealed class CollectorModule(ModuleContext context, SafetyFinder safetyFi
         box.Info.ShouldCollect
         && !box.IsCollected
         && box.IsValid
-        && context.Hero.DistanceTo(box) < CollectRadius()
+        && context.Movement.GetClosestDistance(box) < FindBoxReachabilityDistance
         && (!IsResource(box.TypeName) || context.Stats.Cargo < context.Stats.MaxCargo);
-
-    private int CollectRadius()
-    {
-        var radius = context.Config.GetConfigValue<int>("collect.radius");
-        return radius > 0 ? radius : 400;
-    }
 
     private static bool IsResource(string typeName) =>
         typeName.Equals("FROM_SHIP", StringComparison.OrdinalIgnoreCase)
@@ -132,13 +132,6 @@ public sealed class CollectorModule(ModuleContext context, SafetyFinder safetyFi
     }
 
     private bool IsNotWaiting() => !IsWaiting();
-
-    private bool IsStuck()
-    {
-        var hero = context.Hero;
-        return hero.DistanceTo(context.Movement.Destination) < 20
-            || context.Movement.IsOutOfMap;
-    }
 
     private bool IsBetter(IBox box)
     {

@@ -95,6 +95,75 @@ public sealed class CollectorModuleTests
         Assert.True(box.Info.ShouldCollect);
     }
 
+    [Fact]
+    public void RebuildFromSnapshot_reuses_box_entity_and_updates_position()
+    {
+        var config = FakeConfigApi.WithCollectorDefaults();
+        var addresses = new BotAddressRegistry();
+        var frida = new FakeGameFridaProbe
+        {
+            MapId = 26,
+            MapPointer = 0x5000,
+            IsReady = true,
+            Entities =
+            [
+                new FridaEntitySnapshot(42, 1100, 1000, "box", Label: "bonus_box"),
+            ],
+        };
+        var bridge = new FakeGameConnection();
+        var map = new MapManager(addresses, frida, new StarManager(), new HeroManager(addresses, frida, bridge, new StarManager(), NullLogger<HeroManager>.Instance), NullLogger<MapManager>.Instance);
+        var entitiesApi = new EntitiesApi();
+        var entityManager = new EntityManager(addresses, map, frida, bridge, entitiesApi, config);
+
+        map.Tick();
+        entityManager.Tick();
+        var first = entitiesApi.Boxes.Single();
+
+        frida.Entities =
+        [
+            new FridaEntitySnapshot(42, 1500, 1200, "box", Label: "bonus_box"),
+        ];
+        entityManager.Tick();
+        var second = entitiesApi.Boxes.Single();
+
+        Assert.Same(first, second);
+        Assert.Equal(1500, second.X);
+        Assert.Equal(1200, second.Y);
+    }
+
+    [Fact]
+    public void RebuildFromSnapshot_resolves_ore_prometid_label_to_config_entry()
+    {
+        var config = FakeConfigApi.WithCollectorDefaults();
+        var addresses = new BotAddressRegistry();
+        var frida = new FakeGameFridaProbe
+        {
+            MapId = 5,
+            MapPointer = 0x5000,
+            IsReady = true,
+            Entities =
+            [
+                new FridaEntitySnapshot(77, 12_000, 4_500, "box", Label: "ore_prometid"),
+            ],
+        };
+        var bridge = new FakeGameConnection();
+        var map = new MapManager(
+            addresses,
+            frida,
+            new StarManager(),
+            new HeroManager(addresses, frida, bridge, new StarManager(), NullLogger<HeroManager>.Instance),
+            NullLogger<MapManager>.Instance);
+        var entitiesApi = new EntitiesApi();
+        var entityManager = new EntityManager(addresses, map, frida, bridge, entitiesApi, config);
+
+        map.Tick();
+        entityManager.Tick();
+
+        var box = entitiesApi.Boxes.Single();
+        Assert.Equal("PROMETID", box.TypeName);
+        Assert.True(box.Info.ShouldCollect);
+    }
+
     private static BoxEntity CreateBox(FakeGameConnection bridge, double x, double y, bool shouldCollect = true)
     {
         var box = new BoxEntity(bridge, new TestBoxInfo { ShouldCollect = shouldCollect, Priority = 1 })
@@ -106,6 +175,19 @@ public sealed class CollectorModuleTests
         };
         box.Location.Update(x, y);
         return box;
+    }
+
+    [Fact]
+    public void OnTickModule_targets_nearest_box_beyond_hero_search_radius()
+    {
+        var bridge = new FakeGameConnection();
+        var box = CreateBox(bridge, 5000, 5000);
+        var (module, gameBridge, _) = CreateHarness(bridge, 1000, 1000, box);
+
+        module.OnTickModule();
+
+        Assert.Single(gameBridge.MoveToCalls);
+        Assert.Equal((5000, 5000), gameBridge.MoveToCalls[0]);
     }
 
     [Fact]
@@ -158,7 +240,7 @@ public sealed class CollectorModuleTests
 
         module.OnTickModule();
 
-        Assert.Empty(gameBridge.MoveToCalls);
+        Assert.Single(gameBridge.MoveToCalls);
         Assert.Empty(gameBridge.CollectBoxCalls);
     }
 

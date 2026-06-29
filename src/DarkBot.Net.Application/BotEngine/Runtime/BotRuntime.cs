@@ -9,6 +9,7 @@ public sealed class BotRuntime
 {
     private readonly BotAddressRegistry _addresses;
     private readonly IGameFridaProbe _frida;
+    private readonly MovementApi _movement;
     private readonly BotModuleRunner _modules;
 
     public BotRuntime(
@@ -18,10 +19,12 @@ public sealed class BotRuntime
         MapManager map,
         EntityManager entities,
         StatsManager stats,
+        MovementApi movement,
         BotModuleRunner modules)
     {
         _addresses = addresses;
         _frida = frida;
+        _movement = movement;
         _modules = modules;
         Hero = hero;
         Map = map;
@@ -44,6 +47,7 @@ public sealed class BotRuntime
             Hero.Tick();
             Map.Tick();
             Entities.Tick();
+            _movement.TickFromHero();
         }
 
         if (_addresses.IsInvalid)

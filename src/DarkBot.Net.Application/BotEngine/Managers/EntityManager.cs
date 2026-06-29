@@ -26,6 +26,7 @@ public sealed class EntityManager
     private MineEntity[] _mines = [];
     private PortalEntity[] _portals = [];
     private FridaEntitySnapshot[] _allSnapshots = [];
+    private readonly Dictionary<int, BoxEntity> _boxCache = new();
 
     public EntityManager(
         BotAddressRegistry addresses,
@@ -102,13 +103,25 @@ public sealed class EntityManager
                     {
                         var rawLabel = entity.Label ?? string.Empty;
                         var typeName = BoxTypeNormalizer.Normalize(rawLabel);
-                        boxes.Add(new BoxEntity(_unityBridge, ResolveBoxInfo(typeName))
+                        var boxInfo = ResolveBoxInfo(typeName);
+                        if (_boxCache.TryGetValue(entity.Id, out var cached))
                         {
-                            Id = entity.Id,
-                            Location = location,
-                            TypeName = typeName,
-                            Hash = rawLabel,
-                        });
+                            cached.Location.Update(entity.X, entity.Y);
+                            cached.RefreshFromSnapshot(typeName, rawLabel, boxInfo);
+                            boxes.Add(cached);
+                        }
+                        else
+                        {
+                            var box = new BoxEntity(_unityBridge, boxInfo)
+                            {
+                                Id = entity.Id,
+                                Location = location,
+                                TypeName = typeName,
+                                Hash = rawLabel,
+                            };
+                            _boxCache[entity.Id] = box;
+                            boxes.Add(box);
+                        }
                     }
 
                     break;
@@ -151,7 +164,19 @@ public sealed class EntityManager
         _portals = portals.ToArray();
         _allSnapshots = allSnapshots.ToArray();
 
+        PruneBoxCache(boxes);
+
         _entitiesApi.ReplaceSnapshot(_ships, _npcs, _boxes, _mines, _portals);
+    }
+
+    private void PruneBoxCache(IReadOnlyCollection<BoxEntity> activeBoxes)
+    {
+        if (_boxCache.Count == 0)
+            return;
+
+        var activeIds = activeBoxes.Select(box => box.Id).ToHashSet();
+        foreach (var id in _boxCache.Keys.Where(id => !activeIds.Contains(id)).ToArray())
+            _boxCache.Remove(id);
     }
 
     private IBoxInfo ResolveBoxInfo(string typeName)
@@ -185,6 +210,7 @@ public sealed class EntityManager
         _mines = [];
         _portals = [];
         _allSnapshots = [];
+        _boxCache.Clear();
         _entitiesApi.ClearSnapshot();
     }
 

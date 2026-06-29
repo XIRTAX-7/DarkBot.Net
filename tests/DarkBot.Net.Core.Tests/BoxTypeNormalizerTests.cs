@@ -9,6 +9,7 @@ public sealed class BoxTypeNormalizerTests
     [InlineData("bonus_box", "BONUS_BOX")]
     [InlineData("box_PROMETID", "PROMETID")]
     [InlineData("ore_endurium", "ENDURIUM")]
+    [InlineData("resource_ore_prometid", "PROMETID")]
     [InlineData("PROMETID,suffix", "PROMETID")]
     [InlineData("FROM_SHIP", "FROM_SHIP")]
     public void Normalize_maps_game_labels_to_config_keys(string raw, string expected) =>

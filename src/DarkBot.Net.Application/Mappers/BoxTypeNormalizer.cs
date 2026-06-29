@@ -25,6 +25,9 @@ public static class BoxTypeNormalizer
                 .Replace("_box", "", StringComparison.OrdinalIgnoreCase);
         }
 
+        if (type.StartsWith("resource_ore_", StringComparison.OrdinalIgnoreCase))
+            type = type[13..];
+
         if (type.StartsWith("ore_", StringComparison.OrdinalIgnoreCase))
             type = type[4..];
 

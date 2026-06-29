@@ -8,9 +8,11 @@ using Microsoft.Extensions.Logging;
 
 namespace DarkBot.Net.Application.BotEngine.Managers;
 
-/// <summary>Movement via Unity Frida bridge.</summary>
+/// <summary>Movement via Unity Frida bridge — порт Drive / MovementAPI (без pathfinder).</summary>
 public sealed class MovementApi : IMovementApi
 {
+    private const int ArrivedAtDestinationDistance = 20;
+
     private readonly BotAddressRegistry _addresses;
     private readonly IUnityGameBridge _unityBridge;
     private readonly MapManager _map;
@@ -19,6 +21,7 @@ public sealed class MovementApi : IMovementApi
     private readonly MutableLocationInfo _location = new();
     private ILocation _destination = GameLocation.Of(0, 0);
     private readonly List<ILocatable> _path = [];
+    private bool _hasActiveDestination;
 
     public MovementApi(
         BotAddressRegistry addresses,
@@ -35,7 +38,12 @@ public sealed class MovementApi : IMovementApi
     }
 
     public ILocation CurrentLocation => _location;
-    public ILocation Destination => _destination;
+
+    /// <summary>Как Java Drive.movingTo — без активного маршрута destination = позиция героя.</summary>
+    public ILocation Destination => _hasActiveDestination
+        ? _destination
+        : GameLocation.Of(_hero.X, _hero.Y);
+
     public IReadOnlyList<ILocatable> Path => _path;
     public bool IsMoving => _location.IsMoving;
     public bool IsOutOfMap =>
@@ -78,9 +86,16 @@ public sealed class MovementApi : IMovementApi
     public void Stop(bool currentLocation)
     {
         if (currentLocation)
-            _destination = GameLocation.Of(_location.X, _location.Y);
+        {
+            _destination = GameLocation.Of(_hero.X, _hero.Y);
+            _hasActiveDestination = true;
+        }
+        else
+        {
+            _hasActiveDestination = false;
+        }
 
-        _location.Update(_location.X, _location.Y, isMoving: false);
+        _location.Update(_hero.X, _hero.Y, isMoving: false);
     }
 
     public void JumpPortal(IPortal portal)
@@ -91,13 +106,31 @@ public sealed class MovementApi : IMovementApi
         MoveTo(portal.X, portal.Y);
     }
 
-    public double GetClosestDistance(double x, double y) =>
-        Math.Sqrt(Math.Pow(_location.X - x, 2) + Math.Pow(_location.Y - y, 2));
+    /// <summary>Дистанция до ближайшей валидной точки карты — как PathFinder.fixToClosest в Java.</summary>
+    public double GetClosestDistance(double x, double y)
+    {
+        if (CanMove(x, y))
+            return 0;
+
+        var (safeX, safeY) = MapCoordinateBounds.SafeClamp(x, y, _map.InternalWidth, _map.InternalHeight);
+        return Math.Sqrt(Math.Pow(x - safeX, 2) + Math.Pow(y - safeY, 2));
+    }
 
     public double GetDistanceBetween(double x, double y, double ox, double oy) =>
         Math.Sqrt(Math.Pow(x - ox, 2) + Math.Pow(y - oy, 2));
 
     public bool IsInPreferredZone(ILocatable location) => true;
+
+    internal void TickFromHero()
+    {
+        if (_hero.HeroId <= 0)
+            return;
+
+        var hero = (ILocatable)_hero;
+        var moving = _hasActiveDestination
+            && hero.DistanceTo(_destination) >= ArrivedAtDestinationDistance;
+        _location.Update(_hero.X, _hero.Y, isMoving: moving);
+    }
 
     private bool TryPrepareMove(double x, double y, out double clampedX, out double clampedY)
     {
@@ -114,6 +147,7 @@ public sealed class MovementApi : IMovementApi
 
         (clampedX, clampedY) = MapCoordinateBounds.SafeClamp(x, y, _map.InternalWidth, _map.InternalHeight);
         _destination = GameLocation.Of(clampedX, clampedY);
+        _hasActiveDestination = true;
         _location.Update(_hero.X, _hero.Y, isMoving: true);
 
         _logger.LogInformation(

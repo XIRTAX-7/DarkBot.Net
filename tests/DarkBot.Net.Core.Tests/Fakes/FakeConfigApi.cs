@@ -73,6 +73,9 @@ internal sealed class FakeConfigApi : IConfigApi
                 new Dictionary<string, BoxInfoRecord>(StringComparer.OrdinalIgnoreCase)
                 {
                     ["BONUS_BOX"] = new(true, 1, 0),
+                    ["PROMETID"] = new(true, 2, 0),
+                    ["ENDURIUM"] = new(true, 3, 0),
+                    ["TERBIUM"] = new(true, 4, 0),
                 }));
 
     private sealed class FakeConfigRoot : IConfigSetting<object>

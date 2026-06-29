@@ -85,6 +85,27 @@ public sealed class UnityFridaSession : IDisposable
         return await rpc.CallStringAsync("moveTo", [x, y], cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task<string?> SelectEntityAsync(int entityId, int mapX, int mapY, CancellationToken cancellationToken = default)
+    {
+        var rpc = RequireRpc();
+        return await rpc.CallStringAsync("selectEntity", [entityId, mapX, mapY], cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<string?> CollectToAsync(int entityId, int mapX, int mapY, CancellationToken cancellationToken = default)
+    {
+        var rpc = RequireRpc();
+        return await rpc.CallStringAsync("collectTo", [entityId, mapX, mapY], cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<string?> AttackLaserAsync(CancellationToken cancellationToken = default)
+    {
+        var rpc = RequireRpc();
+        return await rpc.CallStringAsync("attackLaser", cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     public async Task BootstrapSessionAsync(UnityWebGlSession session, CancellationToken cancellationToken = default)
     {
         // Smoke-тест ждёт 1.5 с после load() перед bootstrapSession — даём хукам стабилизироваться.
@@ -341,7 +362,11 @@ public sealed class UnityFridaSession : IDisposable
                     payload.TryGetProperty("message", out var msg) ? msg.GetString() : "unknown");
                 break;
             case "web_autologin_sent":
-                _logger.LogInformation("Unity bootstrap: WebView autologin script sent");
+                _logger.LogInformation(
+                    "Unity bootstrap: WebView autologin script sent mode={Mode} source={Source} url={Url}",
+                    payload.TryGetProperty("mode", out var autoMode) ? autoMode.GetString() : null,
+                    payload.TryGetProperty("source", out var autoSource) ? autoSource.GetString() : null,
+                    payload.TryGetProperty("url", out var autoUrl) ? autoUrl.GetString() : null);
                 break;
             case "web_autologin_scheduled":
                 _logger.LogInformation(
@@ -350,8 +375,10 @@ public sealed class UnityFridaSession : IDisposable
                 break;
             case "web_autologin_skip":
                 _logger.LogWarning(
-                    "Unity bootstrap: WebView autologin skipped ({Reason})",
-                    payload.TryGetProperty("reason", out var skipReason) ? skipReason.GetString() : "unknown");
+                    "Unity bootstrap: WebView autologin skipped ({Reason}) source={Source} url={Url}",
+                    payload.TryGetProperty("reason", out var skipReason) ? skipReason.GetString() : "unknown",
+                    payload.TryGetProperty("source", out var skipSource) ? skipSource.GetString() : null,
+                    payload.TryGetProperty("url", out var skipUrl) ? skipUrl.GetString() : null);
                 break;
             case "web_autologin_error":
                 _logger.LogWarning(

@@ -99,7 +99,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void UpdateOptionalSectionsVisibility()
     {
         var map = Snapshot.Map;
-        IsMapDashboardReady = map.MapId >= 0;
+        IsMapDashboardReady = map.MapId >= 0 || map.Hero.Valid || map.Hero.OnMap;
         HasPetSection = map.Pet is { Valid: true };
         HasTargetSection = map.Target is { Id: > 0 };
         HasGroupSection = map.Overlay.GroupMembers.Count > 0;

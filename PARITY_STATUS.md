@@ -28,7 +28,7 @@ C# **не читает память процесса** — только typed sn
 | Слой | Компонент | Статус |
 |------|-----------|--------|
 | Client | Unity DarkOrbit.exe | ✅ пользователь запускает вручную |
-| Bridge | `darkorbit-unity-bridge` schema v2 | 🟡 snapshot + moveTo; select/collect/attack — Phase 1 |
+| Bridge | `darkorbit-unity-bridge` schema v2 | 🟡 snapshot + moveTo + select/collect/attack (Ф1) |
 | Bot | C# managers from bridge probe | 🟡 ~35% Java parity |
 | UI | WPF + SkiaSharp map | ✅ shell, map click move (async) |
 | Config | `StubConfigApi` | ❌ MVP Phase 3 |
@@ -42,9 +42,9 @@ C# **не читает память процесса** — только typed sn
 |-----|-------------|--------|
 | `getStatus` / entity snapshot | entity list | ✅ |
 | `moveTo` | MovementAPI | ✅ |
-| `selectEntity` | GameAPI.selectEntity | ❌ Phase 1 |
-| `collectBox` | DIRECT_COLLECT_BOX | ❌ Phase 1 |
-| `attack` | triggerLaserAttack | ❌ Phase 1 |
+| `selectEntity` | GameAPI.selectEntity | ✅ Ф1 |
+| `collectBox` | DIRECT_COLLECT_BOX | ✅ Ф1 (`collectTo`) |
+| `attack` | triggerLaserAttack | ✅ Ф1 (`attackLaser`) |
 
 Контракт C#: `IUnityGameBridge` (ADR-002).
 

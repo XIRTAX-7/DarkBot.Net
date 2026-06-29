@@ -15,8 +15,12 @@ public class MapManagerTests
         IGameFridaProbe frida) =>
         new(addresses, frida, star, hero, NullLogger<MapManager>.Instance);
 
-    private static HeroManager CreateHero(BotAddressRegistry addresses, StarManager star, IGameFridaProbe frida) =>
-        new(addresses, frida, star, NullLogger<HeroManager>.Instance);
+    private static HeroManager CreateHero(
+        BotAddressRegistry addresses,
+        StarManager star,
+        IGameFridaProbe frida,
+        FakeGameConnection? bridge = null) =>
+        new(addresses, frida, bridge ?? new FakeGameConnection(), star, NullLogger<HeroManager>.Instance);
 
     [Fact]
     public void Tick_switches_map_when_frida_snapshot_available()

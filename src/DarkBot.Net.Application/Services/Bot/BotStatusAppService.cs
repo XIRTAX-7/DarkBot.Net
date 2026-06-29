@@ -1,4 +1,3 @@
-using DarkBot.Net.Application.BotEngine.Addresses;
 using DarkBot.Net.Core.Interfaces.Bot;
 using DarkBot.Net.Application.BotEngine.Managers;
 using DarkBot.Net.Application.Contracts;
@@ -11,22 +10,24 @@ namespace DarkBot.Net.Application.Services.Bot;
 
 /// <summary>Фасад снимка состояния бота для Presentation.</summary>
 public sealed class BotStatusAppService(
-    BotAddressRegistry addresses,
     HeroManager hero,
     MapManager map,
     EntityManager entities,
+    StatsManager stats,
     IGameFridaProbe frida,
-    IStatsApi stats,
     IBotController bot,
     IMovementApi movement) : IBotStatusAppService
 {
     public BotStatusSnapshot Capture()
     {
-        if (!addresses.IsInvalid)
+        frida.Refresh();
+
+        if (frida.IsReady)
         {
-            frida.Refresh();
             hero.Tick();
             map.Tick();
+            entities.Tick();
+            stats.Tick(bot.IsRunning);
         }
 
         return BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement);

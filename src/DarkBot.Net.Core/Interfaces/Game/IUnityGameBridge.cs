@@ -13,7 +13,7 @@ public interface IUnityGameBridge
     Task<bool> SelectEntityAsync(int entityId, int mapX, int mapY, CancellationToken cancellationToken = default);
 
     /// <summary>Сбор box (Phase 1).</summary>
-    Task<bool> CollectBoxAsync(CancellationToken cancellationToken = default);
+    Task<bool> CollectBoxAsync(int entityId, int mapX, int mapY, CancellationToken cancellationToken = default);
 
     /// <summary>Атака laser (Phase 1).</summary>
     Task<bool> AttackAsync(CancellationToken cancellationToken = default);

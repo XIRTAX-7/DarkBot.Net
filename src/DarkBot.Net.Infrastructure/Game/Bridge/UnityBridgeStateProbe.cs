@@ -153,10 +153,23 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
             return false;
 
         var status = _bridge.CurrentStatus;
-        if (status?.Ready != true || status.HeroId <= 0)
+        if (status?.Ready != true)
             return false;
 
-        heroId = status.HeroId;
+        var hasHero = status.HeroId > 0
+            || !string.IsNullOrWhiteSpace(status.HeroPlayerName)
+            || status.HeroConfigId is 1 or 2
+            || status.HeroMaxHp > 0
+            || status.HeroHp > 0
+            || status.HeroMaxShield > 0
+            || status.HeroShield > 0
+            || status.HeroX != 0
+            || status.HeroY != 0;
+
+        if (!hasHero)
+            return false;
+
+        heroId = status.HeroId > 0 ? status.HeroId : 1;
         x = status.HeroX;
         y = status.HeroY;
         hp = status.HeroHp;

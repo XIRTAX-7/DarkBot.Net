@@ -41,7 +41,7 @@ public sealed class MapManager
 
     public void Tick()
     {
-        if (!_addresses.HasScreenManager || !_frida.IsReady)
+        if (!_frida.IsReady)
             return;
 
         TickCount++;

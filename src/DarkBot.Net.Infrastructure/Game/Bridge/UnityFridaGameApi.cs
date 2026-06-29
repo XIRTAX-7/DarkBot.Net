@@ -207,7 +207,9 @@ public sealed class UnityFridaGameApi :
 
         if (collectableAddress != 0)
         {
-            _logger.LogWarning("Unity collect move not implemented until Phase 1 (collectable=0x{Collectable:X})", collectableAddress);
+            _logger.LogWarning(
+                "Unity legacy MoveShip collect ignored — use CollectBoxAsync(entityId,x,y) (collectable=0x{Collectable:X})",
+                collectableAddress);
             return;
         }
 
@@ -235,22 +237,78 @@ public sealed class UnityFridaGameApi :
         }
     }
 
-    public Task<bool> SelectEntityAsync(int entityId, int mapX, int mapY, CancellationToken cancellationToken = default)
+    public async Task<bool> SelectEntityAsync(int entityId, int mapX, int mapY, CancellationToken cancellationToken = default)
     {
-        _logger.LogWarning("Unity SelectEntityAsync not implemented until Phase 1 (id={EntityId})", entityId);
-        return Task.FromResult(false);
+        _logger.LogInformation("Unity SelectEntityAsync id={EntityId} map=({MapX},{MapY})", entityId, mapX, mapY);
+
+        if (!IsBridgeLive)
+        {
+            _logger.LogWarning("Unity select blocked — bridge offline");
+            return false;
+        }
+
+        try
+        {
+            var resultJson = await _session.SelectEntityAsync(entityId, mapX, mapY, cancellationToken)
+                .ConfigureAwait(false);
+            var ok = UnityBridgeActionResultParser.TryParseOk(resultJson);
+            _logger.LogInformation("Unity selectEntity RPC response: {Response} ok={Ok}", resultJson, ok);
+            return ok;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Unity selectEntity RPC failed");
+            return false;
+        }
     }
 
-    public Task<bool> CollectBoxAsync(CancellationToken cancellationToken = default)
+    public async Task<bool> CollectBoxAsync(int entityId, int mapX, int mapY, CancellationToken cancellationToken = default)
     {
-        _logger.LogWarning("Unity CollectBoxAsync not implemented until Phase 1");
-        return Task.FromResult(false);
+        _logger.LogInformation("Unity CollectBoxAsync id={EntityId} map=({MapX},{MapY})", entityId, mapX, mapY);
+
+        if (!IsBridgeLive)
+        {
+            _logger.LogWarning("Unity collect blocked — bridge offline");
+            return false;
+        }
+
+        try
+        {
+            var resultJson = await _session.CollectToAsync(entityId, mapX, mapY, cancellationToken)
+                .ConfigureAwait(false);
+            var ok = UnityBridgeActionResultParser.TryParseOk(resultJson);
+            _logger.LogInformation("Unity collectTo RPC response: {Response} ok={Ok}", resultJson, ok);
+            return ok;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Unity collectTo RPC failed");
+            return false;
+        }
     }
 
-    public Task<bool> AttackAsync(CancellationToken cancellationToken = default)
+    public async Task<bool> AttackAsync(CancellationToken cancellationToken = default)
     {
-        _logger.LogWarning("Unity AttackAsync not implemented until Phase 1");
-        return Task.FromResult(false);
+        _logger.LogInformation("Unity AttackAsync (attackLaser)");
+
+        if (!IsBridgeLive)
+        {
+            _logger.LogWarning("Unity attack blocked — bridge offline");
+            return false;
+        }
+
+        try
+        {
+            var resultJson = await _session.AttackLaserAsync(cancellationToken).ConfigureAwait(false);
+            var ok = UnityBridgeActionResultParser.TryParseOk(resultJson);
+            _logger.LogInformation("Unity attackLaser RPC response: {Response} ok={Ok}", resultJson, ok);
+            return ok;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Unity attackLaser RPC failed");
+            return false;
+        }
     }
 
     public Task<bool> UseItemAsync(string itemId, CancellationToken cancellationToken = default)

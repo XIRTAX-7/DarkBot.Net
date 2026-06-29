@@ -27,7 +27,7 @@ public sealed class GameApiOptions
     public string UnityBridgeAgentPath { get; set; } = string.Empty;
 
     /// <summary>Каталог установки Unity IL2CPP x86-клиента (GameAssembly.dll).</summary>
-    public string UnityGameInstallPath { get; set; } = @"C:\DarkOrbit_Version1.1.102";
+    public string UnityGameInstallPath { get; set; } = @"C:\DarkOrbit_Version1.1.103";
 
     /// <summary>Имя exe в каталоге установки.</summary>
     public string UnityGameExecutableName { get; set; } = "DarkOrbit.exe";

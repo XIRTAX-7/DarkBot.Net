@@ -2,7 +2,7 @@ using DarkBot.Net.Core.Options;
 
 namespace DarkBot.Net.Infrastructure.Game.Client;
 
-/// <summary>Пути к Unity-клиенту DarkOrbit (C:\DarkOrbit_Version1.1.102).</summary>
+/// <summary>Пути к Unity-клиенту DarkOrbit (C:\DarkOrbit_Version1.1.103).</summary>
 public static class UnityGamePaths
 {
     public const string DefaultExecutableName = "DarkOrbit.exe";
@@ -10,7 +10,7 @@ public static class UnityGamePaths
     public static string ResolveInstallDirectory(GameApiOptions options)
     {
         var configured = string.IsNullOrWhiteSpace(options.UnityGameInstallPath)
-            ? @"C:\DarkOrbit_Version1.1.102"
+            ? @"C:\DarkOrbit_Version1.1.103"
             : options.UnityGameInstallPath.Trim();
 
         var full = Path.GetFullPath(configured);

@@ -1,8 +1,9 @@
+using DarkBot.Net.Core.Entities;
 using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Game.Entities;
-using DarkBot.Net.Core.Entities;
-using EntityInfoStub = DarkBot.Net.Core.Entities.EntityInfoStub;
+using DarkBot.Net.Core.Interfaces.Game;
 using DarkBot.Net.Application.BotEngine.Addresses;
+using EntityInfoStub = DarkBot.Net.Core.Entities.EntityInfoStub;
 
 namespace DarkBot.Net.Application.BotEngine.Managers;
 
@@ -12,23 +13,27 @@ public sealed class EntityManager
     private readonly BotAddressRegistry _addresses;
     private readonly MapManager _map;
     private readonly IGameFridaProbe _frida;
+    private readonly IUnityGameBridge _unityBridge;
     private readonly EntitiesApi _entitiesApi;
 
     private readonly List<ShipStub> _ships = [];
-    private readonly List<ShipStub> _npcs = [];
-    private readonly List<ShipStub> _boxes = [];
-    private readonly List<ShipStub> _portals = [];
+    private readonly List<NpcEntity> _npcs = [];
+    private readonly List<BoxEntity> _boxes = [];
+    private readonly List<MineEntity> _mines = [];
+    private readonly List<PortalEntity> _portals = [];
     private readonly List<FridaEntitySnapshot> _allSnapshots = [];
 
     public EntityManager(
         BotAddressRegistry addresses,
         MapManager map,
         IGameFridaProbe frida,
+        IUnityGameBridge unityBridge,
         EntitiesApi entitiesApi)
     {
         _addresses = addresses;
         _map = map;
         _frida = frida;
+        _unityBridge = unityBridge;
         _entitiesApi = entitiesApi;
         _addresses.Invalidated += OnInvalidated;
     }
@@ -37,11 +42,11 @@ public sealed class EntityManager
 
     public long EntitiesArrayAddress => 0;
 
-    public IReadOnlyList<ShipStub> Npcs => _npcs;
+    public IReadOnlyList<NpcEntity> Npcs => _npcs;
 
-    public IReadOnlyList<ShipStub> Boxes => _boxes;
+    public IReadOnlyList<BoxEntity> Boxes => _boxes;
 
-    public IReadOnlyList<ShipStub> Portals => _portals;
+    public IReadOnlyList<PortalEntity> Portals => _portals;
 
     public IReadOnlyList<ShipStub> Ships => _ships;
 
@@ -49,13 +54,12 @@ public sealed class EntityManager
 
     public void Tick()
     {
-        if (_addresses.IsInvalid || _map.MapAddress == 0 || !_frida.IsReady)
+        if (!_frida.IsReady || _map.MapId < 0)
         {
             Clear();
             return;
         }
 
-        _frida.Refresh();
         RebuildFromSnapshot(_frida.Entities);
     }
 
@@ -64,9 +68,9 @@ public sealed class EntityManager
         _ships.Clear();
         _npcs.Clear();
         _boxes.Clear();
+        _mines.Clear();
         _portals.Clear();
         _allSnapshots.Clear();
-        _entitiesApi.ClearShips();
 
         foreach (var entity in entities)
         {
@@ -78,30 +82,43 @@ public sealed class EntityManager
             var location = new MutableLocationInfo();
             location.Update(entity.X, entity.Y);
 
-            var stub = new ShipStub
-            {
-                Id = entity.Id,
-                EntityInfoData = new EntityInfoStub(),
-                Location = location
-            };
-
             switch (entity.Kind)
             {
                 case "npc":
-                    _npcs.Add(stub);
+                    _npcs.Add(new NpcEntity(_unityBridge)
+                    {
+                        Id = entity.Id,
+                        Location = location,
+                        Label = entity.Label,
+                    });
                     break;
                 case "box":
-                    _boxes.Add(stub);
+                    _boxes.Add(new BoxEntity(_unityBridge)
+                    {
+                        Id = entity.Id,
+                        Location = location,
+                        TypeName = entity.Label ?? string.Empty,
+                        Hash = entity.Label ?? string.Empty,
+                    });
                     break;
                 case "portal":
-                    _portals.Add(stub);
+                    _portals.Add(new PortalEntity
+                    {
+                        Id = entity.Id,
+                        Location = location,
+                    });
+                    break;
+                case "mine":
+                    _mines.Add(new MineEntity
+                    {
+                        Id = entity.Id,
+                        Location = location,
+                    });
                     break;
                 case "player":
                 case "ship":
-                    _ships.Add(stub);
-                    _entitiesApi.AddShip(stub);
+                    _ships.Add(CreateShipStub(entity.Id, location));
                     break;
-                case "mine":
                 case "pet":
                 case "relay":
                 case "space_ball":
@@ -110,23 +127,32 @@ public sealed class EntityManager
                 case "battle_station":
                 case "station_turret":
                 case "base_spot":
-                    _ships.Add(stub);
-                    break;
                 default:
-                    _ships.Add(stub);
+                    _ships.Add(CreateShipStub(entity.Id, location));
                     break;
             }
         }
+
+        _entitiesApi.ReplaceSnapshot(_ships, _npcs, _boxes, _mines, _portals);
     }
+
+    private static ShipStub CreateShipStub(int id, MutableLocationInfo location) =>
+        new()
+        {
+            Id = id,
+            EntityInfoData = new EntityInfoStub(),
+            Location = location,
+        };
 
     private void Clear()
     {
         _ships.Clear();
         _npcs.Clear();
         _boxes.Clear();
+        _mines.Clear();
         _portals.Clear();
         _allSnapshots.Clear();
-        _entitiesApi.ClearShips();
+        _entitiesApi.ClearSnapshot();
     }
 
     private void OnInvalidated() => Clear();

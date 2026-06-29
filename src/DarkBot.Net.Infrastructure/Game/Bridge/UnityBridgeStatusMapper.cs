@@ -18,6 +18,9 @@ public sealed class UnityBridgeAgentStatus
     [JsonPropertyName("bootstrapHooksReady")]
     public bool BootstrapHooksReady { get; init; }
 
+    [JsonPropertyName("commandHooksReady")]
+    public bool CommandHooksReady { get; init; }
+
     [JsonPropertyName("clientUpdateStarted")]
     public bool ClientUpdateStarted { get; init; }
 
@@ -299,8 +302,8 @@ public static class UnityBridgeStatusMapper
             HeroId = heroId,
             HeroX = hero?.X ?? 0,
             HeroY = heroY,
-            HeroHp = status.HeroHp > 0 ? status.HeroHp : heroOnMap ? 1 : 0,
-            HeroMaxHp = status.HeroMaxHp > 0 ? status.HeroMaxHp : heroOnMap ? 1 : 0,
+            HeroHp = status.HeroHp,
+            HeroMaxHp = status.HeroMaxHp,
             HeroShield = status.HeroShield,
             HeroMaxShield = status.HeroMaxShield,
             HeroNano = status.HeroNano,

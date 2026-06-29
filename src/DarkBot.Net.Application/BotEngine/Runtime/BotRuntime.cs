@@ -36,15 +36,19 @@ public sealed class BotRuntime
 
     public void Tick(bool isRunning)
     {
+        _frida.Refresh();
+
+        if (_frida.IsReady)
+        {
+            Stats.Tick(isRunning);
+            Hero.Tick();
+            Map.Tick();
+            Entities.Tick();
+        }
+
         if (_addresses.IsInvalid)
             return;
 
-        _frida.Refresh();
-
-        Stats.Tick(isRunning);
-        Hero.Tick();
-        Map.Tick();
-        Entities.Tick();
         _modules.Tick(isRunning, Hero.IsValid);
     }
 }

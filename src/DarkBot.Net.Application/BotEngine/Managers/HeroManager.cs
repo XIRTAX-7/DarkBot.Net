@@ -4,6 +4,7 @@ using DarkBot.Net.Core.Game;
 using DarkBot.Net.Core.Game.Entities;
 using DarkBot.Net.Core.Game.Enums;
 using DarkBot.Net.Core.Game.Items;
+using DarkBot.Net.Core.Interfaces.Game;
 using DarkBot.Net.Core.Managers;
 using DarkBot.Net.Application.BotEngine.Addresses;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,7 @@ public sealed class HeroManager : IHeroApi
 {
     private readonly BotAddressRegistry _addresses;
     private readonly IGameFridaProbe _frida;
+    private readonly IUnityGameBridge _unityBridge;
     private readonly StarManager _starManager;
     private readonly ILogger<HeroManager> _logger;
     private readonly TrackedHealth _health = new();
@@ -34,11 +36,13 @@ public sealed class HeroManager : IHeroApi
     public HeroManager(
         BotAddressRegistry addresses,
         IGameFridaProbe frida,
+        IUnityGameBridge unityBridge,
         StarManager starManager,
         ILogger<HeroManager> logger)
     {
         _addresses = addresses;
         _frida = frida;
+        _unityBridge = unityBridge;
         _starManager = starManager;
         _logger = logger;
         _map = starManager.ById(-1);
@@ -51,7 +55,7 @@ public sealed class HeroManager : IHeroApi
 
     public void Tick()
     {
-        if (!_addresses.HasScreenManager || !_frida.IsReady)
+        if (!_frida.IsReady)
             return;
 
         if (!_frida.TryGetHeroSnapshot(
@@ -108,8 +112,19 @@ public sealed class HeroManager : IHeroApi
 
     public bool SetAttackMode(INpc? target)
     {
-        _logger.LogDebug("SetAttackMode not implemented until bridge Phase 1 (target={TargetId})", target?.Id);
-        return false;
+        if (target is null)
+            return false;
+
+        if (!_addresses.HasScreenManager)
+        {
+            _logger.LogDebug("SetAttackMode skipped — bridge not ready");
+            return false;
+        }
+
+        return _unityBridge
+            .SelectEntityAsync(target.Id, (int)target.X, (int)target.Y)
+            .GetAwaiter()
+            .GetResult();
     }
 
     public bool SetRoamMode()
@@ -126,8 +141,13 @@ public sealed class HeroManager : IHeroApi
 
     public bool TriggerLaserAttack()
     {
-        _logger.LogDebug("TriggerLaserAttack not implemented until bridge Phase 1");
-        return false;
+        if (!_addresses.HasScreenManager)
+        {
+            _logger.LogDebug("TriggerLaserAttack skipped — bridge not ready");
+            return false;
+        }
+
+        return _unityBridge.AttackAsync().GetAwaiter().GetResult();
     }
 
     public bool LaunchRocket()
@@ -167,12 +187,7 @@ public sealed class HeroManager : IHeroApi
     public int Id => HeroId;
     public bool IsValid => HeroId > 0 && (_health.MaxHp > 0 || HasMapPosition);
     public bool IsSelectable => false;
-    public bool TrySelect(bool tryAttack)
-    {
-        _logger.LogDebug("TrySelect not implemented until bridge Phase 1 (tryAttack={TryAttack})", tryAttack);
-        return false;
-    }
-    public ILocationInfo LocationInfo => _locationInfo;
+    public bool TrySelect(bool tryAttack) => false;    public ILocationInfo LocationInfo => _locationInfo;
     public IReadOnlyCollection<int> Effects => Array.Empty<int>();
 
     public void SetMetadata(string key, object? value) => _metadata[key] = value;

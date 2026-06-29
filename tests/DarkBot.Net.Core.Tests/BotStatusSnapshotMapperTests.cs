@@ -100,7 +100,7 @@ public sealed class BotStatusSnapshotMapperTests
     }
 
     [Fact]
-    public void Create_PhantomTarget_FocusOnly_DoesNotAddNpcToMap()
+    public void Create_OffMapTarget_StillShowsTargetSectionWithoutNpcOnMap()
     {
         var (hero, map, entities, frida, stats, movement) = CreateStack(f =>
         {
@@ -126,6 +126,38 @@ public sealed class BotStatusSnapshotMapperTests
         Assert.NotNull(snapshot.Map.Target);
         Assert.Equal(999, snapshot.Map.Target!.Id);
         Assert.Empty(snapshot.Map.Entities.Npcs);
+    }
+
+    [Fact]
+    public void Create_MapTarget_WhenOnlyShieldKnown()
+    {
+        var (hero, map, entities, frida, stats, movement) = CreateStack(f =>
+        {
+            f.SelectedTarget = new FridaSelectedTargetSnapshot(
+                999,
+                Hp: 0,
+                MaxHp: 0,
+                Shield: 400,
+                MaxShield: 0,
+                Name: "71",
+                IsEnemy: true,
+                X: 1200,
+                Y: 1300,
+                IsOnMap: true);
+            f.Entities =
+            [
+                new FridaEntitySnapshot(999, 1200, 1300, "npc", false, "Streuner", true, false, null),
+            ];
+            f.EntityCount = 1;
+        });
+        entities.Tick();
+        var bot = new StubBotController();
+
+        var snapshot = BotStatusSnapshotMapper.Create(hero, map, entities, frida, stats, bot, movement);
+
+        Assert.NotNull(snapshot.Map.Target);
+        Assert.Equal(400, snapshot.Map.Target!.Shield);
+        Assert.Equal(0, snapshot.Map.Target.MaxShield);
     }
 
     private sealed class StubBotController : IBotController

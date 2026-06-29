@@ -16,12 +16,12 @@ public sealed class EntityManager
     private readonly IUnityGameBridge _unityBridge;
     private readonly EntitiesApi _entitiesApi;
 
-    private readonly List<ShipStub> _ships = [];
-    private readonly List<NpcEntity> _npcs = [];
-    private readonly List<BoxEntity> _boxes = [];
-    private readonly List<MineEntity> _mines = [];
-    private readonly List<PortalEntity> _portals = [];
-    private readonly List<FridaEntitySnapshot> _allSnapshots = [];
+    private ShipStub[] _ships = [];
+    private NpcEntity[] _npcs = [];
+    private BoxEntity[] _boxes = [];
+    private MineEntity[] _mines = [];
+    private PortalEntity[] _portals = [];
+    private FridaEntitySnapshot[] _allSnapshots = [];
 
     public EntityManager(
         BotAddressRegistry addresses,
@@ -65,19 +65,19 @@ public sealed class EntityManager
 
     private void RebuildFromSnapshot(IReadOnlyList<FridaEntitySnapshot> entities)
     {
-        _ships.Clear();
-        _npcs.Clear();
-        _boxes.Clear();
-        _mines.Clear();
-        _portals.Clear();
-        _allSnapshots.Clear();
+        var ships = new List<ShipStub>();
+        var npcs = new List<NpcEntity>();
+        var boxes = new List<BoxEntity>();
+        var mines = new List<MineEntity>();
+        var portals = new List<PortalEntity>();
+        var allSnapshots = new List<FridaEntitySnapshot>();
 
         foreach (var entity in entities)
         {
             if (entity.Id <= 0 || !MapLoadValidator.IsSaneCoordinate(entity.X, entity.Y))
                 continue;
 
-            _allSnapshots.Add(entity);
+            allSnapshots.Add(entity);
 
             var location = new MutableLocationInfo();
             location.Update(entity.X, entity.Y);
@@ -85,7 +85,7 @@ public sealed class EntityManager
             switch (entity.Kind)
             {
                 case "npc":
-                    _npcs.Add(new NpcEntity(_unityBridge)
+                    npcs.Add(new NpcEntity(_unityBridge)
                     {
                         Id = entity.Id,
                         Location = location,
@@ -93,7 +93,7 @@ public sealed class EntityManager
                     });
                     break;
                 case "box":
-                    _boxes.Add(new BoxEntity(_unityBridge)
+                    boxes.Add(new BoxEntity(_unityBridge)
                     {
                         Id = entity.Id,
                         Location = location,
@@ -102,14 +102,14 @@ public sealed class EntityManager
                     });
                     break;
                 case "portal":
-                    _portals.Add(new PortalEntity
+                    portals.Add(new PortalEntity
                     {
                         Id = entity.Id,
                         Location = location,
                     });
                     break;
                 case "mine":
-                    _mines.Add(new MineEntity
+                    mines.Add(new MineEntity
                     {
                         Id = entity.Id,
                         Location = location,
@@ -117,7 +117,7 @@ public sealed class EntityManager
                     break;
                 case "player":
                 case "ship":
-                    _ships.Add(CreateShipStub(entity.Id, location));
+                    ships.Add(CreateShipStub(entity.Id, location));
                     break;
                 case "pet":
                 case "relay":
@@ -128,10 +128,17 @@ public sealed class EntityManager
                 case "station_turret":
                 case "base_spot":
                 default:
-                    _ships.Add(CreateShipStub(entity.Id, location));
+                    ships.Add(CreateShipStub(entity.Id, location));
                     break;
             }
         }
+
+        _ships = ships.ToArray();
+        _npcs = npcs.ToArray();
+        _boxes = boxes.ToArray();
+        _mines = mines.ToArray();
+        _portals = portals.ToArray();
+        _allSnapshots = allSnapshots.ToArray();
 
         _entitiesApi.ReplaceSnapshot(_ships, _npcs, _boxes, _mines, _portals);
     }
@@ -146,12 +153,12 @@ public sealed class EntityManager
 
     private void Clear()
     {
-        _ships.Clear();
-        _npcs.Clear();
-        _boxes.Clear();
-        _mines.Clear();
-        _portals.Clear();
-        _allSnapshots.Clear();
+        _ships = [];
+        _npcs = [];
+        _boxes = [];
+        _mines = [];
+        _portals = [];
+        _allSnapshots = [];
         _entitiesApi.ClearSnapshot();
     }
 

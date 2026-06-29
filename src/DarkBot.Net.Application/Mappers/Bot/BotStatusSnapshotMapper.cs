@@ -112,7 +112,7 @@ internal static class BotStatusSnapshotMapper
     private static MapTargetSnapshot? CreateMapTarget(IGameFridaProbe frida, EntityManager entities)
     {
         var selected = frida.SelectedTarget;
-        if (selected is null || selected.UserId <= 0 || selected.MaxHp <= 0)
+        if (selected is null || selected.UserId <= 0 || !HasTargetHealthData(selected))
             return null;
 
         return new MapTargetSnapshot(
@@ -127,6 +127,12 @@ internal static class BotStatusSnapshotMapper
             selected.IsEnemy,
             Destination: null);
     }
+
+    private static bool HasTargetHealthData(FridaSelectedTargetSnapshot selected) =>
+        selected.MaxHp > 0
+        || selected.Hp > 0
+        || selected.MaxShield > 0
+        || selected.Shield > 0;
 
     private static string? FormatHeroName(HeroManager hero, IGameFridaProbe frida)
     {

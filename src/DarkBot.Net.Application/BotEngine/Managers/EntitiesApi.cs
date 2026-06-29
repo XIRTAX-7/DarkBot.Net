@@ -5,12 +5,12 @@ namespace DarkBot.Net.Application.BotEngine.Managers;
 
 public sealed class EntitiesApi : IEntitiesApi
 {
-    private readonly List<IShip> _ships = [];
-    private readonly List<INpc> _npcs = [];
-    private readonly List<IBox> _boxes = [];
-    private readonly List<IMine> _mines = [];
-    private readonly List<IPortal> _portals = [];
-    private readonly List<IEntity> _all = [];
+    private IShip[] _ships = [];
+    private INpc[] _npcs = [];
+    private IBox[] _boxes = [];
+    private IMine[] _mines = [];
+    private IPortal[] _portals = [];
+    private IEntity[] _all = [];
 
     public IReadOnlyCollection<INpc> Npcs => _npcs;
     public IReadOnlyCollection<IPet> Pets => [];
@@ -28,27 +28,25 @@ public sealed class EntitiesApi : IEntitiesApi
         IEnumerable<IMine> mines,
         IEnumerable<IPortal> portals)
     {
-        _ships.Clear();
-        _ships.AddRange(ships);
+        var nextShips = ships.ToArray();
+        var nextNpcs = npcs.ToArray();
+        var nextBoxes = boxes.ToArray();
+        var nextMines = mines.ToArray();
+        var nextPortals = portals.ToArray();
 
-        _npcs.Clear();
-        _npcs.AddRange(npcs);
-
-        _boxes.Clear();
-        _boxes.AddRange(boxes);
-
-        _mines.Clear();
-        _mines.AddRange(mines);
-
-        _portals.Clear();
-        _portals.AddRange(portals);
-
-        _all.Clear();
-        _all.AddRange(_ships.Cast<IEntity>());
-        _all.AddRange(_npcs);
-        _all.AddRange(_boxes);
-        _all.AddRange(_mines);
-        _all.AddRange(_portals);
+        _ships = nextShips;
+        _npcs = nextNpcs;
+        _boxes = nextBoxes;
+        _mines = nextMines;
+        _portals = nextPortals;
+        _all =
+        [
+            ..nextShips.Cast<IEntity>(),
+            ..nextNpcs,
+            ..nextBoxes,
+            ..nextMines,
+            ..nextPortals,
+        ];
     }
 
     public void ClearSnapshot() => ReplaceSnapshot([], [], [], [], []);

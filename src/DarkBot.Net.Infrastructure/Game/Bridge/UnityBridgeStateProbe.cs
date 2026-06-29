@@ -123,7 +123,7 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
         FridaBridgeStatus status,
         IReadOnlyList<FridaEntitySnapshot> entities)
     {
-        if (status.TargetUserId <= 0 || status.TargetMaxHp <= 0)
+        if (status.TargetUserId <= 0 || !HasTargetHealthData(status))
             return null;
 
         if (status.HeroId > 0 && status.TargetUserId == status.HeroId)
@@ -147,6 +147,12 @@ public sealed class UnityBridgeStateProbe : IGameFridaProbe
             entity?.Y ?? 0,
             isOnMap);
     }
+
+    private static bool HasTargetHealthData(FridaBridgeStatus status) =>
+        status.TargetMaxHp > 0
+        || status.TargetHp > 0
+        || status.TargetMaxShield > 0
+        || status.TargetShield > 0;
 
     public bool TryGetMapSnapshot(out int mapId, out int width, out int height)
     {
